@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 660" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <rect width="1160" height="660" fill="#0B0C10"/>
+  <text x="64" y="76" fill="#F2F3F7" font-size="22" letter-spacing="5">A FIELD GUIDE TO CHEATING BY ACCIDENT</text>
+  <text x="64" y="104" fill="#8A8FA3" font-size="14">six species. every backtest failure you have ever seen is one of these, wearing a disguise.</text>
+
+  <!-- LK-01 -->
+  <g transform="translate(64,140)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-01</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">time travel</text>
+    <path d="M250,52 L296,52 M250,60 L296,60 M296,44 L296,60" stroke="#D0C4DF" stroke-width="1.5" fill="none"/>
+    <path d="M270,60 C262,50 278,44 272,34" stroke="#E5484D" stroke-width="1.5" fill="none" marker-end="none"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Time Traveler</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">look-ahead bias. your signal uses a</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">number the future hadn't produced.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: the guard, or shift(-1) lint</text>
+  </g>
+
+  <!-- LK-02 -->
+  <g transform="translate(418,164)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-02</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">the dead</text>
+    <g fill="none" stroke="#D0C4DF" stroke-width="1.5">
+      <circle cx="272" cy="48" r="11"/>
+    </g>
+    <line x1="264" y1="40" x2="280" y2="56" stroke="#E5484D" stroke-width="1.5"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Ghost List</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">survivorship bias. you backtest only</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">what still exists. the dead don't vote,</text>
+    <text x="18" y="148" fill="#8A8FA3" font-size="12">but they happened.</text>
+    <text x="18" y="178" fill="#D0C4DF" font-size="12">caught by: Universe.survivorship_report</text>
+  </g>
+
+  <!-- LK-03 -->
+  <g transform="translate(772,140)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-03</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">the revision</text>
+    <path d="M246,44 L298,44 L288,34 M298,44 L288,54" stroke="#E6B455" stroke-width="1.5" fill="none"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Moving Number</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">the fundamental you used was quietly</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">restated. whose number did you trade?</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: revisioned ledgers + demo</text>
+  </g>
+
+  <!-- LK-04 -->
+  <g transform="translate(64,412)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-04</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">selection</text>
+    <g fill="#D0C4DF" font-size="11">
+      <text x="250" y="50">N</text>
+    </g>
+    <g stroke="#8A8FA3" stroke-width="1.2" fill="none">
+      <path d="M252,44 A14,14 0 1 1 266,58"/>
+    </g>
+    <path d="M262,40 L268,46 L258,48 Z" fill="#E5484D"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Lucky Monkey</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">overfitting. try forty strategies, keep</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">the best. the best one is mostly luck.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: deflated Sharpe · PBO</text>
+  </g>
+
+  <!-- LK-05 -->
+  <g transform="translate(418,436)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-05</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">the free lunch</text>
+    <path d="M250,52 L296,52 M258,52 L258,40 L288,40 L288,52" stroke="#D0C4DF" stroke-width="1.5" fill="none"/>
+    <text x="264" y="36" fill="#E5484D" font-size="9">free?</text>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Free Lunch</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">cost fantasy. flat 0.1% slippage.</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">reality charges by size, spread, and mood.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">priced by: costs/ · σ√(Q/ADV)</text>
+  </g>
+
+  <!-- LK-06 -->
+  <g transform="translate(772,412)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-06</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">drift</text>
+    <path d="M250,38 L298,38 M256,38 L256,56 M292,38 L292,50" stroke="#D0C4DF" stroke-width="1.5" fill="none"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Shrinking Pond</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">universe drift. a universe that only</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">shrinks is a universe that only wins.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: point-in-time membership</text>
+  </g>
+
+  <text x="1096" y="640" fill="#4A4E63" font-size="11" text-anchor="end">all six are caught or priced somewhere in this repo.</text>
+</svg>

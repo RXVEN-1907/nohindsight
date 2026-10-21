@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nohindsight"
+version = "0.1.0"
+description = "A quant toolkit that answers one question: is your strategy real, or did you cheat by accident?"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "RXVEN-1907" }]
+keywords = [
+    "quant",
+    "quantitative-finance",
+    "backtesting",
+    "lookahead-bias",
+    "survivorship-bias",
+    "point-in-time",
+    "deflated-sharpe",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+nohindsight = "nohindsight.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["nohindsight*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

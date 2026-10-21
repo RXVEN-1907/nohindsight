@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 520" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <defs>
+    <marker id="g-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D0C4DF"/>
+    </marker>
+  </defs>
+
+  <rect width="1160" height="520" fill="#0B0C10"/>
+  <text x="64" y="76" fill="#F2F3F7" font-size="22" letter-spacing="5">THE GAUNTLET YOUR SHARPE MUST SURVIVE</text>
+  <text x="64" y="104" fill="#8A8FA3" font-size="14">the naive Sharpe is where the lying starts. forensics/ is where it stops.</text>
+
+  <!-- station 1 -->
+  <rect x="64" y="220" width="150" height="72" rx="10" fill="#12141C" stroke="#705EB1" stroke-width="2"/>
+  <text x="139" y="250" fill="#D0C4DF" font-size="14" text-anchor="middle">your returns</text>
+  <text x="139" y="272" fill="#8A8FA3" font-size="11" text-anchor="middle">per period</text>
+
+  <!-- station 2 -->
+  <rect x="258" y="204" width="200" height="104" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="358" y="234" fill="#F2F3F7" font-size="14" text-anchor="middle">how many trials?</text>
+  <text x="358" y="258" fill="#8A8FA3" font-size="11" text-anchor="middle">the best of N luckies is</text>
+  <text x="358" y="276" fill="#8A8FA3" font-size="11" text-anchor="middle">large by construction</text>
+  <text x="358" y="296" fill="#D0C4DF" font-size="11" text-anchor="middle">SR₀ = √V[SR] · ((1−γ)Z + γZ')</text>
+
+  <!-- station 3 -->
+  <rect x="502" y="204" width="200" height="104" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="602" y="234" fill="#F2F3F7" font-size="14" text-anchor="middle">deflate it</text>
+  <text x="602" y="258" fill="#8A8FA3" font-size="11" text-anchor="middle">PSR against the luck</text>
+  <text x="602" y="276" fill="#8A8FA3" font-size="11" text-anchor="middle">benchmark, skew and</text>
+  <text x="602" y="294" fill="#8A8FA3" font-size="11" text-anchor="middle">kurtosis included</text>
+
+  <!-- station 4 -->
+  <rect x="746" y="204" width="180" height="104" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="836" y="234" fill="#F2F3F7" font-size="14" text-anchor="middle">cross-validate</text>
+  <text x="836" y="258" fill="#8A8FA3" font-size="11" text-anchor="middle">PBO: does the in-sample</text>
+  <text x="836" y="276" fill="#8A8FA3" font-size="11" text-anchor="middle">winner survive out-of-</text>
+  <text x="836" y="294" fill="#8A8FA3" font-size="11" text-anchor="middle">sample?</text>
+
+  <!-- verdicts -->
+  <rect x="976" y="150" width="152" height="52" rx="10" fill="#12141C" stroke="#D0C4DF" stroke-width="2"/>
+  <text x="1052" y="172" fill="#D0C4DF" font-size="14" text-anchor="middle">REAL</text>
+  <text x="1052" y="192" fill="#8A8FA3" font-size="10" text-anchor="middle">DSR ≥ .95 · p &lt; .05</text>
+  <rect x="976" y="238" width="152" height="52" rx="10" fill="#12141C" stroke="#E6B455" stroke-width="2"/>
+  <text x="1052" y="260" fill="#E6B455" font-size="14" text-anchor="middle">SUSPICIOUS</text>
+  <text x="1052" y="280" fill="#8A8FA3" font-size="10" text-anchor="middle">shrug, then verify more</text>
+  <rect x="976" y="326" width="152" height="52" rx="10" fill="#12141C" stroke="#E5484D" stroke-width="2"/>
+  <text x="1052" y="348" fill="#E5484D" font-size="14" text-anchor="middle">FANTASY</text>
+  <text x="1052" y="368" fill="#8A8FA3" font-size="10" text-anchor="middle">stop. start over.</text>
+
+  <!-- flow -->
+  <path d="M214,256 L254,256" stroke="#D0C4DF" stroke-width="2" marker-end="url(#g-arr)"/>
+  <path d="M458,256 L498,256" stroke="#D0C4DF" stroke-width="2" marker-end="url(#g-arr)"/>
+  <path d="M702,256 L742,256" stroke="#D0C4DF" stroke-width="2" marker-end="url(#g-arr)"/>
+  <path d="M926,238 C952,224 950,190 972,180" stroke="#D0C4DF" stroke-width="2" fill="none" marker-end="url(#g-arr)"/>
+  <path d="M926,256 L972,262" stroke="#D0C4DF" stroke-width="2" marker-end="url(#g-arr)"/>
+  <path d="M926,274 C952,296 950,330 972,348" stroke="#D0C4DF" stroke-width="2" fill="none" marker-end="url(#g-arr)"/>
+
+  <!-- the drop lane -->
+  <text x="512" y="392" fill="#8A8FA3" font-size="12">most strategies should exit at FANTASY, and that is the tool working.</text>
+  <text x="512" y="414" fill="#5A5F72" font-size="12">a verdict is a number with reasons attached — not a vibe.</text>
+
+  <!-- permutation note -->
+  <rect x="258" y="386" width="200" height="72" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1" stroke-dasharray="4 4"/>
+  <text x="358" y="412" fill="#8A8FA3" font-size="11" text-anchor="middle">+ permutation p-value:</text>
+  <text x="358" y="430" fill="#8A8FA3" font-size="11" text-anchor="middle">flip the return signs 2000 times.</text>
+  <text x="358" y="448" fill="#8A8FA3" font-size="11" text-anchor="middle">how often does luck reach you?</text>
+
+  <text x="1096" y="496" fill="#4A4E63" font-size="11" text-anchor="end">nohindsight · forensics</text>
+</svg>

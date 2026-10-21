@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 560" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D0C4DF"/>
+    </marker>
+    <marker id="arr-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5A5F72"/>
+    </marker>
+    <marker id="arr-crim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#E5484D"/>
+    </marker>
+  </defs>
+
+  <rect width="1160" height="560" fill="#0B0C10"/>
+  <text x="64" y="76" fill="#F2F3F7" font-size="22" letter-spacing="5">FIVE DEPARTMENTS, ONE JOB</text>
+  <text x="64" y="104" fill="#8A8FA3" font-size="14">nothing here is a backtester. everything here is the truth-squad around one.</text>
+
+  <!-- checks: above, watching -->
+  <rect x="200" y="140" width="300" height="88" rx="10" fill="#12141C" stroke="#E6B455" stroke-width="1.5"/>
+  <text x="222" y="170" fill="#F2F3F7" font-size="15">checks/ · the police</text>
+  <text x="222" y="192" fill="#8A8FA3" font-size="12">scans the data, scans the code,</text>
+  <text x="222" y="210" fill="#8A8FA3" font-size="12">files findings: LEAK / WARN / INFO</text>
+  <path d="M290,228 L232,268" stroke="#E6B455" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arr-dim)"/>
+  <path d="M420,228 L500,238" stroke="#E6B455" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arr-dim)"/>
+
+  <!-- data -->
+  <rect x="64" y="270" width="204" height="150" rx="10" fill="#12141C" stroke="#705EB1" stroke-width="2"/>
+  <text x="84" y="300" fill="#D0C4DF" font-size="16">data/</text>
+  <text x="84" y="326" fill="#8A8FA3" font-size="12">append-only ledgers,</text>
+  <text x="84" y="344" fill="#8A8FA3" font-size="12">two times per datum,</text>
+  <text x="84" y="362" fill="#8A8FA3" font-size="12">revisions are history,</text>
+  <text x="84" y="380" fill="#8A8FA3" font-size="12">not noise</text>
+
+  <!-- guard gate -->
+  <rect x="304" y="288" width="88" height="114" rx="14" fill="#1C1626" stroke="#D0C4DF" stroke-width="2"/>
+  <text x="348" y="330" fill="#D0C4DF" font-size="12" text-anchor="middle">AsOf</text>
+  <text x="348" y="348" fill="#D0C4DF" font-size="12" text-anchor="middle">View</text>
+  <text x="348" y="376" fill="#8A8FA3" font-size="10" text-anchor="middle">the guard</text>
+
+  <!-- the impossible bypass -->
+  <path d="M268,260 C310,196 420,196 462,242" stroke="#E5484D" stroke-width="2" stroke-dasharray="7 5" fill="none" marker-end="url(#arr-crim)"/>
+  <g transform="translate(358,182)">
+    <circle r="13" fill="#0B0C10" stroke="#E5484D" stroke-width="2"/>
+    <line x1="-5" y1="-5" x2="5" y2="5" stroke="#E5484D" stroke-width="2"/>
+    <line x1="5" y1="-5" x2="-5" y2="5" stroke="#E5484D" stroke-width="2"/>
+  </g>
+  <text x="382" y="166" fill="#E5484D" font-size="11">no way around</text>
+
+  <!-- strategy -->
+  <rect x="436" y="252" width="204" height="160" rx="10" fill="#12141C" stroke="#705EB1" stroke-width="2"/>
+  <text x="456" y="282" fill="#D0C4DF" font-size="16">your strategy</text>
+  <text x="456" y="308" fill="#8A8FA3" font-size="12">runs on a Clock,</text>
+  <text x="456" y="326" fill="#8A8FA3" font-size="12">reads through the view.</text>
+  <text x="456" y="350" fill="#F2F3F7" font-size="12">looking at the future is</text>
+  <text x="456" y="368" fill="#E5484D" font-size="12">a hard error, not a warning</text>
+
+  <!-- costs -->
+  <rect x="676" y="272" width="200" height="140" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="696" y="302" fill="#F2F3F7" font-size="16">costs/</text>
+  <text x="696" y="328" fill="#8A8FA3" font-size="12">fees · spread · impact</text>
+  <text x="696" y="346" fill="#8A8FA3" font-size="12">the square-root tax:</text>
+  <text x="696" y="364" fill="#8A8FA3" font-size="12">σ · √(Q / ADV)</text>
+
+  <!-- forensics -->
+  <rect x="912" y="246" width="216" height="172" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="932" y="276" fill="#F2F3F7" font-size="16">forensics/</text>
+  <text x="932" y="302" fill="#8A8FA3" font-size="12">deflated Sharpe · PBO</text>
+  <text x="932" y="320" fill="#8A8FA3" font-size="12">permutation p-value</text>
+  <rect x="932" y="338" width="58" height="20" rx="10" fill="#0B0C10" stroke="#D0C4DF" stroke-width="1.2"/>
+  <text x="961" y="352" fill="#D0C4DF" font-size="10" text-anchor="middle">REAL</text>
+  <rect x="998" y="338" width="86" height="20" rx="10" fill="#0B0C10" stroke="#E6B455" stroke-width="1.2"/>
+  <text x="1041" y="352" fill="#E6B455" font-size="10" text-anchor="middle">SUSPICIOUS</text>
+  <rect x="1092" y="338" width="72" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+  <text x="1128" y="352" fill="#E5484D" font-size="10" text-anchor="middle">FANTASY</text>
+  <text x="932" y="386" fill="#8A8FA3" font-size="12">"probably real" is a number,</text>
+  <text x="932" y="404" fill="#8A8FA3" font-size="12">not a vibe</text>
+
+  <!-- pipeline arrows -->
+  <path d="M268,345 L300,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M392,345 L432,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M640,345 L672,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M876,345 L908,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- live loop -->
+  <rect x="470" y="446" width="320" height="86" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="492" y="476" fill="#F2F3F7" font-size="15">live/ · the safety net</text>
+  <text x="492" y="498" fill="#8A8FA3" font-size="12">fill emulator · paper broker · kill switch</text>
+  <text x="492" y="516" fill="#8A8FA3" font-size="12">the same code path, with fake money</text>
+  <path d="M1020,418 C1020,470 800,486 794,489" stroke="#5A5F72" stroke-width="1.5" stroke-dasharray="5 5" fill="none" marker-end="url(#arr-dim)"/>
+  <path d="M466,489 C330,486 180,460 168,424" stroke="#5A5F72" stroke-width="1.5" stroke-dasharray="5 5" fill="none" marker-end="url(#arr-dim)"/>
+  <text x="130" y="480" fill="#5A5F72" font-size="11">paper-trade the same path</text>
+
+  <text x="1096" y="540" fill="#4A4E63" font-size="11" text-anchor="end">nohindsight · architecture</text>
+</svg>
