@@ -180,11 +180,10 @@ def frame(p: Painter, dm: Demo, *, fh=1.0, fn=1.0, band=1.0, chips=1.0, zoom=1.0
     for val in (100_000, 120_000, 140_000):
         y = Y1 + (Y0 - Y1) * (val - lo) / (hi - lo)
         p.hline(X0, X1, y, HAIR, 1.0, 1.2)
-        p.text(60, y - 8, f"{val // 1000}K", GHOST, 3)
+
     for i in range(0, n, n // 5):
         x = X0 + (X1 - X0) * i / (n - 1)
-        yr = dm.dates[i][:7]
-        p.text(x - p.text_w(yr) // 2 + 10, Y0 + 24, yr, GHOST, 3)
+
 
     def to_xy(vals, frac):
         m = max(2, int(n * frac))
@@ -198,8 +197,6 @@ def frame(p: Painter, dm: Demo, *, fh=1.0, fn=1.0, band=1.0, chips=1.0, zoom=1.0
         p.rect(bx0, 150, bx1 - bx0, Y0 - 150 + 30, CRIMSON, 0.10 * band)
         p.line(bx0, 150, bx0, Y0 + 30, CRIMSON, 0.55 * band, 1.4)
         p.line(bx1, 150, bx1, Y0 + 30, CRIMSON, 0.55 * band, 1.4)
-        p.text(bx0 + 14, 170, "THE LEAK WINDOW", CRIMSON, 4)
-        p.text(bx0 + 14, 208, "43 DECISION DAYS, UP TO 58 DAYS EARLY", GHOST, 3)
 
     hx, hy = to_xy(dm.honest, fh)
     nx, ny = to_xy(dm.naive, fn)
@@ -207,18 +204,8 @@ def frame(p: Painter, dm: Demo, *, fh=1.0, fn=1.0, band=1.0, chips=1.0, zoom=1.0
     p.curve(nx, ny, CRIMSON, 1.0, 3.0)
 
     if chips > 0:
-        ex, ey = X1 + 10, Y1 + (Y0 - Y1) * (dm.naive[-1] - lo) / (hi - lo)
-        p.text(min(ex, W - 480), max(60, ey - 14), "NAIVE · REAL · SHARPE 1.17", CRIMSON, 4)
-        ex2, ey2 = X1 + 10, Y1 + (Y0 - Y1) * (dm.honest[-1] - lo) / (hi - lo)
-        p.text(min(ex2, W - 560), min(H - 140, ey2 + 6), "HONEST · SUSPICIOUS · SHARPE 0.69", LAVENDER, 4)
-
-    p.text(64, 64, "NO", LAVENDER, 6)
-    p.text(64 + p.text_w("NO", 6), 64, "HINDSIGHT", TEXT, 6)
-    sw = p.text_w("HINDSIGHT", 6)
-    p.rect(64 + p.text_w("NO", 6), 64 + 22, sw - 10, 4, CRIMSON, 0.95)
-    p.text(64, 124, "IS YOUR STRATEGY REAL, OR DID IT CHEAT BY ACCIDENT?", MUTED, 3)
-    p.text(64, H - 56, "95 DAILY SAMPLES FROM THE DEMO RUN · THE IMAGE IS THE DATA", GHOST, 3)
-    p.text(W - 480, H - 56, "PYTHON RESEARCH API · RUST ENGINE · ZERO DEPS", GHOST, 3)
+        p.rect(X1 + 6, Y1 + (Y0 - Y1) * (dm.naive[-1] - lo) / (hi - lo) - 5, 12, 12, CRIMSON, chips)
+        p.rect(X1 + 6, Y1 + (Y0 - Y1) * (dm.honest[-1] - lo) / (hi - lo) - 5, 12, 12, LAVENDER, chips)
 
 
 def render_hero(dm):
@@ -285,11 +272,6 @@ def render_3d(dm):
     draw_curve(nw, CRIMSON, 5.0)
     draw_curve(hw, LAVENDER, 2.2)
 
-    p.text(64, 64, "THE SAME LEAK, IN 3D", LAVENDER, 6)
-    p.text(64, 124, "TWO EQUITY RIBBONS OVER THE LEAK PLANE · SOFTWARE-RENDERED FROM THE DEMO JSON", MUTED, 3)
-    p.text(64, H - 120, "HONEST (LAVENDER, FAR LANE) ENDS AT $121,873", LAVENDER, 3)
-    p.text(64, H - 84, "NAIVE (CRIMSON, NEAR LANE) ENDS AT $143,764", CRIMSON, 3)
-    p.text(W - 700, H - 56, "NO GPU, NO DEPENDENCIES: NUMPY PAINTER + 5X7 BITMAP FONT", GHOST, 3)
     write_png(os.path.join(OUT, "scene3d.png"), p.downsample())
     print("wrote scene3d.png")
 

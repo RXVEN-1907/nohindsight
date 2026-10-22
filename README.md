@@ -1,6 +1,6 @@
-# **no**~~hindsight~~
-
-> is your strategy real, or did it cheat by accident?
+<p align="center">
+  <img src="docs/diagrams/hero.svg" alt="nohindsight: both equity curves, the leak window, the verdicts" width="100%">
+</p>
 
 [![ci](https://github.com/RXVEN-1907/nohindsight/actions/workflows/ci.yml/badge.svg)](https://github.com/RXVEN-1907/nohindsight/actions/workflows/ci.yml)
 [![rust](https://github.com/RXVEN-1907/nohindsight/actions/workflows/rust.yml/badge.svg)](https://github.com/RXVEN-1907/nohindsight/actions/workflows/rust.yml)
@@ -9,27 +9,24 @@
 [![python](https://img.shields.io/badge/python-3.10%2B-705EB1)](pyproject.toml)
 [![rust](https://img.shields.io/badge/rust-1.75%2B-705EB1)](Cargo.toml)
 
-A quant toolkit built around one question. Not a backtester: the layer
-around one. Data that records when it became knowable, scanners for the
-standard cheats, costs priced from market structure, statistics that
-discount luck, a risk layer for live use. Python research API, Rust
-engine, both dependency-free. Every graphic on this page is generated from
-one deterministic demo run, and every generator ships in this file.
+> A quant toolkit built around one question: is your strategy real, or did it cheat by accident?
 
-<p align="center">
-  <img src="docs/graphics/hero.png" alt="both equity curves, the leak band, the verdicts" width="100%">
-</p>
+Not a backtester. The layer around one: data that records when it became
+knowable, scanners for the standard cheats, costs priced from market
+structure, statistics that discount luck, a risk layer for live use.
+Python research API, Rust engine, both dependency-free.
 
-## The demo, animated
+---
+
+## The demo, in 30 seconds
 
 Two identical strategies run through the same engine, same broker, same
 fees. They differ in one line: how they read a restated revenue figure.
 The naive one applies today's number to every historical date, which is
-what a casual pandas merge does silently. Watch where the extra return
-comes from.
+what a casual pandas merge does silently.
 
 <p align="center">
-  <img src="docs/graphics/leak.gif" alt="animated demo: honest and naive equity, the leak band, the verdicts" width="860">
+  <img src="docs/graphics/leak.gif" alt="animated demo: honest and naive equity diverge inside the leak window" width="820">
 </p>
 
 | | verdict | sharpe | permutation p |
@@ -39,29 +36,28 @@ comes from.
 
 Leak accounting: 43 decision days priced off a revision first published
 2024-03-01, first read 2024-01-02, up to 58 days before the world had it.
-The naive strategy made more money because it read a number the world did
-not have yet.
 
 <p align="center">
-  <img src="docs/graphics/receipt.svg" alt="the evidence board" width="740">
+  <img src="docs/graphics/receipt.svg" alt="the evidence board" width="720">
 </p>
 
-Run it yourself: `python -m nohindsight demo` (research API) or
-`cargo run --release -- demo` (the engine). Same story, both languages.
+```bash
+git clone https://github.com/RXVEN-1907/nohindsight && cd nohindsight
+python -m nohindsight demo          # the research API
+cargo run --release -- demo         # the engine, same story
+```
 
 ---
 
-## The two clocks
+## How the guard works
 
-Every record carries two timestamps: `event_time`, when the thing happened,
-and `knowledge_time`, when an honest observer could have first known it. A
-fundamental for Q4 2023 happened on 2023-12-31, became known 2024-02-09,
-and was restated 2024-03-01. A backtest on 2024-02-15 must see 253.4.
-Reading 177.4 there is the most common way a backtest lies, and it always
-makes the result look better.
+Every record carries two timestamps. `event_time` is when the thing
+happened. `knowledge_time` is when an honest observer could have first
+known it. A backtest on 2024-02-15 that reads the restated 177.4, first
+knowable 2024-03-01, has leaked, and leaks always flatter the result.
 
 <p align="center">
-  <img src="docs/diagrams/two-clocks.svg" alt="event_time vs knowledge_time" width="860">
+  <img src="docs/diagrams/two-clocks.svg" alt="event_time vs knowledge_time" width="820">
 </p>
 
 ```python
@@ -111,59 +107,25 @@ flowchart LR
     class K warn
 ```
 
-| Department | What it does | What it catches |
+| | | |
 |---|---|---|
-| `data` | Append-only revisioned ledgers; universes with delisted ghosts; SEC EDGAR and ALFRED vintage adapters | restatements applied early, survivorship |
-| `checks` | OHLC integrity, gaps, stale bars, duplicates, crossed quotes, a split detector, an AST lint for future-reading code | dirty bars, `shift(-1)` habits |
-| `costs` | Fee schedules, spread, borrow, square-root impact: `bps = coeff * sigma * sqrt(qty / ADV)` | the flat-slippage fantasy |
-| `forensics` | Probabilistic Sharpe, Deflated Sharpe (Bailey and Lopez de Prado, 2014), PBO via CSCV, permutation tests | selection on luck |
-| `live` | Decimal-exact paper broker, deterministic fill emulator, a latching kill switch | the first live disaster |
+| **data** | append-only revisioned ledgers, universes with ghosts, EDGAR and ALFRED adapters | catches restatements applied early, survivorship |
+| **checks** | OHLC integrity, gaps, stale bars, duplicates, crossed quotes, split detector, AST lint for future-reading code | catches dirty bars and time travel |
+| **costs** | fees, spread, borrow, square-root impact `sigma * sqrt(qty / ADV)` | prices the flat-slippage fantasy |
+| **forensics** | Probabilistic and Deflated Sharpe, PBO via CSCV, permutation tests | catches selection on luck |
+| **live** | decimal-exact paper broker, deterministic fill emulator, latching kill switch | catches the first live disaster |
 
-The five planted defects are real defect classes: a 4:1 split left
-unadjusted, a nine-day gap, five stale closes, a duplicated timestamp, and
-the restatement. `checks` catches four from the bars alone. The fifth is
-only visible through the two-clock model, which is the point.
-
-<details>
-<summary>the six species of accidental cheating, as a mindmap</summary>
-
-```mermaid
-mindmap
-  root((cheating by accident))
-    the time traveler
-      look-ahead bias
-      signal uses a number the future had not produced
-      caught by: the guard and the AST lint
-    the ghost list
-      survivorship bias
-      backtesting only what still exists
-      caught by: universe membership
-    the moving number
-      restatements
-      whose number did you trade
-      caught by: revisioned ledgers
-    the lucky monkey
-      overfitting
-      best of forty trials is mostly luck
-      caught by: deflated sharpe and PBO
-    the free lunch
-      flat slippage assumptions
-      reality charges by size and spread
-      priced by: square-root impact
-    the shrinking pond
-      universe drift
-      a universe that only shrinks only wins
-      caught by: point-in-time membership
-```
-
-</details>
+The demo plants five real defect classes: an unadjusted 4:1 split, a
+nine-day gap, five stale closes, a duplicated timestamp, and the
+restatement. `checks` catches four from the bars alone. The fifth is only
+visible through the two-clock model, which is the point.
 
 ---
 
-## What forensics does to a Sharpe
+## Forensics
 
 <p align="center">
-  <img src="docs/diagrams/forensics-gauntlet.svg" alt="the gauntlet a sharpe must survive" width="820">
+  <img src="docs/diagrams/forensics-gauntlet.svg" alt="the gauntlet a sharpe must survive" width="800">
 </p>
 
 ```python
@@ -174,1572 +136,41 @@ v.level       # REAL | SUSPICIOUS | FANTASY
 v.reasons     # sentences citing the actual numbers
 ```
 
-If you tried 40 configurations and kept the best, the expected best-of-40
-Sharpe under no edge is already positive. The audit computes that hurdle,
-runs a Probabilistic Sharpe test against it with skew and kurtosis
-included, checks whether the in-sample winner survives out-of-sample
-blocks (PBO), and compares against a sign-flipped null. REAL needs DSR
-probability at 0.95 or higher, permutation p under 0.05, and PBO under 0.2
-where a strategy set was provided.
-
-<details>
-<summary>the leak window as a gantt, real dates</summary>
-
-```mermaid
-gantt
-    dateFormat YYYY-MM-DD
-    title the leak window, real dates from the demo
-    section SYM2.revenue
-    first filing known (253.4)      :done, f1, 2024-02-09, 1d
-    window of leaked decision reads :crit, leak, 2024-01-02, 2024-03-01
-    restatement known (177.4)       :milestone, r1, 2024-03-01, 0d
-```
-
-</details>
+The best of 40 trials is positive under no edge, so the benchmark is not
+zero. The audit computes that hurdle, tests against it with skew and
+kurtosis included, cross-validates the winner out-of-sample (PBO), and
+compares against a sign-flipped null. REAL: DSR probability at 0.95 or
+higher, p under 0.05, PBO under 0.2.
 
 ---
 
-## The leak, in 3D
+## The same leak, every medium
+
+Every graphic on this page is generated from one deterministic run
+(`docs/data/leak_demo.json`, 95 daily samples of both curves). Regenerate
+everything with `python tools/graphics.py` and `python tools/build_readme.py`.
 
 <p align="center">
-  <img src="docs/graphics/scene3d.png" alt="both equity curves as 3d ribbons over the leak plane, software rendered" width="100%">
+  <img src="docs/graphics/scene3d.png" alt="both equity curves as 3d ribbons over the leak plane" width="860">
 </p>
-
-No GPU, no renderer dependency: a numpy painter with a pinhole camera
-projects the two ribbons, the leak plane sits between the lanes, and the
-painter's order does the depth. The source below is the complete renderer,
-the same machinery that drew the hero image and every video frame.
-
-<details>
-<summary>Three.js source: the 3D ribbons page</summary>
-
-````html
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>two clocks, one edge</title>
-<!--
-  Data: gallery/data/leak_demo.json, regenerated by gallery/data/export_demo_data.py.
-  The scene reads the inline copy below. Refresh it by hand if the demo data changes.
-  Palette: docs/DESIGN.md. Lavender is the truth. Crimson is the leak.
-  Classic global build of three.js, pinned to 0.160.0: the last release that
-  shipped a UMD three.min.js. No OrbitControls, drag rotation is 20 lines
-  of pointer math instead of a second CDN request.
--->
-<style>
-  :root {
-    --canvas: #0B0C10;
-    --panel: #12141C;
-    --hairline: #2A2D3A;
-    --text: #F2F3F7;
-    --muted: #8A8FA3;
-    --ghost: #4A4E63;
-    --lavender: #D0C4DF;
-    --lavender-deep: #705EB1;
-    --crimson: #E5484D;
-    --sulfur: #E6B455;
-    --blue: #5B8DEF;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; overflow: hidden; }
-  body {
-    background: var(--canvas);
-    color: var(--text);
-    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  #stage { position: fixed; inset: 0; cursor: grab; }
-  #stage.grabbing { cursor: grabbing; }
-  .hud {
-    position: fixed;
-    top: 26px;
-    left: 30px;
-    max-width: 460px;
-    pointer-events: none;
-  }
-  .hud h1 { font-size: 19px; font-weight: 600; margin: 0 0 6px; }
-  .hud .sub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
-  .chips { display: flex; flex-direction: column; gap: 6px; }
-  .chip {
-    border: 1px solid var(--hairline);
-    background: color-mix(in srgb, var(--panel) 88%, transparent);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    width: fit-content;
-  }
-  .chip .lvl { font-weight: 700; }
-  .chip.honest .lvl { color: var(--lavender); }
-  .chip.naive .lvl { color: var(--crimson); }
-  .chip.leak { color: var(--muted); }
-  .chip.leak .lvl { color: var(--crimson); }
-  .chip .num { color: var(--text); }
-  .hint {
-    margin-top: 14px;
-    color: var(--ghost);
-    font-family: var(--mono);
-    font-size: 11.5px;
-  }
-  .nocdn { color: var(--muted); font-family: var(--mono); font-size: 13px; }
-</style>
-</head>
-<body>
-<div id="stage"></div>
-<div class="hud">
-  <h1>same strategy, one leak</h1>
-  <p class="sub">The two equity paths pulled apart in z. Time runs left to right, equity runs up.
-  The flat crimson patch on the floor is the leak window: the span where the naive path
-  read a revision the world did not have yet.</p>
-  <div class="chips" id="chips"></div>
-  <p class="hint">drag to rotate. it drifts on its own.</p>
-  <noscript><p class="nocdn">this page needs javascript. the 2d chart does not.</p></noscript>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
-<script>
-"use strict";
-
-/* Inline copy of gallery/data/leak_demo.json.
-   Regenerated by gallery/data/export_demo_data.py. Strict JSON except NaN,
-   which is written as null here. */
-const FALLBACK = {
-  "meta": {
-    "generator": "gallery/data/export_demo_data.py",
-    "note": "regenerate with: python gallery/data/export_demo_data.py",
-    "seeds": { "price": 455, "fundamentals": 7, "fills": 7 }
-  },
-  "honest": {
-    "level": "SUSPICIOUS",
-    "sharpe": 0.691,
-    "dsr_prob": 1.0,
-    "permutation_p": null,
-    "max_drawdown": 0.1106,
-    "reasons": [
-      "Annualized Sharpe is 0.69 over 749 observations (t-stat 1.19, max drawdown 11.1%).",
-      "With a single trial there is no selection effect to deflate: the probability this Sharpe is genuinely above zero is 1.000.",
-      "Flipping every return's sign at random 2000 times, 11.1% of no-edge paths matched or beat your Sharpe (p = 0.111).",
-      "Some tests passed and some did not: not enough evidence either way."
-    ]
-  },
-  "naive": {
-    "level": "REAL",
-    "sharpe": 1.168,
-    "dsr_prob": 1.0,
-    "permutation_p": null,
-    "max_drawdown": 0.1068,
-    "reasons": [
-      "Annualized Sharpe is 1.17 over 749 observations (t-stat 2.01, max drawdown 10.7%).",
-      "With a single trial there is no selection effect to deflate: the probability this Sharpe is genuinely above zero is 1.000.",
-      "Flipping every return's sign at random 2000 times, 2.0% of no-edge paths matched or beat your Sharpe (p = 0.020).",
-      "Every forensic test passed: this looks like a real edge, not fitted noise."
-    ]
-  },
-  "leak": {
-    "code": "RESTATEMENT_LEAK",
-    "severity": "2",
-    "message": "naive read SYM2.revenue on 43 decision days from the terminal snapshot - a revision first published 2024-03-01, used up to 58 days before the world had it (first: 2024-01-02)",
-    "detail": {
-      "key": "SYM2.revenue",
-      "leak_days": "43",
-      "first_leak_day": "2024-01-02",
-      "knowledge_time": "2024-03-01",
-      "max_lag_days": "58"
-    }
-  },
-  "split_caught": true,
-  "curve": [
-    { "date": "2024-01-02", "honest": 99996.51, "naive": 99996.5 },
-    { "date": "2024-01-12", "honest": 101583.64, "naive": 100948.41 },
-    { "date": "2024-01-24", "honest": 101191.77, "naive": 101344.67 },
-    { "date": "2024-02-05", "honest": 97509.76, "naive": 104799.77 },
-    { "date": "2024-02-15", "honest": 96496.36, "naive": 106144.11 },
-    { "date": "2024-02-27", "honest": 91756.83, "naive": 109687.52 },
-    { "date": "2024-03-08", "honest": 94552.2, "naive": 109581.62 },
-    { "date": "2024-03-20", "honest": 96092.31, "naive": 111508.53 },
-    { "date": "2024-04-01", "honest": 98007.16, "naive": 113904.27 },
-    { "date": "2024-04-11", "honest": 98566.56, "naive": 114604.16 },
-    { "date": "2024-04-23", "honest": 99798.44, "naive": 116145.42 },
-    { "date": "2024-05-03", "honest": 96035.15, "naive": 111437.0 },
-    { "date": "2024-05-15", "honest": 97047.82, "naive": 112704.0 },
-    { "date": "2024-05-27", "honest": 95974.75, "naive": 111361.44 },
-    { "date": "2024-06-06", "honest": 97876.56, "naive": 113740.87 },
-    { "date": "2024-06-18", "honest": 98962.26, "naive": 115099.23 },
-    { "date": "2024-06-28", "honest": 98646.09, "naive": 114703.66 },
-    { "date": "2024-07-10", "honest": 96217.57, "naive": 111665.24 },
-    { "date": "2024-07-22", "honest": 99965.9, "naive": 116354.93 },
-    { "date": "2024-08-01", "honest": 97714.32, "naive": 113537.89 },
-    { "date": "2024-08-13", "honest": 99658.29, "naive": 115970.07 },
-    { "date": "2024-08-23", "honest": 96852.43, "naive": 112459.54 },
-    { "date": "2024-09-04", "honest": 94189.42, "naive": 109127.73 },
-    { "date": "2024-09-16", "honest": 94291.55, "naive": 109255.52 },
-    { "date": "2024-09-26", "honest": 94555.69, "naive": 109585.99 },
-    { "date": "2024-10-08", "honest": 94588.75, "naive": 109627.36 },
-    { "date": "2024-10-18", "honest": 94776.73, "naive": 109862.54 },
-    { "date": "2024-10-30", "honest": 93493.26, "naive": 108256.75 },
-    { "date": "2024-11-11", "honest": 92377.9, "naive": 106861.27 },
-    { "date": "2024-11-21", "honest": 91867.51, "naive": 106222.69 },
-    { "date": "2024-12-03", "honest": 90835.67, "naive": 104931.72 },
-    { "date": "2024-12-13", "honest": 91432.06, "naive": 105677.88 },
-    { "date": "2024-12-25", "honest": 93983.79, "naive": 108870.46 },
-    { "date": "2025-01-06", "honest": 94862.96, "naive": 109970.44 },
-    { "date": "2025-01-16", "honest": 93753.33, "naive": 108582.13 },
-    { "date": "2025-01-28", "honest": 95385.18, "naive": 110623.79 },
-    { "date": "2025-02-07", "honest": 93934.76, "naive": 108809.13 },
-    { "date": "2025-02-19", "honest": 95218.8, "naive": 110415.64 },
-    { "date": "2025-03-03", "honest": 93318.21, "naive": 108037.73 },
-    { "date": "2025-03-13", "honest": 93793.01, "naive": 108631.77 },
-    { "date": "2025-03-25", "honest": 94188.79, "naive": 109126.95 },
-    { "date": "2025-04-04", "honest": 94258.89, "naive": 109214.65 },
-    { "date": "2025-04-16", "honest": 92538.93, "naive": 107062.74 },
-    { "date": "2025-04-28", "honest": 91875.69, "naive": 106232.93 },
-    { "date": "2025-05-08", "honest": 91478.67, "naive": 105736.2 },
-    { "date": "2025-05-20", "honest": 92619.71, "naive": 107163.81 },
-    { "date": "2025-05-30", "honest": 95922.44, "naive": 111295.99 },
-    { "date": "2025-06-11", "honest": 94780.18, "naive": 109866.86 },
-    { "date": "2025-06-23", "honest": 97081.2, "naive": 112745.76 },
-    { "date": "2025-07-03", "honest": 95713.27, "naive": 111034.28 },
-    { "date": "2025-07-15", "honest": 97648.81, "naive": 113455.92 },
-    { "date": "2025-07-25", "honest": 95358.42, "naive": 110590.32 },
-    { "date": "2025-08-06", "honest": 95635.66, "naive": 110937.19 },
-    { "date": "2025-08-18", "honest": 96397.69, "naive": 111890.59 },
-    { "date": "2025-08-28", "honest": 98167.39, "naive": 114104.74 },
-    { "date": "2025-09-09", "honest": 98465.11, "naive": 114477.23 },
-    { "date": "2025-09-19", "honest": 101197.47, "naive": 117895.79 },
-    { "date": "2025-10-01", "honest": 101643.75, "naive": 118454.16 },
-    { "date": "2025-10-13", "honest": 105303.65, "naive": 123033.2 },
-    { "date": "2025-10-23", "honest": 103370.62, "naive": 120614.72 },
-    { "date": "2025-11-04", "honest": 104148.79, "naive": 121588.32 },
-    { "date": "2025-11-14", "honest": 105508.39, "naive": 123289.37 },
-    { "date": "2025-11-26", "honest": 107213.66, "naive": 125422.91 },
-    { "date": "2025-12-08", "honest": 103275.5, "naive": 120495.7 },
-    { "date": "2025-12-18", "honest": 104411.85, "naive": 121917.44 },
-    { "date": "2025-12-30", "honest": 106057.5, "naive": 123976.38 },
-    { "date": "2026-01-09", "honest": 108918.29, "naive": 127555.63 },
-    { "date": "2026-01-21", "honest": 106516.69, "naive": 124550.9 },
-    { "date": "2026-02-02", "honest": 108088.91, "naive": 126517.96 },
-    { "date": "2026-02-12", "honest": 109593.14, "naive": 128399.97 },
-    { "date": "2026-02-24", "honest": 108670.0, "naive": 127244.99 },
-    { "date": "2026-03-06", "honest": 107879.84, "naive": 126256.39 },
-    { "date": "2026-03-18", "honest": 107421.08, "naive": 125682.41 },
-    { "date": "2026-03-30", "honest": 109339.01, "naive": 128082.02 },
-    { "date": "2026-04-09", "honest": 110726.74, "naive": 129818.26 },
-    { "date": "2026-04-21", "honest": 111804.57, "naive": 131166.78 },
-    { "date": "2026-05-01", "honest": 111175.81, "naive": 130380.11 },
-    { "date": "2026-05-13", "honest": 113645.17, "naive": 133469.63 },
-    { "date": "2026-05-25", "honest": 113317.65, "naive": 133059.86 },
-    { "date": "2026-06-04", "honest": 117928.54, "naive": 138828.74 },
-    { "date": "2026-06-16", "honest": 113462.9, "naive": 133241.59 },
-    { "date": "2026-06-26", "honest": 116217.22, "naive": 136687.63 },
-    { "date": "2026-07-08", "honest": 117651.77, "naive": 138482.45 },
-    { "date": "2026-07-20", "honest": 114530.0, "naive": 134576.68 },
-    { "date": "2026-07-30", "honest": 119079.22, "naive": 140268.4 },
-    { "date": "2026-08-11", "honest": 118217.24, "naive": 139189.94 },
-    { "date": "2026-08-21", "honest": 118996.87, "naive": 140165.37 },
-    { "date": "2026-09-02", "honest": 116064.17, "naive": 136496.14 },
-    { "date": "2026-09-14", "honest": 117105.75, "naive": 137799.31 },
-    { "date": "2026-09-24", "honest": 117605.39, "naive": 138424.43 },
-    { "date": "2026-10-06", "honest": 120340.23, "naive": 141846.09 },
-    { "date": "2026-10-16", "honest": 119801.66, "naive": 141172.27 },
-    { "date": "2026-10-28", "honest": 119676.84, "naive": 141016.1 },
-    { "date": "2026-11-09", "honest": 121069.54, "naive": 142758.57 },
-    { "date": "2026-11-16", "honest": 121873.93, "naive": 143764.97 }
-  ]
-};
-
-const LAVENDER = 0xD0C4DF;
-const CRIMSON = 0xE5484D;
-const CANVAS = 0x0B0C10;
-const HAIRLINE = 0x2A2D3A;
-const GHOST = 0x4A4E63;
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace';
-
-const stage = document.getElementById("stage");
-
-function renderChips(d) {
-  const box = document.getElementById("chips");
-  const last = d.curve[d.curve.length - 1];
-  const det = d.leak.detail;
-  const mk = (cls, parts) => {
-    const chip = document.createElement("div");
-    chip.className = "chip " + cls;
-    for (const [c, text] of parts) {
-      const span = document.createElement("span");
-      if (c) span.className = c;
-      span.textContent = text;
-      chip.append(span);
-    }
-    box.append(chip);
-  };
-  const fmt = n => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
-  mk("honest", [
-    [null, "honest (guarded) : "],
-    ["lvl", d.honest.level],
-    [null, " : "],
-    ["num", `Sharpe ${d.honest.sharpe.toFixed(2)} : final ${fmt(last.honest)}`]
-  ]);
-  mk("naive", [
-    [null, "naive (leaking) : "],
-    ["lvl", d.naive.level],
-    [null, " : "],
-    ["num", `Sharpe ${d.naive.sharpe.toFixed(2)} : final ${fmt(last.naive)}`]
-  ]);
-  mk("leak", [
-    ["lvl", d.leak.code],
-    [null, ` : ${det.leak_days} decision days : up to ${det.max_lag_days} days early`]
-  ]);
-}
-
-function label(text, cssColor, height) {
-  // Text as a canvas texture on a sprite. No font loader, no extra request.
-  const pad = 18, fs = 46;
-  const c = document.createElement("canvas");
-  let ctx = c.getContext("2d");
-  ctx.font = `500 ${fs}px ${MONO}`;
-  c.width = Math.ceil(ctx.measureText(text).width) + pad * 2;
-  c.height = fs + pad * 2;
-  ctx = c.getContext("2d");
-  ctx.font = `500 ${fs}px ${MONO}`;
-  ctx.fillStyle = cssColor;
-  ctx.textBaseline = "middle";
-  ctx.fillText(text, pad, c.height / 2);
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: tex,
-    transparent: true,
-    depthTest: false
-  }));
-  sprite.scale.set(height * c.width / c.height, height, 1);
-  sprite.renderOrder = 10;
-  return sprite;
-}
-
-function build() {
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(CANVAS);
-  scene.fog = new THREE.Fog(CANVAS, 55, 130);
-
-  const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 300);
-  camera.position.set(26, 15, 31);
-  camera.lookAt(0, 7, 0);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  stage.append(renderer.domElement);
-
-  const world = new THREE.Group();
-  scene.add(world);
-
-  const pts = FALLBACK.curve;
-  const n = pts.length;
-
-  // Scale the data into world units. x: sample index across 30 units.
-  // y: equity range mapped onto 2..15. z: one lane per clock.
-  const lo = Math.min(...pts.map(p => Math.min(p.honest, p.naive)));
-  const hi = Math.max(...pts.map(p => Math.max(p.honest, p.naive)));
-  const xs = i => -15 + 30 * i / (n - 1);
-  const ys = v => 2 + 13 * (v - lo) / (hi - lo);
-  const Z_HONEST = -3, Z_NAIVE = 3;
-
-  // Ribbons instead of bare lines: GL linewidth is ignored by most drivers.
-  function ribbon(z, color, key) {
-    const w = 0.5;
-    const pos = new Float32Array(n * 2 * 3);
-    for (let i = 0; i < n; i++) {
-      const x = xs(i), y = ys(pts[i][key]);
-      pos.set([x, y + w / 2, z], i * 6);
-      pos.set([x, y - w / 2, z], i * 6 + 3);
-    }
-    const idx = [];
-    for (let i = 0; i < n - 1; i++) {
-      const a = i * 2, b = i * 2 + 1, c = i * 2 + 2, e = i * 2 + 3;
-      idx.push(a, b, c, b, e, c);
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    geo.setIndex(idx);
-    const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
-      color, side: THREE.DoubleSide
-    }));
-    // A crisp line along the top edge, same color. Keeps the silhouette.
-    const edgeGeo = new THREE.BufferGeometry().setFromPoints(
-      pts.map((p, i) => new THREE.Vector3(xs(i), ys(p[key]) + w / 2, z))
-    );
-    const edge = new THREE.Line(edgeGeo, new THREE.LineBasicMaterial({ color }));
-    return [mesh, edge];
-  }
-
-  world.add(...ribbon(Z_HONEST, LAVENDER, "honest"));
-  world.add(...ribbon(Z_NAIVE, CRIMSON, "naive"));
-
-  // Floor grid, hairline gray. Purely for depth.
-  const grid = new THREE.GridHelper(46, 23, HAIRLINE, HAIRLINE);
-  grid.material.transparent = true;
-  grid.material.opacity = 0.5;
-  world.add(grid);
-
-  // The leak window as a flat translucent plane between the lanes.
-  // from: first early read. to: publication. The publication date sits
-  // between two samples, so interpolate its x instead of snapping.
-  const det = FALLBACK.leak.detail;
-  const tFrom = Date.parse(det.first_leak_day);
-  const tTo = Date.parse(det.knowledge_time);
-  let xFrom = xs(0);
-  let xTo = xs(n - 1);
-  for (let i = 0; i < n; i++) {
-    const t = Date.parse(pts[i].date);
-    if (t >= tTo) {
-      const tPrev = Date.parse(pts[i - 1].date);
-      const f = (tTo - tPrev) / (t - tPrev);
-      xTo = xs(i - 1) + f * (xs(i) - xs(i - 1));
-      break;
-    }
-  }
-  const plane = new THREE.Mesh(
-    new THREE.PlaneGeometry(xTo - xFrom, 8),
-    new THREE.MeshBasicMaterial({
-      color: CRIMSON,
-      transparent: true,
-      opacity: 0.12,
-      side: THREE.DoubleSide,
-      depthWrite: false
-    })
-  );
-  plane.rotation.x = -Math.PI / 2;
-  plane.position.set((xFrom + xTo) / 2, 0.04, 0);
-  world.add(plane);
-
-  // A border keeps the 12% opacity patch legible from every angle.
-  const bw = (xTo - xFrom) / 2, bd = 4;
-  const borderGeo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-bw, 0.05, -bd),
-    new THREE.Vector3(bw, 0.05, -bd),
-    new THREE.Vector3(bw, 0.05, bd),
-    new THREE.Vector3(-bw, 0.05, bd),
-    new THREE.Vector3(-bw, 0.05, -bd)
-  ]);
-  const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
-    color: CRIMSON, transparent: true, opacity: 0.5
-  }));
-  border.position.set((xFrom + xTo) / 2, 0, 0);
-  world.add(border);
-
-  // Labels. Sprites face the camera no matter how the group is rotated.
-  const lastIdx = n - 1;
-  const honLbl = label("honest (guarded)", "#D0C4DF", 0.95);
-  honLbl.position.set(xs(lastIdx) + 2.2, ys(pts[lastIdx].honest) - 1.6, Z_HONEST);
-  world.add(honLbl);
-  const naLbl = label("naive (leaking)", "#E5484D", 0.95);
-  naLbl.position.set(xs(lastIdx) + 2.2, ys(pts[lastIdx].naive) + 1.6, Z_NAIVE);
-  world.add(naLbl);
-  const leakLbl = label(`${det.first_leak_day} to ${det.knowledge_time}`, "#E5484D", 0.7);
-  leakLbl.position.set((xFrom + xTo) / 2, 1.5, 0);
-  world.add(leakLbl);
-
-  // Year marks on the front edge of the grid, ghost gray.
-  for (let i = 1; i < n; i++) {
-    const yr = pts[i].date.slice(0, 4);
-    if (pts[i - 1].date.slice(0, 4) !== yr) {
-      const tick = label(yr, "#4A4E63", 0.55);
-      tick.position.set(xs(i), 0.35, 7.2);
-      world.add(tick);
-    }
-  }
-
-  // Manual drag rotation. Auto-drift pauses while dragging and after,
-  // unless the viewer asked the OS for less motion.
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let dragging = false;
-  let px = 0, py = 0;
-  stage.addEventListener("pointerdown", e => {
-    dragging = true;
-    px = e.clientX;
-    py = e.clientY;
-    stage.classList.add("grabbing");
-    stage.setPointerCapture(e.pointerId);
-  });
-  stage.addEventListener("pointermove", e => {
-    if (!dragging) return;
-    world.rotation.y += (e.clientX - px) * 0.005;
-    world.rotation.x = Math.max(-0.35, Math.min(0.7, world.rotation.x + (e.clientY - py) * 0.003));
-    px = e.clientX;
-    py = e.clientY;
-  });
-  const drop = () => {
-    dragging = false;
-    stage.classList.remove("grabbing");
-  };
-  stage.addEventListener("pointerup", drop);
-  stage.addEventListener("pointercancel", drop);
-
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  renderer.setAnimationLoop(() => {
-    if (!dragging && !reduceMotion) world.rotation.y += 0.0022;
-    renderer.render(scene, camera);
-  });
-}
-
-renderChips(FALLBACK);
-if (typeof THREE === "undefined") {
-  const note = document.createElement("p");
-  note.className = "nocdn";
-  note.textContent = "three.js failed to load from the CDN. The verdict chips are still accurate.";
-  document.querySelector(".hud").append(note);
-} else {
-  build();
-}
-</script>
-</body>
-</html>
-````
-
-</details>
-
----
-
-## The leak, in motion
-
-This SVG animates right on this page: the crimson read marches toward the
-future revision on a loop while the honest line holds. Pure SMIL, no
-scripts, no GIF, a few kilobytes.
+<p align="center">
+  <sub>numpy painter, pinhole camera, no GPU, no renderer dependency</sub>
+</p>
 
 <p align="center">
-  <img src="docs/graphics/leak_pulse.svg" alt="animated: the naive read reaches into the future" width="820">
+  <img src="docs/graphics/leak_pulse.svg" alt="animated: the naive read reaches into the future" width="800">
+</p>
+<p align="center">
+  <sub>SMIL animation, loops on this page, a few kilobytes</sub>
 </p>
 
-<details>
-<summary>CSS keyframes source: the pulse page</summary>
-
-````html
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>the leak, pulsing</title>
-<!-- No javascript on this page. The march is stroke-dashoffset, the pulse
-     is opacity, both plain CSS keyframes. Reduced motion gets a static
-     dashed line. Numbers come from gallery/data/leak_demo.json,
-     regenerated by gallery/data/export_demo_data.py.
-     Palette: docs/DESIGN.md. Lavender is the truth. Crimson is the leak. -->
-<style>
-  :root {
-    --canvas: #0B0C10;
-    --panel: #12141C;
-    --hairline: #2A2D3A;
-    --text: #F2F3F7;
-    --muted: #8A8FA3;
-    --ghost: #4A4E63;
-    --lavender: #D0C4DF;
-    --lavender-deep: #705EB1;
-    --crimson: #E5484D;
-    --sulfur: #E6B455;
-    --blue: #5B8DEF;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body {
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    background: var(--canvas);
-    color: var(--text);
-    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
-    padding: 40px 0;
-  }
-  .sheet { width: min(880px, 92vw); }
-  h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
-  .sub { color: var(--muted); font-size: 13.5px; margin: 0 0 22px; }
-  svg { width: 100%; height: auto; display: block; }
-  svg text {
-    font-family: var(--mono);
-    font-size: 12px;
-    fill: var(--muted);
-  }
-  svg .lbl-honest { fill: var(--lavender); font-size: 12.5px; }
-  svg .lbl-naive { fill: var(--crimson); font-size: 12.5px; }
-  svg .lbl-title { fill: var(--text); font-size: 13px; }
-  svg .lbl-ghost { fill: var(--ghost); }
-  .leakline {
-    stroke-dasharray: 10 8;
-    animation:
-      march 2.4s linear infinite,
-      breathe 2.4s ease-in-out infinite;
-  }
-  .beacon { animation: breathe 2.4s ease-in-out infinite; }
-  /* -36 is two dash periods (10 + 8), so the loop is seamless.
-     Negative offset marches the dashes forward, toward the revision. */
-  @keyframes march {
-    from { stroke-dashoffset: 0; }
-    to   { stroke-dashoffset: -36; }
-  }
-  @keyframes breathe {
-    0%, 100% { opacity: 0.45; }
-    50%      { opacity: 1; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .leakline { animation: none; opacity: 0.85; }
-    .beacon { animation: none; opacity: 1; }
-  }
-  .meta {
-    margin-top: 26px;
-    border-top: 1px solid var(--hairline);
-    padding-top: 12px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .meta .code { color: var(--crimson); }
-</style>
-</head>
-<body>
-<div class="sheet">
-  <h1>the naive line borrows from the future</h1>
-  <p class="sub">SYM2.revenue, revised 2024-03-01, read from the terminal snapshot starting
-  2024-01-02. 43 decision days, 58 days early at most. The dashed span below never stops
-  reaching for the revision. The honest span just stays where the facts are.</p>
-
-  <svg viewBox="0 0 880 300" role="img"
-       aria-label="Timeline: a steady lavender honest segment stops at the first read. A crimson dashed segment pulses from that point toward the revision published 2024-03-01.">
-    <!-- calendar axis -->
-    <line x1="40" y1="250" x2="840" y2="250" stroke="#2A2D3A" stroke-width="1"/>
-    <text x="470" y="272" text-anchor="middle">2024-01-02</text>
-    <text x="780" y="272" text-anchor="middle">2024-03-01</text>
-    <text x="840" y="272" text-anchor="end" class="lbl-ghost">later</text>
-
-    <!-- now: where the curves stop and the leak starts -->
-    <line x1="470" y1="66" x2="470" y2="244" stroke="#4A4E63" stroke-width="1" stroke-dasharray="2 5"/>
-    <text x="470" y="54" text-anchor="middle" class="lbl-ghost">now</text>
-
-    <!-- honest curve: steady lavender, stops at now -->
-    <text x="40" y="150" class="lbl-honest">honest (guarded)</text>
-    <line x1="40" y1="170" x2="470" y2="170" stroke="#D0C4DF" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="470" cy="170" r="4" fill="#D0C4DF"/>
-
-    <!-- naive curve: crimson, also stops at now -->
-    <text x="40" y="100" class="lbl-naive">naive (leaking)</text>
-    <line x1="40" y1="120" x2="470" y2="120" stroke="#E5484D" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="470" cy="120" r="4" fill="#E5484D"/>
-
-    <!-- the leak: dashed crimson, marching from the naive curve to the
-         revision the world has not published yet -->
-    <path class="leakline" d="M 474 120 H 776" fill="none"
-          stroke="#E5484D" stroke-width="2.5" stroke-linecap="round"/>
-    <path class="beacon" d="M 780 111 l 9 9 l -9 9 l -9 -9 Z" fill="#E5484D"/>
-    <text x="780" y="76" text-anchor="middle" class="lbl-title">revision published</text>
-    <text x="780" y="94" text-anchor="middle">2024-03-01</text>
-  </svg>
-
-  <p class="meta"><span class="code">RESTATEMENT_LEAK</span> : severity 2 : 43 decision days : first 2024-01-02 : published 2024-03-01 : max lag 58 days</p>
-</div>
-</body>
-</html>
-````
-
-</details>
+The full video with the sonified soundtrack:
+[docs/graphics/nohindsight_leak.mp4](docs/graphics/nohindsight_leak.mp4)
+(1080p, 12 s). During the leak window the naive voice detunes against the
+honest one, so the cheat is audible before it is visible.
 
 <details>
-<summary>Manim source: the two clocks scene</summary>
-
-````py
-"""Two clocks, one leak.
-
-A short Manim CE scene. Two horizontal number lines: event_time, what
-happened, and knowledge_time, what the world knew and when. A playhead
-walks event_time. A revision bar appears on knowledge_time only after the
-playhead has passed, because the revision is future knowledge. A dashed
-crimson arrow connects the now to that future bar. That distance is the
-leak.
-
-Targets Manim CE 0.18+. Render:
-    manim -qm manim_two_clocks.py TwoClocks
-
-Palette per docs/DESIGN.md. Lavender is the truth. Crimson is the leak,
-used only where the leak is.
-"""
-
-from manim import (
-    DOWN,
-    LEFT,
-    RIGHT,
-    UP,
-    Create,
-    DashedLine,
-    FadeIn,
-    FadeOut,
-    Flash,
-    Line,
-    Rectangle,
-    Scene,
-    Text,
-    VGroup,
-    Write,
-)
-
-CANVAS = "#0B0C10"
-HAIRLINE = "#2A2D3A"
-TEXT = "#F2F3F7"
-MUTED = "#8A8FA3"
-LAVENDER = "#D0C4DF"
-CRIMSON = "#E5484D"
-
-# event_time tick positions on the line. Same calendar on both clocks:
-# a given date sits at the same x on either line.
-X_FIRST_READ = -4.0   # 2024-01-02, first decision that read the revision early
-X_PUBLISHED = -1.2    # 2024-03-01, the day the revision went public
-X_LAST = 4.8          # 2026-11-16, last day of the demo curve
-Y_EVENT = 1.3
-Y_KNOWLEDGE = -1.3
-
-
-class TwoClocks(Scene):
-    def construct(self):
-        self.camera.background_color = CANVAS
-
-        clocks = self.build_clocks()
-        self.play(
-            FadeIn(clocks[0], shift=DOWN * 0.3),
-            FadeIn(clocks[1], shift=UP * 0.3),
-            run_time=1.2,
-        )
-        self.wait(0.6)
-
-        # The playhead walks event_time. It passes the first-read tick,
-        # then stops mid-window. 43 decision days live in this span.
-        ph = self.build_playhead(X_FIRST_READ)
-        self.play(FadeIn(ph), run_time=0.5)
-        self.wait(0.4)
-        self.play(self.shift_playhead(ph, -2.6), run_time=1.6)
-        self.wait(0.5)
-
-        # The bar lands after the playhead has passed. Order matters:
-        # the read happened early, the knowledge shows up late.
-        bar = Rectangle(
-            width=0.22,
-            height=0.9,
-            stroke_color=CRIMSON,
-            stroke_width=1.5,
-            fill_color=CRIMSON,
-            fill_opacity=1.0,
-        ).move_to([X_PUBLISHED, Y_KNOWLEDGE, 0])
-        self.play(
-            Create(bar),
-            Flash(bar, color=CRIMSON, line_length=0.3, flash_radius=0.45),
-            run_time=0.9,
-        )
-        note = Text("SYM2.revenue, revised", font_size=21, color=MUTED)
-        note.next_to(bar, RIGHT, buff=0.3)
-        self.play(FadeIn(note), run_time=0.5)
-
-        # The span on event_time that the naive backtest spent early-reading.
-        window = Line(
-            [X_FIRST_READ, Y_EVENT - 0.14, 0],
-            [X_PUBLISHED, Y_EVENT - 0.14, 0],
-            stroke_color=CRIMSON,
-            stroke_width=5,
-            stroke_opacity=0.5,
-        )
-        self.play(Create(window), run_time=0.6)
-
-        # Dashed, crimson: the read reaches from now into the future.
-        # Solid lines are facts. Dashed is the theft.
-        start = [-2.6, Y_EVENT - 0.08, 0]
-        end = [X_PUBLISHED + 0.15, Y_KNOWLEDGE + 0.5, 0]
-        reach = (
-            DashedLine(start, end, color=CRIMSON, dash_length=0.14)
-            .add_tip(tip_length=0.18, tip_width=0.18)
-        )
-        self.play(Create(reach), run_time=1.2)
-
-        leak = Text("the leak", font_size=32, color=CRIMSON)
-        mid = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2, 0]
-        leak.next_to(mid, RIGHT, buff=0.45)
-        self.play(Write(leak), run_time=0.9)
-        self.wait(1.4)
-
-        # Clear the floor. The card carries no verdict, just the name.
-        self.play(*[FadeOut(m) for m in self.mobjects], run_time=0.9)
-        brand = Text("nohindsight", font_size=68, color=LAVENDER)
-        rule = Line(LEFT * 2.6, RIGHT * 2.6, color=LAVENDER, stroke_width=1.5)
-        rule.next_to(brand, DOWN, buff=0.32)
-        self.play(Write(brand), run_time=1.4)
-        self.play(Create(rule), run_time=0.6)
-        self.wait(2.0)
-
-    def build_clocks(self):
-        # Same calendar, two clocks. event_time above, knowledge_time below,
-        # so the arrow from now down to the future bar reads as a reach.
-        def clock_line(y, name, ticks):
-            line = Line(
-                [-6, y, 0],
-                [6, y, 0],
-                stroke_color=HAIRLINE,
-                stroke_width=2,
-            )
-            label = Text(name, font_size=26, color=MUTED)
-            label.next_to(line.get_start(), UP if y > 0 else DOWN, buff=0.28)
-            label.align_to(line, LEFT)
-            parts = [line, label]
-            for x, tick_label in ticks:
-                tick = Line(
-                    [x, y - 0.1, 0],
-                    [x, y + 0.1, 0],
-                    stroke_color=MUTED,
-                    stroke_width=1.5,
-                )
-                parts.append(tick)
-                text = Text(tick_label, font_size=19, color=MUTED)
-                text.next_to(tick, DOWN if y > 0 else UP, buff=0.16)
-                parts.append(text)
-            return VGroup(*parts)
-
-        event = clock_line(
-            Y_EVENT,
-            "event_time",
-            [(X_FIRST_READ, "2024-01-02"), (X_PUBLISHED, "2024-03-01"), (X_LAST, "2026-11-16")],
-        )
-        knowledge = clock_line(
-            Y_KNOWLEDGE,
-            "knowledge_time",
-            [(X_PUBLISHED, "2024-03-01")],
-        )
-        return [event, knowledge]
-
-    def build_playhead(self, x):
-        # A small downward pointer riding event_time, with its label above.
-        arrow = Line(
-            [x, Y_EVENT + 0.85, 0],
-            [x, Y_EVENT + 0.16, 0],
-            stroke_color=TEXT,
-            stroke_width=3.5,
-        ).add_tip(tip_length=0.16, tip_width=0.16)
-        text = Text("now", font_size=24, color=TEXT)
-        text.next_to(arrow, UP, buff=0.14)
-        return VGroup(arrow, text)
-
-    def shift_playhead(self, ph, x):
-        # move_to keeps the vertical position fixed, only x changes.
-        return ph.animate.move_to([x, ph.get_center()[1], 0])
-````
-
-</details>
-
-<details>
-<summary>FFmpeg: mux the frames with the sonified audio</summary>
-
-````sh
-#!/usr/bin/env bash
-# Splice the nohindsight leak story into video. Three commands, each one
-# commented with what it does and why those flags.
-#
-# Inputs:
-#   frames: gallery/media/frames/frame_00000.png and up, rendered by
-#           gallery/media/manim_two_clocks.py (the media slice owns that).
-#   audio:  gallery/audio/leak_chorus.wav, rendered by gallery/audio/sonify.py.
-#
-# Outputs land next to this script by default. Override with env vars:
-#   FRAMES_DIR, FRAME_PATTERN, AUDIO, OUT_DIR, FPS.
-# Default mode prints a plan and the tool versions. RUN=1 executes.
-# Nothing here muxes files that do not exist.
-
-set -u
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FRAMES_DIR="${FRAMES_DIR:-$SCRIPT_DIR/../media/frames}"
-FRAME_PATTERN="${FRAME_PATTERN:-frame_%05d.png}"
-AUDIO="${AUDIO:-$SCRIPT_DIR/leak_chorus.wav}"
-OUT_DIR="${OUT_DIR:-$SCRIPT_DIR}"
-FPS="${FPS:-30}"
-RUN="${RUN:-0}"
-
-echo "ffmpeg:  $(ffmpeg -version 2>/dev/null | head -1)"
-if command -v ffprobe >/dev/null 2>&1; then
-  echo "ffprobe: $(command -v ffprobe)"
-else
-  echo "ffprobe: missing"
-fi
-echo "frames:  $FRAMES_DIR ($FRAME_PATTERN)"
-echo "audio:   $AUDIO"
-echo "out:     $OUT_DIR"
-echo "mode:    $([ "$RUN" = "1" ] && echo run || echo plan)"
-
-frames_ok=1
-audio_ok=1
-muxed_ok=1
-[ -d "$FRAMES_DIR" ] || { frames_ok=0; }
-[ -f "$AUDIO" ] || { audio_ok=0; }
-[ -f "$OUT_DIR/nohindsight_leak.mp4" ] || { muxed_ok=0; }
-
-# Measure the audio once. The fade-out needs a start time, which is the
-# duration minus 2 s. awk does the arithmetic, no python dependency.
-fade_out_start=""
-if [ "$audio_ok" = "1" ]; then
-  dur="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$AUDIO")"
-  fade_out_start="$(awk -v d="$dur" 'BEGIN { printf "%.3f", d - 2.0 }')"
-fi
-
-# do_step LABEL GUARD CMD...
-#   GUARD "ok" runs or plans the command. Any other text is a skip reason.
-do_step() {
-  local label="$1"; shift
-  local guard="$1"; shift
-  if [ "$guard" = "ok" ]; then
-    if [ "$RUN" = "1" ]; then
-      echo "run  [$label]"
-      "$@"
-    else
-      printf 'plan [%s]\n  ' "$label"
-      printf '%q ' "$@"
-      printf '\n'
-    fi
-  else
-    echo "skip [$label] $guard"
-  fi
-}
-
-# (1) Mux the manim frames with the chorus into nohindsight_leak.mp4.
-# The image pattern feeds ffmpeg's image2 demuxer.
-#   -framerate $FPS : must match the rate manim rendered at. A mismatch
-#                     silently stretches or compresses the timeline.
-#   -c:v libx264    : h264, the one codec every player agrees on.
-#   -pix_fmt yuv420p: 4:2:0 chroma. Fancier formats still break players.
-#   -crf 18         : visually transparent without huge files.
-#   -c:a aac 192k   : mp4 audio. A tone track needs nothing more.
-#   -shortest       : end at the shorter stream, so the video does not
-#                     outlive the audio into frozen frames or silence.
-do_step "mux" "$([ "$frames_ok" = "1" ] && [ "$audio_ok" = "1" ] && echo ok || echo "missing frames or audio")" \
-  ffmpeg -y -framerate "$FPS" -i "$FRAMES_DIR/$FRAME_PATTERN" -i "$AUDIO" \
-    -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
-    -c:a aac -b:a 192k -shortest \
-    "$OUT_DIR/nohindsight_leak.mp4"
-
-# (2) Same mux, with the audio faded. Hard-cutting a tone track clicks; the
-# two afade filters fix that.
-#   afade=t=in:st=0:d=2        : ramp from silence over the first 2 s.
-#   afade=t=out:st=$start:d=2  : ramp to silence over the last 2 s. The
-#                                start is duration minus 2, measured by
-#                                ffprobe above. The fade touches audio
-#                                only, the video stays full strength.
-# The .wav output of sonify.py is about 25 s, so the fade-out starts near
-# t=23 s. The beat section sits at the head and survives the fade-in.
-do_step "fade-mux" "$([ "$frames_ok" = "1" ] && [ "$audio_ok" = "1" ] && echo ok || echo "missing frames or audio")" \
-  ffmpeg -y -framerate "$FPS" -i "$FRAMES_DIR/$FRAME_PATTERN" -i "$AUDIO" \
-    -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
-    -af "afade=t=in:st=0:d=2,afade=t=out:st=${fade_out_start:-23.0}:d=2" \
-    -c:a aac -b:a 192k -shortest \
-    "$OUT_DIR/nohindsight_leak_faded.mp4"
-
-# (3) One-liner: 15 s preview at 720p for social cards, cut from the
-# finished mux.
-#   -ss 0 before -i : seek on the input, fast, no decode of skipped time.
-#   -t 15           : cap the clip at 15 s.
-#   scale=-2:720    : height 720, width auto, and -2 forces the width even,
-#                     which h264 requires.
-#   crf 23, fast    : a preview can be a little cheaper than the master.
-do_step "preview" "$([ "$muxed_ok" = "1" ] && echo ok || echo "run the mux step first")" \
-  ffmpeg -y -ss 0 -t 15 -i "$OUT_DIR/nohindsight_leak.mp4" \
-    -vf "scale=-2:720" -c:v libx264 -crf 23 -preset fast \
-    -c:a aac -b:a 128k \
-    "$OUT_DIR/leak_preview_720p.mp4"
-````
-
-</details>
-
----
-
-## Sound
-
-Equity maps to pitch over two octaves. During the leak window the naive
-voice is pinned to the honest contour with a detune ramping to 75 cents.
-Two tones at f and f plus d produce amplitude modulation at rate d, so the
-dishonest path beats against the honest one until the restatement date,
-where it snaps free. The mp4 above carries this soundtrack.
-
-<details>
-<summary>sonification source: stdlib WAV writer</summary>
-
-````py
-#!/usr/bin/env python3
-"""Sonify the nohindsight restatement leak.
-
-Reads gallery/data/leak_demo.json and renders the demo's two equity curves
-as 16-bit mono WAV, 22050 Hz. Stdlib only. Deterministic. Three files:
-
-  honest.wav       one tone tracking the honest curve. The baseline.
-  naive.wav        the same pitch mapping on the naive curve: the path that
-                   read restated revenue from the terminal snapshot.
-  leak_chorus.wav  both tones mixed. During the leak window the naive tone
-                   is pinned just above the honest one and drifts sharp.
-                   Two sines at f and f + d produce amplitude modulation at
-                   rate d. That beat is the point: the naive path sounds
-                   sweet, then the wobble says something was off.
-
-Pitch mapping: log2(equity / 100000) scaled linearly into 110 to 440 Hz,
-A2 to A4, two octaves. Log first, then pitch: ears hear ratios, so a
-strategy that doubles its equity should rise by octaves, not by a fixed
-number of hertz.
-
-Beat math, stated once: sin(2*pi*f*t) + sin(2*pi*(f+d)*t) equals
-2*sin(2*pi*(f+d/2)*t)*cos(pi*d*t). The envelope repeats at rate d. The
-detune here ramps from 0 to 75 cents across the leak window. The honest
-tone sits near 113 Hz at the window edge, so d climbs from 0 to about
-5.0 Hz: five wobbles a second, unmistakable. Harmonics of each tone beat
-at integer multiples of d, which thickens the roughness.
-
-The window is 2024-01-02 to 2024-03-01, the first six curve points, so the
-beat section is the first 1.3 seconds of the chorus. At knowledge_time the
-naive tone drops the pin and jumps to its natural pitch, several semitones
-up: the fake edge, audible for the rest of the track. The two voices then
-wander together and never reconcile. That is the data.
-
-Usage: python gallery/audio/sonify.py [--out DIR]
-"""
-
-import argparse
-import json
-import math
-import struct
-import wave
-from datetime import date
-from pathlib import Path
-
-SCRIPT_DIR = Path(__file__).resolve().parent
-DATA_PATH = SCRIPT_DIR.parent / "data" / "leak_demo.json"
-
-SAMPLE_RATE = 22050
-TOTAL_SECONDS = 25.0
-TARGET_PEAK = 0.80       # headroom under the 0.9 clipping line
-PITCH_LOW_HZ = 110.0     # A2
-PITCH_HIGH_HZ = 440.0    # A4. 110 to 440 Hz, two octaves.
-ATTACK_SECONDS = 0.008   # short linear fade-in per segment: no clicks
-RELEASE_SECONDS = 0.008  # short linear fade-out per segment: no clicks
-HARMONICS = ((1, 1.0), (2, 0.20), (3, 0.10))  # sine with a little warmth
-DETUNE_CENTS = 75.0      # how far the naive tone drifts sharp, at most
-
-
-def load_curve():
-    with open(DATA_PATH, "r") as f:
-        data = json.load(f)
-    points = data["curve"]
-    detail = data["leak"]["detail"]
-    dates = [date.fromisoformat(p["date"]) for p in points]
-    honest = [float(p["honest"]) for p in points]
-    naive = [float(p["naive"]) for p in points]
-    window_lo = date.fromisoformat(detail["first_leak_day"])
-    window_hi = date.fromisoformat(detail["knowledge_time"])
-    return dates, honest, naive, window_lo, window_hi
-
-
-def pitch_freqs(equities, lo, hi):
-    # Map log-equity linearly onto log-frequency across the shared range.
-    out = []
-    for eq in equities:
-        le = math.log2(eq / 100000.0)
-        t = (le - lo) / (hi - lo)
-        out.append(PITCH_LOW_HZ * 2.0 ** ((math.log2(PITCH_HIGH_HZ / PITCH_LOW_HZ)) * t))
-    return out
-
-
-def render(freqs, seg_samples, env):
-    """One segment per point, gliding between pitches, phase continuous.
-
-    Frequency is integrated into a running phase, so a moving pitch never
-    discontinues and never clicks on its own. The linear attack and release
-    per segment handle the boundaries.
-    """
-    n = len(freqs)
-    total = seg_samples * n
-    out = [0.0] * total
-    two_pi_over_sr = 2.0 * math.pi / SAMPLE_RATE
-    sin = math.sin
-    phase = 0.0
-    for seg in range(n):
-        f0 = freqs[seg]
-        f1 = freqs[seg + 1] if seg + 1 < n else freqs[seg]
-        base = seg * seg_samples
-        for j in range(seg_samples):
-            f = f0 + (f1 - f0) * (j / seg_samples)
-            phase += two_pi_over_sr * f
-            s = 0.0
-            for k, amp in HARMONICS:
-                s += amp * sin(k * phase)
-            out[base + j] = s * env[j]
-    return out
-
-
-def make_env(seg_samples):
-    attack = max(1, int(ATTACK_SECONDS * SAMPLE_RATE))
-    release = max(1, int(RELEASE_SECONDS * SAMPLE_RATE))
-    env = [1.0] * seg_samples
-    for i in range(min(attack, seg_samples)):
-        env[i] = i / attack
-    for i in range(min(release, seg_samples)):
-        env[seg_samples - 1 - i] = i / release
-    return env
-
-
-def normalize(samples):
-    peak = max(abs(s) for s in samples)
-    if peak == 0.0:
-        return list(samples)
-    scale = TARGET_PEAK / peak
-    return [s * scale for s in samples]
-
-
-def write_wav(path, samples):
-    ints = []
-    for s in samples:
-        v = max(-1.0, min(1.0, s))
-        ints.append(int(v * 32767.0))
-    w = wave.open(str(path), "wb")
-    w.setnchannels(1)
-    w.setsampwidth(2)
-    w.setframerate(SAMPLE_RATE)
-    w.writeframes(struct.pack("<%dh" % len(ints), *ints))
-    w.close()
-
-
-def report(path):
-    # Open the finished file back up with the wave module and state facts.
-    with wave.open(str(path), "rb") as w:
-        frames = w.getnframes()
-        sr = w.getframerate()
-        raw = w.readframes(frames)
-    ints = struct.unpack("<%dh" % frames, raw)
-    peak = max(abs(i) for i in ints) / 32767.0
-    print("wrote %s: %d bytes, %d frames, %.3f s, peak %.3f"
-          % (path.name, path.stat().st_size, frames, frames / sr, peak))
-
-
-def main():
-    ap = argparse.ArgumentParser(description="Render the leak demo as audio.")
-    ap.add_argument("--out", default=str(SCRIPT_DIR),
-                    help="output directory (default: gallery/audio)")
-    args = ap.parse_args()
-    out = Path(args.out)
-    out.mkdir(parents=True, exist_ok=True)
-
-    dates, honest_eq, naive_eq, window_lo, window_hi = load_curve()
-    print("read %s: %d points, %s to %s"
-          % (DATA_PATH.relative_to(SCRIPT_DIR.parent.parent), len(dates),
-             dates[0], dates[-1]))
-
-    logs = [math.log2(v / 100000.0) for v in honest_eq + naive_eq]
-    lo, hi = min(logs), max(logs)
-    f_honest = pitch_freqs(honest_eq, lo, hi)
-    f_naive = pitch_freqs(naive_eq, lo, hi)
-
-    # Leak window: the naive tone hides behind the honest contour, one
-    # fixed detune above it, ramping in. The real naive curve rose during
-    # the window; the pin is deliberate. It makes the beat the whole show
-    # and leaves the jump to knowledge_time as the reveal.
-    window_idx = [i for i, d in enumerate(dates) if window_lo <= d <= window_hi]
-    f_naive_pinned = list(f_naive)
-    for pos, i in enumerate(window_idx):
-        ramp = pos / max(1, len(window_idx) - 1)
-        f_naive_pinned[i] = f_honest[i] * 2.0 ** (ramp * DETUNE_CENTS / 1200.0)
-
-    seg_samples = int(TOTAL_SECONDS * SAMPLE_RATE) // len(dates)
-    env = make_env(seg_samples)
-
-    honest_track = normalize(render(f_honest, seg_samples, env))
-    naive_track = normalize(render(f_naive, seg_samples, env))
-    pinned_track = normalize(render(f_naive_pinned, seg_samples, env))
-    # Equal weights. Neither voice owns the room.
-    chorus = normalize([0.5 * a + 0.5 * b
-                        for a, b in zip(honest_track, pinned_track)])
-
-    write_wav(out / "honest.wav", honest_track)
-    write_wav(out / "naive.wav", naive_track)
-    write_wav(out / "leak_chorus.wav", chorus)
-    print()
-    report(out / "honest.wav")
-    report(out / "naive.wav")
-    report(out / "leak_chorus.wav")
-    print()
-    print("leak window: %s to %s, %d of %d points pinned"
-          % (window_lo, window_hi, len(window_idx), len(dates)))
-    if window_idx:
-        last = window_idx[-1]
-        d_hz = f_honest[last] * (2.0 ** (DETUNE_CENTS / 1200.0) - 1.0)
-        print("detune: 0 to %d cents across the window. Beat rate d ends at "
-              "%.1f Hz on a %.1f Hz tone." % (DETUNE_CENTS, d_hz, f_honest[last]))
-        reveal = last * seg_samples / SAMPLE_RATE
-        print("reveal: t=%.2f s, the naive tone drops the pin and jumps to "
-              "its own pitch (%.0f to %.0f Hz)."
-              % (reveal, f_naive_pinned[last], f_naive[last + 1]))
-    print("done: 3 files in %s" % out)
-
-
-if __name__ == "__main__":
-    main()
-````
-
-</details>
-
-<details>
-<summary>MIDI source: a hand-rolled Standard MIDI File</summary>
-
-````py
-#!/usr/bin/env python3
-"""Render the nohindsight leak demo as a Standard MIDI File.
-
-Writes leak_score.mid next to this script. No mido: the file is written by
-hand, and the layout below doubles as a lesson in the format.
-
-Byte layout
------------
-The file is two chunks, back to back.
-
-  MThd  4D 54 68 64    chunk tag, the ASCII string "MThd"
-        00 00 00 06    header chunk length, always 6
-        00 00          format 0: one track carries everything
-        00 01          one track
-        01 E0          division: 480 ticks per quarter note
-
-  MTrk  4D 54 72 6B    chunk tag, the ASCII string "MTrk"
-        xx xx xx xx    track length in bytes, patched in after serialization
-        ...events...   each event is a delta time, then event bytes
-
-Events used here:
-
-  FF 51 03 07 A1 20   tempo meta: 500000 microseconds per quarter note,
-                      which is 120 BPM. An eighth note is 240 ticks.
-  Cn PP               program change on channel n. Channel 0 gets program
-                      48, string ensemble: the honest lane hums. Channel 1
-                      gets program 80, square lead: the naive lane talks
-                      over it.
-  9n KK VV            note on: channel n, key KK (60 is middle C),
-                      velocity VV.
-  8n KK VV            note off, same fields, velocity 0.
-  FF 2F 00            end of track. Last event, always.
-
-Delta times are variable-length quantities: 7 data bits per byte, high bit
-set on every byte except the last, most significant group first. The grid
-spacing is 240 ticks, which does not fit in 7 bits, so slot deltas are the
-two bytes 81 70. Delta 0 is a single 00 byte and chains events at one tick.
-
-Score layout
-------------
-The curve is quantized to one 1/8th-note slot per curve point, 95 slots,
-23.75 seconds. Pitch is log2(equity / 100000) scaled into MIDI 45 to 69,
-A2 to A4, 110 to 440 Hz: the same range sonify.py sings. When the naive
-equity diverges from the honest equity by more than 5 percent, the naive
-channel doubles its note one semitone up. A minor second. The interval that
-sounds wrong on purpose, once per leaked decision.
-
-Usage:
-  python gallery/audio/midi_map.py           write leak_score.mid, then verify
-  python gallery/audio/midi_map.py --verify  parse the existing file back
-"""
-
-import argparse
-import json
-import math
-import struct
-from pathlib import Path
-
-SCRIPT_DIR = Path(__file__).resolve().parent
-DATA_PATH = SCRIPT_DIR.parent / "data" / "leak_demo.json"
-MIDI_PATH = SCRIPT_DIR / "leak_score.mid"
-
-TICKS_PER_QUARTER = 480
-BPM = 120.0
-MICROSECONDS_PER_QUARTER = int(60_000_000 / BPM)  # 500000
-SLOT_TICKS = TICKS_PER_QUARTER // 2               # eighth note: 240 ticks
-
-NOTE_LOW = 45   # A2, 110 Hz
-NOTE_HIGH = 69  # A4, 440 Hz, same range as the WAVs
-
-HONEST_CHANNEL = 0
-NAIVE_CHANNEL = 1
-HONEST_PROGRAM = 48   # string ensemble
-NAIVE_PROGRAM = 80    # square lead
-HONEST_VELOCITY = 72
-NAIVE_VELOCITY = 84
-DISSONANT_VELOCITY = 76
-
-DIVERGENCE_THRESHOLD = 0.05  # naive more than 5 percent off honest
-
-
-def vlq(n):
-    # Variable-length quantity: 7 bits per byte, high bit on all but last.
-    out = [n & 0x7F]
-    n >>= 7
-    while n:
-        out.append((n & 0x7F) | 0x80)
-        n >>= 7
-    return bytes(reversed(out))
-
-
-def make_note_fn(curve):
-    eqs = [float(p["honest"]) for p in curve] + [float(p["naive"]) for p in curve]
-    logs = [math.log2(v / 100000.0) for v in eqs]
-    lo, hi = min(logs), max(logs)
-
-    def note(equity):
-        t = (math.log2(equity / 100000.0) - lo) / (hi - lo)
-        return max(NOTE_LOW, min(NOTE_HIGH, NOTE_LOW + round((NOTE_HIGH - NOTE_LOW) * t)))
-
-    return note
-
-
-def serialize(events):
-    # events: (tick, order, payload). Note-offs sort before note-ons at the
-    # same tick, so a slot ends before the next one begins. Meta events at
-    # tick 0 ride in between with order 1.
-    events = sorted(events, key=lambda e: (e[0], e[1]))
-    data = bytearray()
-    last = 0
-    for tick, _order, payload in events:
-        data += vlq(tick - last)
-        data += payload
-        last = tick
-    data += vlq(0) + b"\xff\x2f\x00"  # end of track at the final tick
-    track = b"MTrk" + struct.pack(">I", len(data)) + bytes(data)
-    header = b"MThd" + struct.pack(">IHHH", 6, 0, 1, TICKS_PER_QUARTER)
-    return header + track
-
-
-def build_score(curve):
-    note = make_note_fn(curve)
-    tempo = b"\xff\x51\x03" + struct.pack(">I", MICROSECONDS_PER_QUARTER)[1:]
-    events = [
-        (0, 1, tempo),
-        (0, 1, bytes([0xC0 | HONEST_CHANNEL, HONEST_PROGRAM])),
-        (0, 1, bytes([0xC0 | NAIVE_CHANNEL, NAIVE_PROGRAM])),
-    ]
-    dissonant = 0
-    for i, p in enumerate(curve):
-        on = i * SLOT_TICKS
-        off = (i + 1) * SLOT_TICKS
-        hn = note(float(p["honest"]))
-        nn = note(float(p["naive"]))
-        events.append((off, 0, bytes([0x80 | HONEST_CHANNEL, hn, 0])))
-        events.append((on, 2, bytes([0x90 | HONEST_CHANNEL, hn, HONEST_VELOCITY])))
-        events.append((off, 0, bytes([0x80 | NAIVE_CHANNEL, nn, 0])))
-        events.append((on, 2, bytes([0x90 | NAIVE_CHANNEL, nn, NAIVE_VELOCITY])))
-        gap = float(p["naive"]) / float(p["honest"]) - 1.0
-        if abs(gap) > DIVERGENCE_THRESHOLD:
-            events.append((off, 0, bytes([0x80 | NAIVE_CHANNEL, nn + 1, 0])))
-            events.append((on, 2, bytes([0x90 | NAIVE_CHANNEL, nn + 1, DISSONANT_VELOCITY])))
-            dissonant += 1
-    total_ticks = len(curve) * SLOT_TICKS
-    return serialize(events), dissonant, total_ticks
-
-
-def read_vlq(buf, i):
-    value = 0
-    while True:
-        b = buf[i]
-        i += 1
-        value = (value << 7) | (b & 0x7F)
-        if b < 0x80:
-            return value, i
-
-
-def verify(path):
-    """Tiny SMF reader. Walks the chunks, counts note-ons, measures time."""
-    raw = path.read_bytes()
-    if raw[:4] == b"MThd":
-        print("header bytes: b'MThd', correct")
-    else:
-        print("header bytes: %r, wrong, expected b'MThd'" % raw[:4])
-        return 1
-    header_len, fmt, ntrks, division = struct.unpack(">IHHH", raw[4:14])
-    print("header: format=%d tracks=%d division=%d ticks/quarter" % (fmt, ntrks, division))
-    pos = 14
-    if raw[pos:pos + 4] == b"MTrk":
-        print("track tag: b'MTrk', correct")
-    else:
-        print("track tag: %r, wrong" % raw[pos:pos + 4])
-        return 1
-    track_len = struct.unpack(">I", raw[pos + 4:pos + 8])[0]
-    track = raw[pos + 8:pos + 8 + track_len]
-    i = 0
-    tick = 0
-    eot_tick = 0
-    tempo_us = None
-    ons = {HONEST_CHANNEL: 0, NAIVE_CHANNEL: 0}
-    while i < len(track):
-        delta, i = read_vlq(track, i)
-        tick += delta
-        status = track[i]
-        if status == 0xFF:
-            mtype = track[i + 1]
-            mlen, i = read_vlq(track, i + 2)
-            payload = track[i:i + mlen]
-            i += mlen
-            if mtype == 0x51 and mlen == 3:
-                tempo_us = int.from_bytes(payload, "big")
-            elif mtype == 0x2F:
-                eot_tick = tick
-        elif status in (0xF0, 0xF7):
-            mlen, i = read_vlq(track, i + 1)
-            i += mlen
-        else:
-            high = status & 0xF0
-            ch = status & 0x0F
-            if high in (0xC0, 0xD0):
-                i += 2
-            else:
-                if high == 0x90 and track[i + 2] > 0 and ch in ons:
-                    ons[ch] += 1
-                i += 3
-    seconds_per_tick = (tempo_us or 500000) / 1e6 / division
-    print("tempo: %d us/quarter (%.0f BPM)" % (tempo_us or 500000, 60e6 / (tempo_us or 500000)))
-    print("note-ons: %d total (%d honest, %d naive)" % (sum(ons.values()), ons[0], ons[1]))
-    print("end of track at tick %d, duration %.2f s" % (eot_tick, eot_tick * seconds_per_tick))
-    return 0
-
-
-def main():
-    ap = argparse.ArgumentParser(description="Write the leak score as MIDI.")
-    ap.add_argument("--verify", action="store_true",
-                    help="parse leak_score.mid back instead of writing it")
-    args = ap.parse_args()
-    if args.verify:
-        raise SystemExit(verify(MIDI_PATH))
-    with open(DATA_PATH, "r") as f:
-        data = json.load(f)
-    curve = data["curve"]
-    payload, dissonant, total_ticks = build_score(curve)
-    MIDI_PATH.write_bytes(payload)
-    print("wrote %s: %d bytes" % (MIDI_PATH.name, len(payload)))
-    seconds_per_tick = (60.0 / BPM) / TICKS_PER_QUARTER
-    print("score: %d slots of %d ticks, %.2f s at %.0f BPM"
-          % (len(curve), SLOT_TICKS, total_ticks * seconds_per_tick, BPM))
-    print("dissonant slots: %d of %d, naive more than %d percent off honest"
-          % (dissonant, len(curve), int(DIVERGENCE_THRESHOLD * 100)))
-    print()
-    raise SystemExit(verify(MIDI_PATH))
-
-
-if __name__ == "__main__":
-    main()
-````
-
-</details>
-
-<details>
-<summary>librosa source: where the spectral centroid moves</summary>
-
-````py
-#!/usr/bin/env python3
-"""Inspect leak_chorus.wav with real audio tools.
-
-librosa computes an RMS envelope and a spectral centroid over time. The
-centroid carries the story: during the leak window the two tones sit close
-to unison near 110 Hz, warm and low. At knowledge_time, 2024-03-01, the
-naive tone drops its pin and jumps to its own pitch near 194 Hz, and the
-centroid leaps. This script prints the frames where the centroid moves
-most. Those are the reveal, in numbers. The 5 Hz beat inside the window
-shows up as a small wobble in both curves, right before the jump.
-
-This script is not run in CI. Install librosa first.
-
-    pip install librosa
-    python gallery/audio/analyze_leak.py
-
-pydub variant, for mp3 export, if mp3 is what the delivery needs:
-
-    from pydub import AudioSegment
-
-    seg = AudioSegment.from_wav("gallery/audio/leak_chorus.wav")
-    seg.export("gallery/audio/leak_chorus.mp3", format="mp3", bitrate="192k")
-
-    # pydub needs ffmpeg on PATH for mp3 encoding. ffmpeg is already
-    # installed here, so the export is one call.
-"""
-
-import argparse
-import json
-from datetime import date
-from pathlib import Path
-
-SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_WAV = SCRIPT_DIR / "leak_chorus.wav"
-DATA_PATH = SCRIPT_DIR.parent / "data" / "leak_demo.json"
-
-
-def leak_window_dates():
-    with open(DATA_PATH, "r") as f:
-        data = json.load(f)
-    detail = data["leak"]["detail"]
-    return date.fromisoformat(detail["first_leak_day"]), date.fromisoformat(detail["knowledge_time"])
-
-
-def main():
-    ap = argparse.ArgumentParser(description="Analyze leak_chorus.wav.")
-    ap.add_argument("--wav", default=str(DEFAULT_WAV),
-                    help="path to the chorus (default: gallery/audio/leak_chorus.wav)")
-    args = ap.parse_args()
-    wav_path = Path(args.wav)
-
-    try:
-        import librosa
-        import numpy
-    except ImportError as exc:
-        print("librosa is missing. Install it: pip install librosa")
-        print("detail: %s" % exc)
-        return 1
-    if not wav_path.exists():
-        print("no file at %s. Run gallery/audio/sonify.py first." % wav_path)
-        return 1
-
-    y, sr = librosa.load(str(wav_path), sr=None, mono=True)
-    rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=512)[0]
-    centroid = librosa.feature.spectral_centroid(y=y, sr=sr, n_fft=2048, hop_length=512)[0]
-    times = librosa.times_like(centroid, sr=sr, hop_length=512)
-
-    print("file: %s" % wav_path)
-    print("duration: %.2f s, sample rate %d Hz, %d analysis frames"
-          % (len(y) / sr, sr, len(centroid)))
-    print()
-    print("rms envelope: mean %.4f, max %.4f at t=%.2f s, min %.4f at t=%.2f s"
-          % (float(numpy.mean(rms)), float(numpy.max(rms)),
-             float(times[int(numpy.argmax(rms))]), float(numpy.min(rms)),
-             float(times[int(numpy.argmin(rms))])))
-    print("spectral centroid: mean %.0f Hz, min %.0f Hz at t=%.2f s, max %.0f Hz at t=%.2f s"
-          % (float(numpy.mean(centroid)), float(numpy.min(centroid)),
-             float(times[int(numpy.argmin(centroid))]), float(numpy.max(centroid)),
-             float(times[int(numpy.argmax(centroid))])))
-
-    lo, hi = leak_window_dates()
-    print()
-    print("leak window from the demo data: %s to %s" % (lo, hi))
-    print("largest centroid shifts, frame to frame:")
-    shifts = numpy.abs(numpy.diff(centroid))
-    top = sorted(numpy.argsort(shifts)[::-1][:5])
-    for idx in top:
-        print("  t=%.2f s: %.0f Hz to %.0f Hz in one hop"
-              % (float(times[idx]), float(centroid[idx]), float(centroid[idx + 1])))
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-````
-
-</details>
-
----
-
-## Graphs
-
-<details>
-<summary>matplotlib source: the HD chart script</summary>
+<summary>matplotlib · the two curves as a static HD chart</summary>
 
 ````py
 #!/usr/bin/env python3
@@ -1946,7 +377,7 @@ if __name__ == "__main__":
 </details>
 
 <details>
-<summary>Chart.js source: interactive curves page</summary>
+<summary>Chart.js · the curves, interactive, self-contained HTML</summary>
 
 ````html
 <!doctype html>
@@ -2445,7 +876,7 @@ loadData().then(d => {
 </details>
 
 <details>
-<summary>the same curves as a mermaid chart, in pure text</summary>
+<summary>mermaid xychart · the curves in pure text</summary>
 
 ```mermaid
 xychart-beta
@@ -2458,12 +889,1837 @@ xychart-beta
 
 </details>
 
----
+<details>
+<summary>Three.js · the ribbons scene, draggable, self-contained HTML</summary>
 
-## The physical world
+````html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>two clocks, one edge</title>
+<!--
+  Data: gallery/data/leak_demo.json, regenerated by gallery/data/export_demo_data.py.
+  The scene reads the inline copy below. Refresh it by hand if the demo data changes.
+  Palette: docs/DESIGN.md. Lavender is the truth. Crimson is the leak.
+  Classic global build of three.js, pinned to 0.160.0: the last release that
+  shipped a UMD three.min.js. No OrbitControls, drag rotation is 20 lines
+  of pointer math instead of a second CDN request.
+-->
+<style>
+  :root {
+    --canvas: #0B0C10;
+    --panel: #12141C;
+    --hairline: #2A2D3A;
+    --text: #F2F3F7;
+    --muted: #8A8FA3;
+    --ghost: #4A4E63;
+    --lavender: #D0C4DF;
+    --lavender-deep: #705EB1;
+    --crimson: #E5484D;
+    --sulfur: #E6B455;
+    --blue: #5B8DEF;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    background: var(--canvas);
+    color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  #stage { position: fixed; inset: 0; cursor: grab; }
+  #stage.grabbing { cursor: grabbing; }
+  .hud {
+    position: fixed;
+    top: 26px;
+    left: 30px;
+    max-width: 460px;
+    pointer-events: none;
+  }
+  .hud h1 { font-size: 19px; font-weight: 600; margin: 0 0 6px; }
+  .hud .sub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .chips { display: flex; flex-direction: column; gap: 6px; }
+  .chip {
+    border: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--panel) 88%, transparent);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    width: fit-content;
+  }
+  .chip .lvl { font-weight: 700; }
+  .chip.honest .lvl { color: var(--lavender); }
+  .chip.naive .lvl { color: var(--crimson); }
+  .chip.leak { color: var(--muted); }
+  .chip.leak .lvl { color: var(--crimson); }
+  .chip .num { color: var(--text); }
+  .hint {
+    margin-top: 14px;
+    color: var(--ghost);
+    font-family: var(--mono);
+    font-size: 11.5px;
+  }
+  .nocdn { color: var(--muted); font-family: var(--mono); font-size: 13px; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div class="hud">
+  <h1>same strategy, one leak</h1>
+  <p class="sub">The two equity paths pulled apart in z. Time runs left to right, equity runs up.
+  The flat crimson patch on the floor is the leak window: the span where the naive path
+  read a revision the world did not have yet.</p>
+  <div class="chips" id="chips"></div>
+  <p class="hint">drag to rotate. it drifts on its own.</p>
+  <noscript><p class="nocdn">this page needs javascript. the 2d chart does not.</p></noscript>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+"use strict";
+
+/* Inline copy of gallery/data/leak_demo.json.
+   Regenerated by gallery/data/export_demo_data.py. Strict JSON except NaN,
+   which is written as null here. */
+const FALLBACK = {
+  "meta": {
+    "generator": "gallery/data/export_demo_data.py",
+    "note": "regenerate with: python gallery/data/export_demo_data.py",
+    "seeds": { "price": 455, "fundamentals": 7, "fills": 7 }
+  },
+  "honest": {
+    "level": "SUSPICIOUS",
+    "sharpe": 0.691,
+    "dsr_prob": 1.0,
+    "permutation_p": null,
+    "max_drawdown": 0.1106,
+    "reasons": [
+      "Annualized Sharpe is 0.69 over 749 observations (t-stat 1.19, max drawdown 11.1%).",
+      "With a single trial there is no selection effect to deflate: the probability this Sharpe is genuinely above zero is 1.000.",
+      "Flipping every return's sign at random 2000 times, 11.1% of no-edge paths matched or beat your Sharpe (p = 0.111).",
+      "Some tests passed and some did not: not enough evidence either way."
+    ]
+  },
+  "naive": {
+    "level": "REAL",
+    "sharpe": 1.168,
+    "dsr_prob": 1.0,
+    "permutation_p": null,
+    "max_drawdown": 0.1068,
+    "reasons": [
+      "Annualized Sharpe is 1.17 over 749 observations (t-stat 2.01, max drawdown 10.7%).",
+      "With a single trial there is no selection effect to deflate: the probability this Sharpe is genuinely above zero is 1.000.",
+      "Flipping every return's sign at random 2000 times, 2.0% of no-edge paths matched or beat your Sharpe (p = 0.020).",
+      "Every forensic test passed: this looks like a real edge, not fitted noise."
+    ]
+  },
+  "leak": {
+    "code": "RESTATEMENT_LEAK",
+    "severity": "2",
+    "message": "naive read SYM2.revenue on 43 decision days from the terminal snapshot - a revision first published 2024-03-01, used up to 58 days before the world had it (first: 2024-01-02)",
+    "detail": {
+      "key": "SYM2.revenue",
+      "leak_days": "43",
+      "first_leak_day": "2024-01-02",
+      "knowledge_time": "2024-03-01",
+      "max_lag_days": "58"
+    }
+  },
+  "split_caught": true,
+  "curve": [
+    { "date": "2024-01-02", "honest": 99996.51, "naive": 99996.5 },
+    { "date": "2024-01-12", "honest": 101583.64, "naive": 100948.41 },
+    { "date": "2024-01-24", "honest": 101191.77, "naive": 101344.67 },
+    { "date": "2024-02-05", "honest": 97509.76, "naive": 104799.77 },
+    { "date": "2024-02-15", "honest": 96496.36, "naive": 106144.11 },
+    { "date": "2024-02-27", "honest": 91756.83, "naive": 109687.52 },
+    { "date": "2024-03-08", "honest": 94552.2, "naive": 109581.62 },
+    { "date": "2024-03-20", "honest": 96092.31, "naive": 111508.53 },
+    { "date": "2024-04-01", "honest": 98007.16, "naive": 113904.27 },
+    { "date": "2024-04-11", "honest": 98566.56, "naive": 114604.16 },
+    { "date": "2024-04-23", "honest": 99798.44, "naive": 116145.42 },
+    { "date": "2024-05-03", "honest": 96035.15, "naive": 111437.0 },
+    { "date": "2024-05-15", "honest": 97047.82, "naive": 112704.0 },
+    { "date": "2024-05-27", "honest": 95974.75, "naive": 111361.44 },
+    { "date": "2024-06-06", "honest": 97876.56, "naive": 113740.87 },
+    { "date": "2024-06-18", "honest": 98962.26, "naive": 115099.23 },
+    { "date": "2024-06-28", "honest": 98646.09, "naive": 114703.66 },
+    { "date": "2024-07-10", "honest": 96217.57, "naive": 111665.24 },
+    { "date": "2024-07-22", "honest": 99965.9, "naive": 116354.93 },
+    { "date": "2024-08-01", "honest": 97714.32, "naive": 113537.89 },
+    { "date": "2024-08-13", "honest": 99658.29, "naive": 115970.07 },
+    { "date": "2024-08-23", "honest": 96852.43, "naive": 112459.54 },
+    { "date": "2024-09-04", "honest": 94189.42, "naive": 109127.73 },
+    { "date": "2024-09-16", "honest": 94291.55, "naive": 109255.52 },
+    { "date": "2024-09-26", "honest": 94555.69, "naive": 109585.99 },
+    { "date": "2024-10-08", "honest": 94588.75, "naive": 109627.36 },
+    { "date": "2024-10-18", "honest": 94776.73, "naive": 109862.54 },
+    { "date": "2024-10-30", "honest": 93493.26, "naive": 108256.75 },
+    { "date": "2024-11-11", "honest": 92377.9, "naive": 106861.27 },
+    { "date": "2024-11-21", "honest": 91867.51, "naive": 106222.69 },
+    { "date": "2024-12-03", "honest": 90835.67, "naive": 104931.72 },
+    { "date": "2024-12-13", "honest": 91432.06, "naive": 105677.88 },
+    { "date": "2024-12-25", "honest": 93983.79, "naive": 108870.46 },
+    { "date": "2025-01-06", "honest": 94862.96, "naive": 109970.44 },
+    { "date": "2025-01-16", "honest": 93753.33, "naive": 108582.13 },
+    { "date": "2025-01-28", "honest": 95385.18, "naive": 110623.79 },
+    { "date": "2025-02-07", "honest": 93934.76, "naive": 108809.13 },
+    { "date": "2025-02-19", "honest": 95218.8, "naive": 110415.64 },
+    { "date": "2025-03-03", "honest": 93318.21, "naive": 108037.73 },
+    { "date": "2025-03-13", "honest": 93793.01, "naive": 108631.77 },
+    { "date": "2025-03-25", "honest": 94188.79, "naive": 109126.95 },
+    { "date": "2025-04-04", "honest": 94258.89, "naive": 109214.65 },
+    { "date": "2025-04-16", "honest": 92538.93, "naive": 107062.74 },
+    { "date": "2025-04-28", "honest": 91875.69, "naive": 106232.93 },
+    { "date": "2025-05-08", "honest": 91478.67, "naive": 105736.2 },
+    { "date": "2025-05-20", "honest": 92619.71, "naive": 107163.81 },
+    { "date": "2025-05-30", "honest": 95922.44, "naive": 111295.99 },
+    { "date": "2025-06-11", "honest": 94780.18, "naive": 109866.86 },
+    { "date": "2025-06-23", "honest": 97081.2, "naive": 112745.76 },
+    { "date": "2025-07-03", "honest": 95713.27, "naive": 111034.28 },
+    { "date": "2025-07-15", "honest": 97648.81, "naive": 113455.92 },
+    { "date": "2025-07-25", "honest": 95358.42, "naive": 110590.32 },
+    { "date": "2025-08-06", "honest": 95635.66, "naive": 110937.19 },
+    { "date": "2025-08-18", "honest": 96397.69, "naive": 111890.59 },
+    { "date": "2025-08-28", "honest": 98167.39, "naive": 114104.74 },
+    { "date": "2025-09-09", "honest": 98465.11, "naive": 114477.23 },
+    { "date": "2025-09-19", "honest": 101197.47, "naive": 117895.79 },
+    { "date": "2025-10-01", "honest": 101643.75, "naive": 118454.16 },
+    { "date": "2025-10-13", "honest": 105303.65, "naive": 123033.2 },
+    { "date": "2025-10-23", "honest": 103370.62, "naive": 120614.72 },
+    { "date": "2025-11-04", "honest": 104148.79, "naive": 121588.32 },
+    { "date": "2025-11-14", "honest": 105508.39, "naive": 123289.37 },
+    { "date": "2025-11-26", "honest": 107213.66, "naive": 125422.91 },
+    { "date": "2025-12-08", "honest": 103275.5, "naive": 120495.7 },
+    { "date": "2025-12-18", "honest": 104411.85, "naive": 121917.44 },
+    { "date": "2025-12-30", "honest": 106057.5, "naive": 123976.38 },
+    { "date": "2026-01-09", "honest": 108918.29, "naive": 127555.63 },
+    { "date": "2026-01-21", "honest": 106516.69, "naive": 124550.9 },
+    { "date": "2026-02-02", "honest": 108088.91, "naive": 126517.96 },
+    { "date": "2026-02-12", "honest": 109593.14, "naive": 128399.97 },
+    { "date": "2026-02-24", "honest": 108670.0, "naive": 127244.99 },
+    { "date": "2026-03-06", "honest": 107879.84, "naive": 126256.39 },
+    { "date": "2026-03-18", "honest": 107421.08, "naive": 125682.41 },
+    { "date": "2026-03-30", "honest": 109339.01, "naive": 128082.02 },
+    { "date": "2026-04-09", "honest": 110726.74, "naive": 129818.26 },
+    { "date": "2026-04-21", "honest": 111804.57, "naive": 131166.78 },
+    { "date": "2026-05-01", "honest": 111175.81, "naive": 130380.11 },
+    { "date": "2026-05-13", "honest": 113645.17, "naive": 133469.63 },
+    { "date": "2026-05-25", "honest": 113317.65, "naive": 133059.86 },
+    { "date": "2026-06-04", "honest": 117928.54, "naive": 138828.74 },
+    { "date": "2026-06-16", "honest": 113462.9, "naive": 133241.59 },
+    { "date": "2026-06-26", "honest": 116217.22, "naive": 136687.63 },
+    { "date": "2026-07-08", "honest": 117651.77, "naive": 138482.45 },
+    { "date": "2026-07-20", "honest": 114530.0, "naive": 134576.68 },
+    { "date": "2026-07-30", "honest": 119079.22, "naive": 140268.4 },
+    { "date": "2026-08-11", "honest": 118217.24, "naive": 139189.94 },
+    { "date": "2026-08-21", "honest": 118996.87, "naive": 140165.37 },
+    { "date": "2026-09-02", "honest": 116064.17, "naive": 136496.14 },
+    { "date": "2026-09-14", "honest": 117105.75, "naive": 137799.31 },
+    { "date": "2026-09-24", "honest": 117605.39, "naive": 138424.43 },
+    { "date": "2026-10-06", "honest": 120340.23, "naive": 141846.09 },
+    { "date": "2026-10-16", "honest": 119801.66, "naive": 141172.27 },
+    { "date": "2026-10-28", "honest": 119676.84, "naive": 141016.1 },
+    { "date": "2026-11-09", "honest": 121069.54, "naive": 142758.57 },
+    { "date": "2026-11-16", "honest": 121873.93, "naive": 143764.97 }
+  ]
+};
+
+const LAVENDER = 0xD0C4DF;
+const CRIMSON = 0xE5484D;
+const CANVAS = 0x0B0C10;
+const HAIRLINE = 0x2A2D3A;
+const GHOST = 0x4A4E63;
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace';
+
+const stage = document.getElementById("stage");
+
+function renderChips(d) {
+  const box = document.getElementById("chips");
+  const last = d.curve[d.curve.length - 1];
+  const det = d.leak.detail;
+  const mk = (cls, parts) => {
+    const chip = document.createElement("div");
+    chip.className = "chip " + cls;
+    for (const [c, text] of parts) {
+      const span = document.createElement("span");
+      if (c) span.className = c;
+      span.textContent = text;
+      chip.append(span);
+    }
+    box.append(chip);
+  };
+  const fmt = n => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  mk("honest", [
+    [null, "honest (guarded) : "],
+    ["lvl", d.honest.level],
+    [null, " : "],
+    ["num", `Sharpe ${d.honest.sharpe.toFixed(2)} : final ${fmt(last.honest)}`]
+  ]);
+  mk("naive", [
+    [null, "naive (leaking) : "],
+    ["lvl", d.naive.level],
+    [null, " : "],
+    ["num", `Sharpe ${d.naive.sharpe.toFixed(2)} : final ${fmt(last.naive)}`]
+  ]);
+  mk("leak", [
+    ["lvl", d.leak.code],
+    [null, ` : ${det.leak_days} decision days : up to ${det.max_lag_days} days early`]
+  ]);
+}
+
+function label(text, cssColor, height) {
+  // Text as a canvas texture on a sprite. No font loader, no extra request.
+  const pad = 18, fs = 46;
+  const c = document.createElement("canvas");
+  let ctx = c.getContext("2d");
+  ctx.font = `500 ${fs}px ${MONO}`;
+  c.width = Math.ceil(ctx.measureText(text).width) + pad * 2;
+  c.height = fs + pad * 2;
+  ctx = c.getContext("2d");
+  ctx.font = `500 ${fs}px ${MONO}`;
+  ctx.fillStyle = cssColor;
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, pad, c.height / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex,
+    transparent: true,
+    depthTest: false
+  }));
+  sprite.scale.set(height * c.width / c.height, height, 1);
+  sprite.renderOrder = 10;
+  return sprite;
+}
+
+function build() {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(CANVAS);
+  scene.fog = new THREE.Fog(CANVAS, 55, 130);
+
+  const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 300);
+  camera.position.set(26, 15, 31);
+  camera.lookAt(0, 7, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  stage.append(renderer.domElement);
+
+  const world = new THREE.Group();
+  scene.add(world);
+
+  const pts = FALLBACK.curve;
+  const n = pts.length;
+
+  // Scale the data into world units. x: sample index across 30 units.
+  // y: equity range mapped onto 2..15. z: one lane per clock.
+  const lo = Math.min(...pts.map(p => Math.min(p.honest, p.naive)));
+  const hi = Math.max(...pts.map(p => Math.max(p.honest, p.naive)));
+  const xs = i => -15 + 30 * i / (n - 1);
+  const ys = v => 2 + 13 * (v - lo) / (hi - lo);
+  const Z_HONEST = -3, Z_NAIVE = 3;
+
+  // Ribbons instead of bare lines: GL linewidth is ignored by most drivers.
+  function ribbon(z, color, key) {
+    const w = 0.5;
+    const pos = new Float32Array(n * 2 * 3);
+    for (let i = 0; i < n; i++) {
+      const x = xs(i), y = ys(pts[i][key]);
+      pos.set([x, y + w / 2, z], i * 6);
+      pos.set([x, y - w / 2, z], i * 6 + 3);
+    }
+    const idx = [];
+    for (let i = 0; i < n - 1; i++) {
+      const a = i * 2, b = i * 2 + 1, c = i * 2 + 2, e = i * 2 + 3;
+      idx.push(a, b, c, b, e, c);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setIndex(idx);
+    const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+      color, side: THREE.DoubleSide
+    }));
+    // A crisp line along the top edge, same color. Keeps the silhouette.
+    const edgeGeo = new THREE.BufferGeometry().setFromPoints(
+      pts.map((p, i) => new THREE.Vector3(xs(i), ys(p[key]) + w / 2, z))
+    );
+    const edge = new THREE.Line(edgeGeo, new THREE.LineBasicMaterial({ color }));
+    return [mesh, edge];
+  }
+
+  world.add(...ribbon(Z_HONEST, LAVENDER, "honest"));
+  world.add(...ribbon(Z_NAIVE, CRIMSON, "naive"));
+
+  // Floor grid, hairline gray. Purely for depth.
+  const grid = new THREE.GridHelper(46, 23, HAIRLINE, HAIRLINE);
+  grid.material.transparent = true;
+  grid.material.opacity = 0.5;
+  world.add(grid);
+
+  // The leak window as a flat translucent plane between the lanes.
+  // from: first early read. to: publication. The publication date sits
+  // between two samples, so interpolate its x instead of snapping.
+  const det = FALLBACK.leak.detail;
+  const tFrom = Date.parse(det.first_leak_day);
+  const tTo = Date.parse(det.knowledge_time);
+  let xFrom = xs(0);
+  let xTo = xs(n - 1);
+  for (let i = 0; i < n; i++) {
+    const t = Date.parse(pts[i].date);
+    if (t >= tTo) {
+      const tPrev = Date.parse(pts[i - 1].date);
+      const f = (tTo - tPrev) / (t - tPrev);
+      xTo = xs(i - 1) + f * (xs(i) - xs(i - 1));
+      break;
+    }
+  }
+  const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(xTo - xFrom, 8),
+    new THREE.MeshBasicMaterial({
+      color: CRIMSON,
+      transparent: true,
+      opacity: 0.12,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    })
+  );
+  plane.rotation.x = -Math.PI / 2;
+  plane.position.set((xFrom + xTo) / 2, 0.04, 0);
+  world.add(plane);
+
+  // A border keeps the 12% opacity patch legible from every angle.
+  const bw = (xTo - xFrom) / 2, bd = 4;
+  const borderGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-bw, 0.05, -bd),
+    new THREE.Vector3(bw, 0.05, -bd),
+    new THREE.Vector3(bw, 0.05, bd),
+    new THREE.Vector3(-bw, 0.05, bd),
+    new THREE.Vector3(-bw, 0.05, -bd)
+  ]);
+  const border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
+    color: CRIMSON, transparent: true, opacity: 0.5
+  }));
+  border.position.set((xFrom + xTo) / 2, 0, 0);
+  world.add(border);
+
+  // Labels. Sprites face the camera no matter how the group is rotated.
+  const lastIdx = n - 1;
+  const honLbl = label("honest (guarded)", "#D0C4DF", 0.95);
+  honLbl.position.set(xs(lastIdx) + 2.2, ys(pts[lastIdx].honest) - 1.6, Z_HONEST);
+  world.add(honLbl);
+  const naLbl = label("naive (leaking)", "#E5484D", 0.95);
+  naLbl.position.set(xs(lastIdx) + 2.2, ys(pts[lastIdx].naive) + 1.6, Z_NAIVE);
+  world.add(naLbl);
+  const leakLbl = label(`${det.first_leak_day} to ${det.knowledge_time}`, "#E5484D", 0.7);
+  leakLbl.position.set((xFrom + xTo) / 2, 1.5, 0);
+  world.add(leakLbl);
+
+  // Year marks on the front edge of the grid, ghost gray.
+  for (let i = 1; i < n; i++) {
+    const yr = pts[i].date.slice(0, 4);
+    if (pts[i - 1].date.slice(0, 4) !== yr) {
+      const tick = label(yr, "#4A4E63", 0.55);
+      tick.position.set(xs(i), 0.35, 7.2);
+      world.add(tick);
+    }
+  }
+
+  // Manual drag rotation. Auto-drift pauses while dragging and after,
+  // unless the viewer asked the OS for less motion.
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let dragging = false;
+  let px = 0, py = 0;
+  stage.addEventListener("pointerdown", e => {
+    dragging = true;
+    px = e.clientX;
+    py = e.clientY;
+    stage.classList.add("grabbing");
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    world.rotation.y += (e.clientX - px) * 0.005;
+    world.rotation.x = Math.max(-0.35, Math.min(0.7, world.rotation.x + (e.clientY - py) * 0.003));
+    px = e.clientX;
+    py = e.clientY;
+  });
+  const drop = () => {
+    dragging = false;
+    stage.classList.remove("grabbing");
+  };
+  stage.addEventListener("pointerup", drop);
+  stage.addEventListener("pointercancel", drop);
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  renderer.setAnimationLoop(() => {
+    if (!dragging && !reduceMotion) world.rotation.y += 0.0022;
+    renderer.render(scene, camera);
+  });
+}
+
+renderChips(FALLBACK);
+if (typeof THREE === "undefined") {
+  const note = document.createElement("p");
+  note.className = "nocdn";
+  note.textContent = "three.js failed to load from the CDN. The verdict chips are still accurate.";
+  document.querySelector(".hud").append(note);
+} else {
+  build();
+}
+</script>
+</body>
+</html>
+````
+
+</details>
 
 <details>
-<summary>OpenSCAD source: the printed case</summary>
+<summary>manim · the two clocks scene, renders to mp4</summary>
+
+````py
+"""Two clocks, one leak.
+
+A short Manim CE scene. Two horizontal number lines: event_time, what
+happened, and knowledge_time, what the world knew and when. A playhead
+walks event_time. A revision bar appears on knowledge_time only after the
+playhead has passed, because the revision is future knowledge. A dashed
+crimson arrow connects the now to that future bar. That distance is the
+leak.
+
+Targets Manim CE 0.18+. Render:
+    manim -qm manim_two_clocks.py TwoClocks
+
+Palette per docs/DESIGN.md. Lavender is the truth. Crimson is the leak,
+used only where the leak is.
+"""
+
+from manim import (
+    DOWN,
+    LEFT,
+    RIGHT,
+    UP,
+    Create,
+    DashedLine,
+    FadeIn,
+    FadeOut,
+    Flash,
+    Line,
+    Rectangle,
+    Scene,
+    Text,
+    VGroup,
+    Write,
+)
+
+CANVAS = "#0B0C10"
+HAIRLINE = "#2A2D3A"
+TEXT = "#F2F3F7"
+MUTED = "#8A8FA3"
+LAVENDER = "#D0C4DF"
+CRIMSON = "#E5484D"
+
+# event_time tick positions on the line. Same calendar on both clocks:
+# a given date sits at the same x on either line.
+X_FIRST_READ = -4.0   # 2024-01-02, first decision that read the revision early
+X_PUBLISHED = -1.2    # 2024-03-01, the day the revision went public
+X_LAST = 4.8          # 2026-11-16, last day of the demo curve
+Y_EVENT = 1.3
+Y_KNOWLEDGE = -1.3
+
+
+class TwoClocks(Scene):
+    def construct(self):
+        self.camera.background_color = CANVAS
+
+        clocks = self.build_clocks()
+        self.play(
+            FadeIn(clocks[0], shift=DOWN * 0.3),
+            FadeIn(clocks[1], shift=UP * 0.3),
+            run_time=1.2,
+        )
+        self.wait(0.6)
+
+        # The playhead walks event_time. It passes the first-read tick,
+        # then stops mid-window. 43 decision days live in this span.
+        ph = self.build_playhead(X_FIRST_READ)
+        self.play(FadeIn(ph), run_time=0.5)
+        self.wait(0.4)
+        self.play(self.shift_playhead(ph, -2.6), run_time=1.6)
+        self.wait(0.5)
+
+        # The bar lands after the playhead has passed. Order matters:
+        # the read happened early, the knowledge shows up late.
+        bar = Rectangle(
+            width=0.22,
+            height=0.9,
+            stroke_color=CRIMSON,
+            stroke_width=1.5,
+            fill_color=CRIMSON,
+            fill_opacity=1.0,
+        ).move_to([X_PUBLISHED, Y_KNOWLEDGE, 0])
+        self.play(
+            Create(bar),
+            Flash(bar, color=CRIMSON, line_length=0.3, flash_radius=0.45),
+            run_time=0.9,
+        )
+        note = Text("SYM2.revenue, revised", font_size=21, color=MUTED)
+        note.next_to(bar, RIGHT, buff=0.3)
+        self.play(FadeIn(note), run_time=0.5)
+
+        # The span on event_time that the naive backtest spent early-reading.
+        window = Line(
+            [X_FIRST_READ, Y_EVENT - 0.14, 0],
+            [X_PUBLISHED, Y_EVENT - 0.14, 0],
+            stroke_color=CRIMSON,
+            stroke_width=5,
+            stroke_opacity=0.5,
+        )
+        self.play(Create(window), run_time=0.6)
+
+        # Dashed, crimson: the read reaches from now into the future.
+        # Solid lines are facts. Dashed is the theft.
+        start = [-2.6, Y_EVENT - 0.08, 0]
+        end = [X_PUBLISHED + 0.15, Y_KNOWLEDGE + 0.5, 0]
+        reach = (
+            DashedLine(start, end, color=CRIMSON, dash_length=0.14)
+            .add_tip(tip_length=0.18, tip_width=0.18)
+        )
+        self.play(Create(reach), run_time=1.2)
+
+        leak = Text("the leak", font_size=32, color=CRIMSON)
+        mid = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2, 0]
+        leak.next_to(mid, RIGHT, buff=0.45)
+        self.play(Write(leak), run_time=0.9)
+        self.wait(1.4)
+
+        # Clear the floor. The card carries no verdict, just the name.
+        self.play(*[FadeOut(m) for m in self.mobjects], run_time=0.9)
+        brand = Text("nohindsight", font_size=68, color=LAVENDER)
+        rule = Line(LEFT * 2.6, RIGHT * 2.6, color=LAVENDER, stroke_width=1.5)
+        rule.next_to(brand, DOWN, buff=0.32)
+        self.play(Write(brand), run_time=1.4)
+        self.play(Create(rule), run_time=0.6)
+        self.wait(2.0)
+
+    def build_clocks(self):
+        # Same calendar, two clocks. event_time above, knowledge_time below,
+        # so the arrow from now down to the future bar reads as a reach.
+        def clock_line(y, name, ticks):
+            line = Line(
+                [-6, y, 0],
+                [6, y, 0],
+                stroke_color=HAIRLINE,
+                stroke_width=2,
+            )
+            label = Text(name, font_size=26, color=MUTED)
+            label.next_to(line.get_start(), UP if y > 0 else DOWN, buff=0.28)
+            label.align_to(line, LEFT)
+            parts = [line, label]
+            for x, tick_label in ticks:
+                tick = Line(
+                    [x, y - 0.1, 0],
+                    [x, y + 0.1, 0],
+                    stroke_color=MUTED,
+                    stroke_width=1.5,
+                )
+                parts.append(tick)
+                text = Text(tick_label, font_size=19, color=MUTED)
+                text.next_to(tick, DOWN if y > 0 else UP, buff=0.16)
+                parts.append(text)
+            return VGroup(*parts)
+
+        event = clock_line(
+            Y_EVENT,
+            "event_time",
+            [(X_FIRST_READ, "2024-01-02"), (X_PUBLISHED, "2024-03-01"), (X_LAST, "2026-11-16")],
+        )
+        knowledge = clock_line(
+            Y_KNOWLEDGE,
+            "knowledge_time",
+            [(X_PUBLISHED, "2024-03-01")],
+        )
+        return [event, knowledge]
+
+    def build_playhead(self, x):
+        # A small downward pointer riding event_time, with its label above.
+        arrow = Line(
+            [x, Y_EVENT + 0.85, 0],
+            [x, Y_EVENT + 0.16, 0],
+            stroke_color=TEXT,
+            stroke_width=3.5,
+        ).add_tip(tip_length=0.16, tip_width=0.16)
+        text = Text("now", font_size=24, color=TEXT)
+        text.next_to(arrow, UP, buff=0.14)
+        return VGroup(arrow, text)
+
+    def shift_playhead(self, ph, x):
+        # move_to keeps the vertical position fixed, only x changes.
+        return ph.animate.move_to([x, ph.get_center()[1], 0])
+````
+
+</details>
+
+<details>
+<summary>CSS keyframes · the leak pulse, zero JavaScript</summary>
+
+````html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the leak, pulsing</title>
+<!-- No javascript on this page. The march is stroke-dashoffset, the pulse
+     is opacity, both plain CSS keyframes. Reduced motion gets a static
+     dashed line. Numbers come from gallery/data/leak_demo.json,
+     regenerated by gallery/data/export_demo_data.py.
+     Palette: docs/DESIGN.md. Lavender is the truth. Crimson is the leak. -->
+<style>
+  :root {
+    --canvas: #0B0C10;
+    --panel: #12141C;
+    --hairline: #2A2D3A;
+    --text: #F2F3F7;
+    --muted: #8A8FA3;
+    --ghost: #4A4E63;
+    --lavender: #D0C4DF;
+    --lavender-deep: #705EB1;
+    --crimson: #E5484D;
+    --sulfur: #E6B455;
+    --blue: #5B8DEF;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: var(--canvas);
+    color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 40px 0;
+  }
+  .sheet { width: min(880px, 92vw); }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 13.5px; margin: 0 0 22px; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text {
+    font-family: var(--mono);
+    font-size: 12px;
+    fill: var(--muted);
+  }
+  svg .lbl-honest { fill: var(--lavender); font-size: 12.5px; }
+  svg .lbl-naive { fill: var(--crimson); font-size: 12.5px; }
+  svg .lbl-title { fill: var(--text); font-size: 13px; }
+  svg .lbl-ghost { fill: var(--ghost); }
+  .leakline {
+    stroke-dasharray: 10 8;
+    animation:
+      march 2.4s linear infinite,
+      breathe 2.4s ease-in-out infinite;
+  }
+  .beacon { animation: breathe 2.4s ease-in-out infinite; }
+  /* -36 is two dash periods (10 + 8), so the loop is seamless.
+     Negative offset marches the dashes forward, toward the revision. */
+  @keyframes march {
+    from { stroke-dashoffset: 0; }
+    to   { stroke-dashoffset: -36; }
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.45; }
+    50%      { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .leakline { animation: none; opacity: 0.85; }
+    .beacon { animation: none; opacity: 1; }
+  }
+  .meta {
+    margin-top: 26px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .meta .code { color: var(--crimson); }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>the naive line borrows from the future</h1>
+  <p class="sub">SYM2.revenue, revised 2024-03-01, read from the terminal snapshot starting
+  2024-01-02. 43 decision days, 58 days early at most. The dashed span below never stops
+  reaching for the revision. The honest span just stays where the facts are.</p>
+
+  <svg viewBox="0 0 880 300" role="img"
+       aria-label="Timeline: a steady lavender honest segment stops at the first read. A crimson dashed segment pulses from that point toward the revision published 2024-03-01.">
+    <!-- calendar axis -->
+    <line x1="40" y1="250" x2="840" y2="250" stroke="#2A2D3A" stroke-width="1"/>
+    <text x="470" y="272" text-anchor="middle">2024-01-02</text>
+    <text x="780" y="272" text-anchor="middle">2024-03-01</text>
+    <text x="840" y="272" text-anchor="end" class="lbl-ghost">later</text>
+
+    <!-- now: where the curves stop and the leak starts -->
+    <line x1="470" y1="66" x2="470" y2="244" stroke="#4A4E63" stroke-width="1" stroke-dasharray="2 5"/>
+    <text x="470" y="54" text-anchor="middle" class="lbl-ghost">now</text>
+
+    <!-- honest curve: steady lavender, stops at now -->
+    <text x="40" y="150" class="lbl-honest">honest (guarded)</text>
+    <line x1="40" y1="170" x2="470" y2="170" stroke="#D0C4DF" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="470" cy="170" r="4" fill="#D0C4DF"/>
+
+    <!-- naive curve: crimson, also stops at now -->
+    <text x="40" y="100" class="lbl-naive">naive (leaking)</text>
+    <line x1="40" y1="120" x2="470" y2="120" stroke="#E5484D" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="470" cy="120" r="4" fill="#E5484D"/>
+
+    <!-- the leak: dashed crimson, marching from the naive curve to the
+         revision the world has not published yet -->
+    <path class="leakline" d="M 474 120 H 776" fill="none"
+          stroke="#E5484D" stroke-width="2.5" stroke-linecap="round"/>
+    <path class="beacon" d="M 780 111 l 9 9 l -9 9 l -9 -9 Z" fill="#E5484D"/>
+    <text x="780" y="76" text-anchor="middle" class="lbl-title">revision published</text>
+    <text x="780" y="94" text-anchor="middle">2024-03-01</text>
+  </svg>
+
+  <p class="meta"><span class="code">RESTATEMENT_LEAK</span> : severity 2 : 43 decision days : first 2024-01-02 : published 2024-03-01 : max lag 58 days</p>
+</div>
+</body>
+</html>
+````
+
+</details>
+
+<details>
+<summary>ffmpeg · mux the frames with the sonified audio</summary>
+
+````sh
+#!/usr/bin/env bash
+# Splice the nohindsight leak story into video. Three commands, each one
+# commented with what it does and why those flags.
+#
+# Inputs:
+#   frames: gallery/media/frames/frame_00000.png and up, rendered by
+#           gallery/media/manim_two_clocks.py (the media slice owns that).
+#   audio:  gallery/audio/leak_chorus.wav, rendered by gallery/audio/sonify.py.
+#
+# Outputs land next to this script by default. Override with env vars:
+#   FRAMES_DIR, FRAME_PATTERN, AUDIO, OUT_DIR, FPS.
+# Default mode prints a plan and the tool versions. RUN=1 executes.
+# Nothing here muxes files that do not exist.
+
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FRAMES_DIR="${FRAMES_DIR:-$SCRIPT_DIR/../media/frames}"
+FRAME_PATTERN="${FRAME_PATTERN:-frame_%05d.png}"
+AUDIO="${AUDIO:-$SCRIPT_DIR/leak_chorus.wav}"
+OUT_DIR="${OUT_DIR:-$SCRIPT_DIR}"
+FPS="${FPS:-30}"
+RUN="${RUN:-0}"
+
+echo "ffmpeg:  $(ffmpeg -version 2>/dev/null | head -1)"
+if command -v ffprobe >/dev/null 2>&1; then
+  echo "ffprobe: $(command -v ffprobe)"
+else
+  echo "ffprobe: missing"
+fi
+echo "frames:  $FRAMES_DIR ($FRAME_PATTERN)"
+echo "audio:   $AUDIO"
+echo "out:     $OUT_DIR"
+echo "mode:    $([ "$RUN" = "1" ] && echo run || echo plan)"
+
+frames_ok=1
+audio_ok=1
+muxed_ok=1
+[ -d "$FRAMES_DIR" ] || { frames_ok=0; }
+[ -f "$AUDIO" ] || { audio_ok=0; }
+[ -f "$OUT_DIR/nohindsight_leak.mp4" ] || { muxed_ok=0; }
+
+# Measure the audio once. The fade-out needs a start time, which is the
+# duration minus 2 s. awk does the arithmetic, no python dependency.
+fade_out_start=""
+if [ "$audio_ok" = "1" ]; then
+  dur="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$AUDIO")"
+  fade_out_start="$(awk -v d="$dur" 'BEGIN { printf "%.3f", d - 2.0 }')"
+fi
+
+# do_step LABEL GUARD CMD...
+#   GUARD "ok" runs or plans the command. Any other text is a skip reason.
+do_step() {
+  local label="$1"; shift
+  local guard="$1"; shift
+  if [ "$guard" = "ok" ]; then
+    if [ "$RUN" = "1" ]; then
+      echo "run  [$label]"
+      "$@"
+    else
+      printf 'plan [%s]\n  ' "$label"
+      printf '%q ' "$@"
+      printf '\n'
+    fi
+  else
+    echo "skip [$label] $guard"
+  fi
+}
+
+# (1) Mux the manim frames with the chorus into nohindsight_leak.mp4.
+# The image pattern feeds ffmpeg's image2 demuxer.
+#   -framerate $FPS : must match the rate manim rendered at. A mismatch
+#                     silently stretches or compresses the timeline.
+#   -c:v libx264    : h264, the one codec every player agrees on.
+#   -pix_fmt yuv420p: 4:2:0 chroma. Fancier formats still break players.
+#   -crf 18         : visually transparent without huge files.
+#   -c:a aac 192k   : mp4 audio. A tone track needs nothing more.
+#   -shortest       : end at the shorter stream, so the video does not
+#                     outlive the audio into frozen frames or silence.
+do_step "mux" "$([ "$frames_ok" = "1" ] && [ "$audio_ok" = "1" ] && echo ok || echo "missing frames or audio")" \
+  ffmpeg -y -framerate "$FPS" -i "$FRAMES_DIR/$FRAME_PATTERN" -i "$AUDIO" \
+    -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
+    -c:a aac -b:a 192k -shortest \
+    "$OUT_DIR/nohindsight_leak.mp4"
+
+# (2) Same mux, with the audio faded. Hard-cutting a tone track clicks; the
+# two afade filters fix that.
+#   afade=t=in:st=0:d=2        : ramp from silence over the first 2 s.
+#   afade=t=out:st=$start:d=2  : ramp to silence over the last 2 s. The
+#                                start is duration minus 2, measured by
+#                                ffprobe above. The fade touches audio
+#                                only, the video stays full strength.
+# The .wav output of sonify.py is about 25 s, so the fade-out starts near
+# t=23 s. The beat section sits at the head and survives the fade-in.
+do_step "fade-mux" "$([ "$frames_ok" = "1" ] && [ "$audio_ok" = "1" ] && echo ok || echo "missing frames or audio")" \
+  ffmpeg -y -framerate "$FPS" -i "$FRAMES_DIR/$FRAME_PATTERN" -i "$AUDIO" \
+    -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
+    -af "afade=t=in:st=0:d=2,afade=t=out:st=${fade_out_start:-23.0}:d=2" \
+    -c:a aac -b:a 192k -shortest \
+    "$OUT_DIR/nohindsight_leak_faded.mp4"
+
+# (3) One-liner: 15 s preview at 720p for social cards, cut from the
+# finished mux.
+#   -ss 0 before -i : seek on the input, fast, no decode of skipped time.
+#   -t 15           : cap the clip at 15 s.
+#   scale=-2:720    : height 720, width auto, and -2 forces the width even,
+#                     which h264 requires.
+#   crf 23, fast    : a preview can be a little cheaper than the master.
+do_step "preview" "$([ "$muxed_ok" = "1" ] && echo ok || echo "run the mux step first")" \
+  ffmpeg -y -ss 0 -t 15 -i "$OUT_DIR/nohindsight_leak.mp4" \
+    -vf "scale=-2:720" -c:v libx264 -crf 23 -preset fast \
+    -c:a aac -b:a 128k \
+    "$OUT_DIR/leak_preview_720p.mp4"
+````
+
+</details>
+
+<details>
+<summary>sonification · stdlib WAV writer, three files</summary>
+
+````py
+#!/usr/bin/env python3
+"""Sonify the nohindsight restatement leak.
+
+Reads gallery/data/leak_demo.json and renders the demo's two equity curves
+as 16-bit mono WAV, 22050 Hz. Stdlib only. Deterministic. Three files:
+
+  honest.wav       one tone tracking the honest curve. The baseline.
+  naive.wav        the same pitch mapping on the naive curve: the path that
+                   read restated revenue from the terminal snapshot.
+  leak_chorus.wav  both tones mixed. During the leak window the naive tone
+                   is pinned just above the honest one and drifts sharp.
+                   Two sines at f and f + d produce amplitude modulation at
+                   rate d. That beat is the point: the naive path sounds
+                   sweet, then the wobble says something was off.
+
+Pitch mapping: log2(equity / 100000) scaled linearly into 110 to 440 Hz,
+A2 to A4, two octaves. Log first, then pitch: ears hear ratios, so a
+strategy that doubles its equity should rise by octaves, not by a fixed
+number of hertz.
+
+Beat math, stated once: sin(2*pi*f*t) + sin(2*pi*(f+d)*t) equals
+2*sin(2*pi*(f+d/2)*t)*cos(pi*d*t). The envelope repeats at rate d. The
+detune here ramps from 0 to 75 cents across the leak window. The honest
+tone sits near 113 Hz at the window edge, so d climbs from 0 to about
+5.0 Hz: five wobbles a second, unmistakable. Harmonics of each tone beat
+at integer multiples of d, which thickens the roughness.
+
+The window is 2024-01-02 to 2024-03-01, the first six curve points, so the
+beat section is the first 1.3 seconds of the chorus. At knowledge_time the
+naive tone drops the pin and jumps to its natural pitch, several semitones
+up: the fake edge, audible for the rest of the track. The two voices then
+wander together and never reconcile. That is the data.
+
+Usage: python gallery/audio/sonify.py [--out DIR]
+"""
+
+import argparse
+import json
+import math
+import struct
+import wave
+from datetime import date
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+DATA_PATH = SCRIPT_DIR.parent / "data" / "leak_demo.json"
+
+SAMPLE_RATE = 22050
+TOTAL_SECONDS = 25.0
+TARGET_PEAK = 0.80       # headroom under the 0.9 clipping line
+PITCH_LOW_HZ = 110.0     # A2
+PITCH_HIGH_HZ = 440.0    # A4. 110 to 440 Hz, two octaves.
+ATTACK_SECONDS = 0.008   # short linear fade-in per segment: no clicks
+RELEASE_SECONDS = 0.008  # short linear fade-out per segment: no clicks
+HARMONICS = ((1, 1.0), (2, 0.20), (3, 0.10))  # sine with a little warmth
+DETUNE_CENTS = 75.0      # how far the naive tone drifts sharp, at most
+
+
+def load_curve():
+    with open(DATA_PATH, "r") as f:
+        data = json.load(f)
+    points = data["curve"]
+    detail = data["leak"]["detail"]
+    dates = [date.fromisoformat(p["date"]) for p in points]
+    honest = [float(p["honest"]) for p in points]
+    naive = [float(p["naive"]) for p in points]
+    window_lo = date.fromisoformat(detail["first_leak_day"])
+    window_hi = date.fromisoformat(detail["knowledge_time"])
+    return dates, honest, naive, window_lo, window_hi
+
+
+def pitch_freqs(equities, lo, hi):
+    # Map log-equity linearly onto log-frequency across the shared range.
+    out = []
+    for eq in equities:
+        le = math.log2(eq / 100000.0)
+        t = (le - lo) / (hi - lo)
+        out.append(PITCH_LOW_HZ * 2.0 ** ((math.log2(PITCH_HIGH_HZ / PITCH_LOW_HZ)) * t))
+    return out
+
+
+def render(freqs, seg_samples, env):
+    """One segment per point, gliding between pitches, phase continuous.
+
+    Frequency is integrated into a running phase, so a moving pitch never
+    discontinues and never clicks on its own. The linear attack and release
+    per segment handle the boundaries.
+    """
+    n = len(freqs)
+    total = seg_samples * n
+    out = [0.0] * total
+    two_pi_over_sr = 2.0 * math.pi / SAMPLE_RATE
+    sin = math.sin
+    phase = 0.0
+    for seg in range(n):
+        f0 = freqs[seg]
+        f1 = freqs[seg + 1] if seg + 1 < n else freqs[seg]
+        base = seg * seg_samples
+        for j in range(seg_samples):
+            f = f0 + (f1 - f0) * (j / seg_samples)
+            phase += two_pi_over_sr * f
+            s = 0.0
+            for k, amp in HARMONICS:
+                s += amp * sin(k * phase)
+            out[base + j] = s * env[j]
+    return out
+
+
+def make_env(seg_samples):
+    attack = max(1, int(ATTACK_SECONDS * SAMPLE_RATE))
+    release = max(1, int(RELEASE_SECONDS * SAMPLE_RATE))
+    env = [1.0] * seg_samples
+    for i in range(min(attack, seg_samples)):
+        env[i] = i / attack
+    for i in range(min(release, seg_samples)):
+        env[seg_samples - 1 - i] = i / release
+    return env
+
+
+def normalize(samples):
+    peak = max(abs(s) for s in samples)
+    if peak == 0.0:
+        return list(samples)
+    scale = TARGET_PEAK / peak
+    return [s * scale for s in samples]
+
+
+def write_wav(path, samples):
+    ints = []
+    for s in samples:
+        v = max(-1.0, min(1.0, s))
+        ints.append(int(v * 32767.0))
+    w = wave.open(str(path), "wb")
+    w.setnchannels(1)
+    w.setsampwidth(2)
+    w.setframerate(SAMPLE_RATE)
+    w.writeframes(struct.pack("<%dh" % len(ints), *ints))
+    w.close()
+
+
+def report(path):
+    # Open the finished file back up with the wave module and state facts.
+    with wave.open(str(path), "rb") as w:
+        frames = w.getnframes()
+        sr = w.getframerate()
+        raw = w.readframes(frames)
+    ints = struct.unpack("<%dh" % frames, raw)
+    peak = max(abs(i) for i in ints) / 32767.0
+    print("wrote %s: %d bytes, %d frames, %.3f s, peak %.3f"
+          % (path.name, path.stat().st_size, frames, frames / sr, peak))
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Render the leak demo as audio.")
+    ap.add_argument("--out", default=str(SCRIPT_DIR),
+                    help="output directory (default: gallery/audio)")
+    args = ap.parse_args()
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+
+    dates, honest_eq, naive_eq, window_lo, window_hi = load_curve()
+    print("read %s: %d points, %s to %s"
+          % (DATA_PATH.relative_to(SCRIPT_DIR.parent.parent), len(dates),
+             dates[0], dates[-1]))
+
+    logs = [math.log2(v / 100000.0) for v in honest_eq + naive_eq]
+    lo, hi = min(logs), max(logs)
+    f_honest = pitch_freqs(honest_eq, lo, hi)
+    f_naive = pitch_freqs(naive_eq, lo, hi)
+
+    # Leak window: the naive tone hides behind the honest contour, one
+    # fixed detune above it, ramping in. The real naive curve rose during
+    # the window; the pin is deliberate. It makes the beat the whole show
+    # and leaves the jump to knowledge_time as the reveal.
+    window_idx = [i for i, d in enumerate(dates) if window_lo <= d <= window_hi]
+    f_naive_pinned = list(f_naive)
+    for pos, i in enumerate(window_idx):
+        ramp = pos / max(1, len(window_idx) - 1)
+        f_naive_pinned[i] = f_honest[i] * 2.0 ** (ramp * DETUNE_CENTS / 1200.0)
+
+    seg_samples = int(TOTAL_SECONDS * SAMPLE_RATE) // len(dates)
+    env = make_env(seg_samples)
+
+    honest_track = normalize(render(f_honest, seg_samples, env))
+    naive_track = normalize(render(f_naive, seg_samples, env))
+    pinned_track = normalize(render(f_naive_pinned, seg_samples, env))
+    # Equal weights. Neither voice owns the room.
+    chorus = normalize([0.5 * a + 0.5 * b
+                        for a, b in zip(honest_track, pinned_track)])
+
+    write_wav(out / "honest.wav", honest_track)
+    write_wav(out / "naive.wav", naive_track)
+    write_wav(out / "leak_chorus.wav", chorus)
+    print()
+    report(out / "honest.wav")
+    report(out / "naive.wav")
+    report(out / "leak_chorus.wav")
+    print()
+    print("leak window: %s to %s, %d of %d points pinned"
+          % (window_lo, window_hi, len(window_idx), len(dates)))
+    if window_idx:
+        last = window_idx[-1]
+        d_hz = f_honest[last] * (2.0 ** (DETUNE_CENTS / 1200.0) - 1.0)
+        print("detune: 0 to %d cents across the window. Beat rate d ends at "
+              "%.1f Hz on a %.1f Hz tone." % (DETUNE_CENTS, d_hz, f_honest[last]))
+        reveal = last * seg_samples / SAMPLE_RATE
+        print("reveal: t=%.2f s, the naive tone drops the pin and jumps to "
+              "its own pitch (%.0f to %.0f Hz)."
+              % (reveal, f_naive_pinned[last], f_naive[last + 1]))
+    print("done: 3 files in %s" % out)
+
+
+if __name__ == "__main__":
+    main()
+````
+
+</details>
+
+<details>
+<summary>MIDI · a hand-rolled Standard MIDI File with a parse-back verifier</summary>
+
+````py
+#!/usr/bin/env python3
+"""Render the nohindsight leak demo as a Standard MIDI File.
+
+Writes leak_score.mid next to this script. No mido: the file is written by
+hand, and the layout below doubles as a lesson in the format.
+
+Byte layout
+-----------
+The file is two chunks, back to back.
+
+  MThd  4D 54 68 64    chunk tag, the ASCII string "MThd"
+        00 00 00 06    header chunk length, always 6
+        00 00          format 0: one track carries everything
+        00 01          one track
+        01 E0          division: 480 ticks per quarter note
+
+  MTrk  4D 54 72 6B    chunk tag, the ASCII string "MTrk"
+        xx xx xx xx    track length in bytes, patched in after serialization
+        ...events...   each event is a delta time, then event bytes
+
+Events used here:
+
+  FF 51 03 07 A1 20   tempo meta: 500000 microseconds per quarter note,
+                      which is 120 BPM. An eighth note is 240 ticks.
+  Cn PP               program change on channel n. Channel 0 gets program
+                      48, string ensemble: the honest lane hums. Channel 1
+                      gets program 80, square lead: the naive lane talks
+                      over it.
+  9n KK VV            note on: channel n, key KK (60 is middle C),
+                      velocity VV.
+  8n KK VV            note off, same fields, velocity 0.
+  FF 2F 00            end of track. Last event, always.
+
+Delta times are variable-length quantities: 7 data bits per byte, high bit
+set on every byte except the last, most significant group first. The grid
+spacing is 240 ticks, which does not fit in 7 bits, so slot deltas are the
+two bytes 81 70. Delta 0 is a single 00 byte and chains events at one tick.
+
+Score layout
+------------
+The curve is quantized to one 1/8th-note slot per curve point, 95 slots,
+23.75 seconds. Pitch is log2(equity / 100000) scaled into MIDI 45 to 69,
+A2 to A4, 110 to 440 Hz: the same range sonify.py sings. When the naive
+equity diverges from the honest equity by more than 5 percent, the naive
+channel doubles its note one semitone up. A minor second. The interval that
+sounds wrong on purpose, once per leaked decision.
+
+Usage:
+  python gallery/audio/midi_map.py           write leak_score.mid, then verify
+  python gallery/audio/midi_map.py --verify  parse the existing file back
+"""
+
+import argparse
+import json
+import math
+import struct
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+DATA_PATH = SCRIPT_DIR.parent / "data" / "leak_demo.json"
+MIDI_PATH = SCRIPT_DIR / "leak_score.mid"
+
+TICKS_PER_QUARTER = 480
+BPM = 120.0
+MICROSECONDS_PER_QUARTER = int(60_000_000 / BPM)  # 500000
+SLOT_TICKS = TICKS_PER_QUARTER // 2               # eighth note: 240 ticks
+
+NOTE_LOW = 45   # A2, 110 Hz
+NOTE_HIGH = 69  # A4, 440 Hz, same range as the WAVs
+
+HONEST_CHANNEL = 0
+NAIVE_CHANNEL = 1
+HONEST_PROGRAM = 48   # string ensemble
+NAIVE_PROGRAM = 80    # square lead
+HONEST_VELOCITY = 72
+NAIVE_VELOCITY = 84
+DISSONANT_VELOCITY = 76
+
+DIVERGENCE_THRESHOLD = 0.05  # naive more than 5 percent off honest
+
+
+def vlq(n):
+    # Variable-length quantity: 7 bits per byte, high bit on all but last.
+    out = [n & 0x7F]
+    n >>= 7
+    while n:
+        out.append((n & 0x7F) | 0x80)
+        n >>= 7
+    return bytes(reversed(out))
+
+
+def make_note_fn(curve):
+    eqs = [float(p["honest"]) for p in curve] + [float(p["naive"]) for p in curve]
+    logs = [math.log2(v / 100000.0) for v in eqs]
+    lo, hi = min(logs), max(logs)
+
+    def note(equity):
+        t = (math.log2(equity / 100000.0) - lo) / (hi - lo)
+        return max(NOTE_LOW, min(NOTE_HIGH, NOTE_LOW + round((NOTE_HIGH - NOTE_LOW) * t)))
+
+    return note
+
+
+def serialize(events):
+    # events: (tick, order, payload). Note-offs sort before note-ons at the
+    # same tick, so a slot ends before the next one begins. Meta events at
+    # tick 0 ride in between with order 1.
+    events = sorted(events, key=lambda e: (e[0], e[1]))
+    data = bytearray()
+    last = 0
+    for tick, _order, payload in events:
+        data += vlq(tick - last)
+        data += payload
+        last = tick
+    data += vlq(0) + b"\xff\x2f\x00"  # end of track at the final tick
+    track = b"MTrk" + struct.pack(">I", len(data)) + bytes(data)
+    header = b"MThd" + struct.pack(">IHHH", 6, 0, 1, TICKS_PER_QUARTER)
+    return header + track
+
+
+def build_score(curve):
+    note = make_note_fn(curve)
+    tempo = b"\xff\x51\x03" + struct.pack(">I", MICROSECONDS_PER_QUARTER)[1:]
+    events = [
+        (0, 1, tempo),
+        (0, 1, bytes([0xC0 | HONEST_CHANNEL, HONEST_PROGRAM])),
+        (0, 1, bytes([0xC0 | NAIVE_CHANNEL, NAIVE_PROGRAM])),
+    ]
+    dissonant = 0
+    for i, p in enumerate(curve):
+        on = i * SLOT_TICKS
+        off = (i + 1) * SLOT_TICKS
+        hn = note(float(p["honest"]))
+        nn = note(float(p["naive"]))
+        events.append((off, 0, bytes([0x80 | HONEST_CHANNEL, hn, 0])))
+        events.append((on, 2, bytes([0x90 | HONEST_CHANNEL, hn, HONEST_VELOCITY])))
+        events.append((off, 0, bytes([0x80 | NAIVE_CHANNEL, nn, 0])))
+        events.append((on, 2, bytes([0x90 | NAIVE_CHANNEL, nn, NAIVE_VELOCITY])))
+        gap = float(p["naive"]) / float(p["honest"]) - 1.0
+        if abs(gap) > DIVERGENCE_THRESHOLD:
+            events.append((off, 0, bytes([0x80 | NAIVE_CHANNEL, nn + 1, 0])))
+            events.append((on, 2, bytes([0x90 | NAIVE_CHANNEL, nn + 1, DISSONANT_VELOCITY])))
+            dissonant += 1
+    total_ticks = len(curve) * SLOT_TICKS
+    return serialize(events), dissonant, total_ticks
+
+
+def read_vlq(buf, i):
+    value = 0
+    while True:
+        b = buf[i]
+        i += 1
+        value = (value << 7) | (b & 0x7F)
+        if b < 0x80:
+            return value, i
+
+
+def verify(path):
+    """Tiny SMF reader. Walks the chunks, counts note-ons, measures time."""
+    raw = path.read_bytes()
+    if raw[:4] == b"MThd":
+        print("header bytes: b'MThd', correct")
+    else:
+        print("header bytes: %r, wrong, expected b'MThd'" % raw[:4])
+        return 1
+    header_len, fmt, ntrks, division = struct.unpack(">IHHH", raw[4:14])
+    print("header: format=%d tracks=%d division=%d ticks/quarter" % (fmt, ntrks, division))
+    pos = 14
+    if raw[pos:pos + 4] == b"MTrk":
+        print("track tag: b'MTrk', correct")
+    else:
+        print("track tag: %r, wrong" % raw[pos:pos + 4])
+        return 1
+    track_len = struct.unpack(">I", raw[pos + 4:pos + 8])[0]
+    track = raw[pos + 8:pos + 8 + track_len]
+    i = 0
+    tick = 0
+    eot_tick = 0
+    tempo_us = None
+    ons = {HONEST_CHANNEL: 0, NAIVE_CHANNEL: 0}
+    while i < len(track):
+        delta, i = read_vlq(track, i)
+        tick += delta
+        status = track[i]
+        if status == 0xFF:
+            mtype = track[i + 1]
+            mlen, i = read_vlq(track, i + 2)
+            payload = track[i:i + mlen]
+            i += mlen
+            if mtype == 0x51 and mlen == 3:
+                tempo_us = int.from_bytes(payload, "big")
+            elif mtype == 0x2F:
+                eot_tick = tick
+        elif status in (0xF0, 0xF7):
+            mlen, i = read_vlq(track, i + 1)
+            i += mlen
+        else:
+            high = status & 0xF0
+            ch = status & 0x0F
+            if high in (0xC0, 0xD0):
+                i += 2
+            else:
+                if high == 0x90 and track[i + 2] > 0 and ch in ons:
+                    ons[ch] += 1
+                i += 3
+    seconds_per_tick = (tempo_us or 500000) / 1e6 / division
+    print("tempo: %d us/quarter (%.0f BPM)" % (tempo_us or 500000, 60e6 / (tempo_us or 500000)))
+    print("note-ons: %d total (%d honest, %d naive)" % (sum(ons.values()), ons[0], ons[1]))
+    print("end of track at tick %d, duration %.2f s" % (eot_tick, eot_tick * seconds_per_tick))
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Write the leak score as MIDI.")
+    ap.add_argument("--verify", action="store_true",
+                    help="parse leak_score.mid back instead of writing it")
+    args = ap.parse_args()
+    if args.verify:
+        raise SystemExit(verify(MIDI_PATH))
+    with open(DATA_PATH, "r") as f:
+        data = json.load(f)
+    curve = data["curve"]
+    payload, dissonant, total_ticks = build_score(curve)
+    MIDI_PATH.write_bytes(payload)
+    print("wrote %s: %d bytes" % (MIDI_PATH.name, len(payload)))
+    seconds_per_tick = (60.0 / BPM) / TICKS_PER_QUARTER
+    print("score: %d slots of %d ticks, %.2f s at %.0f BPM"
+          % (len(curve), SLOT_TICKS, total_ticks * seconds_per_tick, BPM))
+    print("dissonant slots: %d of %d, naive more than %d percent off honest"
+          % (dissonant, len(curve), int(DIVERGENCE_THRESHOLD * 100)))
+    print()
+    raise SystemExit(verify(MIDI_PATH))
+
+
+if __name__ == "__main__":
+    main()
+````
+
+</details>
+
+<details>
+<summary>librosa · where the spectral centroid moves: the reveal</summary>
+
+````py
+#!/usr/bin/env python3
+"""Inspect leak_chorus.wav with real audio tools.
+
+librosa computes an RMS envelope and a spectral centroid over time. The
+centroid carries the story: during the leak window the two tones sit close
+to unison near 110 Hz, warm and low. At knowledge_time, 2024-03-01, the
+naive tone drops its pin and jumps to its own pitch near 194 Hz, and the
+centroid leaps. This script prints the frames where the centroid moves
+most. Those are the reveal, in numbers. The 5 Hz beat inside the window
+shows up as a small wobble in both curves, right before the jump.
+
+This script is not run in CI. Install librosa first.
+
+    pip install librosa
+    python gallery/audio/analyze_leak.py
+
+pydub variant, for mp3 export, if mp3 is what the delivery needs:
+
+    from pydub import AudioSegment
+
+    seg = AudioSegment.from_wav("gallery/audio/leak_chorus.wav")
+    seg.export("gallery/audio/leak_chorus.mp3", format="mp3", bitrate="192k")
+
+    # pydub needs ffmpeg on PATH for mp3 encoding. ffmpeg is already
+    # installed here, so the export is one call.
+"""
+
+import argparse
+import json
+from datetime import date
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+DEFAULT_WAV = SCRIPT_DIR / "leak_chorus.wav"
+DATA_PATH = SCRIPT_DIR.parent / "data" / "leak_demo.json"
+
+
+def leak_window_dates():
+    with open(DATA_PATH, "r") as f:
+        data = json.load(f)
+    detail = data["leak"]["detail"]
+    return date.fromisoformat(detail["first_leak_day"]), date.fromisoformat(detail["knowledge_time"])
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Analyze leak_chorus.wav.")
+    ap.add_argument("--wav", default=str(DEFAULT_WAV),
+                    help="path to the chorus (default: gallery/audio/leak_chorus.wav)")
+    args = ap.parse_args()
+    wav_path = Path(args.wav)
+
+    try:
+        import librosa
+        import numpy
+    except ImportError as exc:
+        print("librosa is missing. Install it: pip install librosa")
+        print("detail: %s" % exc)
+        return 1
+    if not wav_path.exists():
+        print("no file at %s. Run gallery/audio/sonify.py first." % wav_path)
+        return 1
+
+    y, sr = librosa.load(str(wav_path), sr=None, mono=True)
+    rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=512)[0]
+    centroid = librosa.feature.spectral_centroid(y=y, sr=sr, n_fft=2048, hop_length=512)[0]
+    times = librosa.times_like(centroid, sr=sr, hop_length=512)
+
+    print("file: %s" % wav_path)
+    print("duration: %.2f s, sample rate %d Hz, %d analysis frames"
+          % (len(y) / sr, sr, len(centroid)))
+    print()
+    print("rms envelope: mean %.4f, max %.4f at t=%.2f s, min %.4f at t=%.2f s"
+          % (float(numpy.mean(rms)), float(numpy.max(rms)),
+             float(times[int(numpy.argmax(rms))]), float(numpy.min(rms)),
+             float(times[int(numpy.argmin(rms))])))
+    print("spectral centroid: mean %.0f Hz, min %.0f Hz at t=%.2f s, max %.0f Hz at t=%.2f s"
+          % (float(numpy.mean(centroid)), float(numpy.min(centroid)),
+             float(times[int(numpy.argmin(centroid))]), float(numpy.max(centroid)),
+             float(times[int(numpy.argmax(centroid))])))
+
+    lo, hi = leak_window_dates()
+    print()
+    print("leak window from the demo data: %s to %s" % (lo, hi))
+    print("largest centroid shifts, frame to frame:")
+    shifts = numpy.abs(numpy.diff(centroid))
+    top = sorted(numpy.argsort(shifts)[::-1][:5])
+    for idx in top:
+        print("  t=%.2f s: %.0f Hz to %.0f Hz in one hop"
+              % (float(times[idx]), float(centroid[idx]), float(centroid[idx + 1])))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+````
+
+</details>
+
+<details>
+<summary>SVG source · the two clocks diagram</summary>
+
+````svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 620" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <defs>
+    <marker id="arr-lav" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D0C4DF"/>
+    </marker>
+    <marker id="arr-crim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#E5484D"/>
+    </marker>
+  </defs>
+
+  <rect width="1160" height="620" fill="#0B0C10"/>
+  <g stroke="#1A1C26" stroke-width="1">
+    <line x1="64" y1="380" x2="1096" y2="380"/>
+    <line x1="64" y1="240" x2="1096" y2="240"/>
+  </g>
+
+  <!-- title block -->
+  <text x="64" y="84" fill="#F2F3F7" font-size="22" letter-spacing="5">THE TWO CLOCKS</text>
+  <text x="64" y="112" fill="#8A8FA3" font-size="14">every datum exists twice - as an event, and as knowledge</text>
+
+  <!-- event_time track -->
+  <text x="64" y="194" fill="#D0C4DF" font-size="13">event_time</text>
+  <line x1="250" y1="190" x2="1060" y2="190" stroke="#2A2D3A" stroke-width="2"/>
+  <g fill="#3A3E4E">
+    <rect x="249" y="186" width="2" height="8"/>
+    <rect x="519" y="186" width="2" height="8"/>
+    <rect x="809" y="186" width="2" height="8"/>
+    <rect x="1059" y="186" width="2" height="8"/>
+  </g>
+  <!-- the event: quarter closes, revenue is 90 -->
+  <rect x="250" y="164" width="196" height="24" rx="5" fill="#221E33" stroke="#705EB1" stroke-width="1.5"/>
+  <text x="262" y="180" fill="#D0C4DF" font-size="12">quarter closes · revenue = 90.0</text>
+  <line x1="348" y1="188" x2="348" y2="192" stroke="#705EB1" stroke-width="1.5"/>
+
+  <!-- knowledge_time track -->
+  <text x="64" y="334" fill="#D0C4DF" font-size="13">knowledge_time</text>
+  <line x1="250" y1="330" x2="1060" y2="330" stroke="#2A2D3A" stroke-width="2"/>
+  <g fill="#3A3E4E">
+    <rect x="249" y="326" width="2" height="8"/>
+    <rect x="519" y="326" width="2" height="8"/>
+    <rect x="809" y="326" width="2" height="8"/>
+    <rect x="1059" y="326" width="2" height="8"/>
+  </g>
+  <g font-size="11" fill="#5A5F72">
+    <text x="243" y="356">FEB 1</text>
+    <text x="503" y="356">FEB 15</text>
+    <text x="795" y="356">MAR 1</text>
+    <text x="1036" y="356">MAR 15</text>
+  </g>
+
+  <!-- filing -->
+  <rect x="292" y="304" width="140" height="24" rx="5" fill="#14161D" stroke="#D0C4DF" stroke-width="1.5"/>
+  <text x="304" y="320" fill="#F2F3F7" font-size="12">filed FEB 4 · 90.0</text>
+  <!-- restatement -->
+  <rect x="652" y="304" width="164" height="24" rx="5" fill="#14161D" stroke="#E6B455" stroke-width="1.5"/>
+  <text x="664" y="320" fill="#F2F3F7" font-size="12">restated FEB 25 · 61.0</text>
+  <text x="828" y="320" fill="#8A8FA3" font-size="11">a revision is history, not a leak</text>
+
+  <!-- playhead: backtest now = FEB 12 -->
+  <line x1="462" y1="140" x2="462" y2="352" stroke="#D0C4DF" stroke-width="2"/>
+  <rect x="386" y="122" width="152" height="22" rx="11" fill="#D0C4DF"/>
+  <text x="400" y="137" fill="#0B0C10" font-size="12" font-weight="bold">backtest now: FEB 12</text>
+
+  <!-- honest read -->
+  <path d="M462,270 L366,304" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr-lav)"/>
+  <text x="368" y="270" fill="#D0C4DF" font-size="12">honest read</text>
+
+  <!-- leak path -->
+  <path d="M466,270 L712,302" stroke="#E5484D" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arr-crim)"/>
+  <text x="520" y="286" fill="#E5484D" font-size="12">the leak: 13 days into the future</text>
+
+  <!-- verdict chips -->
+  <rect x="250" y="432" width="336" height="92" rx="10" fill="#12141C" stroke="#D0C4DF" stroke-width="1.5"/>
+  <text x="274" y="462" fill="#F2F3F7" font-size="15">what the guard returns: 90.0</text>
+  <text x="274" y="486" fill="#8A8FA3" font-size="12">the number the world had on FEB 12</text>
+  <text x="274" y="506" fill="#D0C4DF" font-size="12">no leak</text>
+
+  <rect x="640" y="432" width="428" height="92" rx="10" fill="#12141C" stroke="#E5484D" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text x="664" y="462" fill="#F2F3F7" font-size="15">what a naive merge returns: 61.0</text>
+  <text x="664" y="486" fill="#8A8FA3" font-size="12">a number the world would only have on FEB 25</text>
+  <text x="664" y="506" fill="#E5484D" font-size="12">silent, invisible, and it makes the backtest better</text>
+
+  <text x="1096" y="596" fill="#4A4E63" font-size="11" text-anchor="end">nohindsight · the data refuses to lie</text>
+</svg>
+````
+
+</details>
+
+<details>
+<summary>SVG source · the departments architecture</summary>
+
+````svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 560" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#D0C4DF"/>
+    </marker>
+    <marker id="arr-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5A5F72"/>
+    </marker>
+    <marker id="arr-crim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#E5484D"/>
+    </marker>
+  </defs>
+
+  <rect width="1160" height="560" fill="#0B0C10"/>
+  <text x="64" y="76" fill="#F2F3F7" font-size="22" letter-spacing="5">FIVE DEPARTMENTS, ONE JOB</text>
+  <text x="64" y="104" fill="#8A8FA3" font-size="14">nothing here is a backtester. everything here is the truth-squad around one.</text>
+
+  <!-- checks: above, watching -->
+  <rect x="200" y="140" width="300" height="88" rx="10" fill="#12141C" stroke="#E6B455" stroke-width="1.5"/>
+  <text x="222" y="170" fill="#F2F3F7" font-size="15">checks/ · the police</text>
+  <text x="222" y="192" fill="#8A8FA3" font-size="12">scans the data, scans the code,</text>
+  <text x="222" y="210" fill="#8A8FA3" font-size="12">files findings: LEAK / WARN / INFO</text>
+  <path d="M290,228 L232,268" stroke="#E6B455" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arr-dim)"/>
+  <path d="M420,228 L500,238" stroke="#E6B455" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arr-dim)"/>
+
+  <!-- data -->
+  <rect x="64" y="270" width="204" height="150" rx="10" fill="#12141C" stroke="#705EB1" stroke-width="2"/>
+  <text x="84" y="300" fill="#D0C4DF" font-size="16">data/</text>
+  <text x="84" y="326" fill="#8A8FA3" font-size="12">append-only ledgers,</text>
+  <text x="84" y="344" fill="#8A8FA3" font-size="12">two times per datum,</text>
+  <text x="84" y="362" fill="#8A8FA3" font-size="12">revisions are history,</text>
+  <text x="84" y="380" fill="#8A8FA3" font-size="12">not noise</text>
+
+  <!-- guard gate -->
+  <rect x="304" y="288" width="88" height="114" rx="14" fill="#1C1626" stroke="#D0C4DF" stroke-width="2"/>
+  <text x="348" y="330" fill="#D0C4DF" font-size="12" text-anchor="middle">AsOf</text>
+  <text x="348" y="348" fill="#D0C4DF" font-size="12" text-anchor="middle">View</text>
+  <text x="348" y="376" fill="#8A8FA3" font-size="10" text-anchor="middle">the guard</text>
+
+  <!-- the impossible bypass -->
+  <path d="M268,260 C310,196 420,196 462,242" stroke="#E5484D" stroke-width="2" stroke-dasharray="7 5" fill="none" marker-end="url(#arr-crim)"/>
+  <g transform="translate(358,182)">
+    <circle r="13" fill="#0B0C10" stroke="#E5484D" stroke-width="2"/>
+    <line x1="-5" y1="-5" x2="5" y2="5" stroke="#E5484D" stroke-width="2"/>
+    <line x1="5" y1="-5" x2="-5" y2="5" stroke="#E5484D" stroke-width="2"/>
+  </g>
+  <text x="382" y="166" fill="#E5484D" font-size="11">no way around</text>
+
+  <!-- strategy -->
+  <rect x="436" y="252" width="204" height="160" rx="10" fill="#12141C" stroke="#705EB1" stroke-width="2"/>
+  <text x="456" y="282" fill="#D0C4DF" font-size="16">your strategy</text>
+  <text x="456" y="308" fill="#8A8FA3" font-size="12">runs on a Clock,</text>
+  <text x="456" y="326" fill="#8A8FA3" font-size="12">reads through the view.</text>
+  <text x="456" y="350" fill="#F2F3F7" font-size="12">looking at the future is</text>
+  <text x="456" y="368" fill="#E5484D" font-size="12">a hard error, not a warning</text>
+
+  <!-- costs -->
+  <rect x="676" y="272" width="200" height="140" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="696" y="302" fill="#F2F3F7" font-size="16">costs/</text>
+  <text x="696" y="328" fill="#8A8FA3" font-size="12">fees · spread · impact</text>
+  <text x="696" y="346" fill="#8A8FA3" font-size="12">the square-root tax:</text>
+  <text x="696" y="364" fill="#8A8FA3" font-size="12">σ · √(Q / ADV)</text>
+
+  <!-- forensics -->
+  <rect x="912" y="246" width="216" height="172" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="932" y="276" fill="#F2F3F7" font-size="16">forensics/</text>
+  <text x="932" y="302" fill="#8A8FA3" font-size="12">deflated Sharpe · PBO</text>
+  <text x="932" y="320" fill="#8A8FA3" font-size="12">permutation p-value</text>
+  <rect x="932" y="338" width="58" height="20" rx="10" fill="#0B0C10" stroke="#D0C4DF" stroke-width="1.2"/>
+  <text x="961" y="352" fill="#D0C4DF" font-size="10" text-anchor="middle">REAL</text>
+  <rect x="998" y="338" width="86" height="20" rx="10" fill="#0B0C10" stroke="#E6B455" stroke-width="1.2"/>
+  <text x="1041" y="352" fill="#E6B455" font-size="10" text-anchor="middle">SUSPICIOUS</text>
+  <rect x="1092" y="338" width="72" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+  <text x="1128" y="352" fill="#E5484D" font-size="10" text-anchor="middle">FANTASY</text>
+  <text x="932" y="386" fill="#8A8FA3" font-size="12">"probably real" is a number,</text>
+  <text x="932" y="404" fill="#8A8FA3" font-size="12">not a vibe</text>
+
+  <!-- pipeline arrows -->
+  <path d="M268,345 L300,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M392,345 L432,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M640,345 L672,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M876,345 L908,345" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- live loop -->
+  <rect x="470" y="446" width="320" height="86" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1.5"/>
+  <text x="492" y="476" fill="#F2F3F7" font-size="15">live/ · the safety net</text>
+  <text x="492" y="498" fill="#8A8FA3" font-size="12">fill emulator · paper broker · kill switch</text>
+  <text x="492" y="516" fill="#8A8FA3" font-size="12">the same code path, with fake money</text>
+  <path d="M1020,418 C1020,470 800,486 794,489" stroke="#5A5F72" stroke-width="1.5" stroke-dasharray="5 5" fill="none" marker-end="url(#arr-dim)"/>
+  <path d="M466,489 C330,486 180,460 168,424" stroke="#5A5F72" stroke-width="1.5" stroke-dasharray="5 5" fill="none" marker-end="url(#arr-dim)"/>
+  <text x="130" y="480" fill="#5A5F72" font-size="11">paper-trade the same path</text>
+
+  <text x="1096" y="540" fill="#4A4E63" font-size="11" text-anchor="end">nohindsight · architecture</text>
+</svg>
+````
+
+</details>
+
+<details>
+<summary>SVG source · the field guide to six species</summary>
+
+````svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 660" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <rect width="1160" height="660" fill="#0B0C10"/>
+  <text x="64" y="76" fill="#F2F3F7" font-size="22" letter-spacing="5">A FIELD GUIDE TO CHEATING BY ACCIDENT</text>
+  <text x="64" y="104" fill="#8A8FA3" font-size="14">six species. every backtest failure you have ever seen is one of these, wearing a disguise.</text>
+
+  <!-- LK-01 -->
+  <g transform="translate(64,140)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-01</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">time travel</text>
+    <path d="M250,52 L296,52 M250,60 L296,60 M296,44 L296,60" stroke="#D0C4DF" stroke-width="1.5" fill="none"/>
+    <path d="M270,60 C262,50 278,44 272,34" stroke="#E5484D" stroke-width="1.5" fill="none" marker-end="none"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Time Traveler</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">look-ahead bias. your signal uses a</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">number the future hadn't produced.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: the guard, or shift(-1) lint</text>
+  </g>
+
+  <!-- LK-02 -->
+  <g transform="translate(418,164)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-02</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">the dead</text>
+    <g fill="none" stroke="#D0C4DF" stroke-width="1.5">
+      <circle cx="272" cy="48" r="11"/>
+    </g>
+    <line x1="264" y1="40" x2="280" y2="56" stroke="#E5484D" stroke-width="1.5"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Ghost List</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">survivorship bias. you backtest only</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">what still exists. the dead don't vote,</text>
+    <text x="18" y="148" fill="#8A8FA3" font-size="12">but they happened.</text>
+    <text x="18" y="178" fill="#D0C4DF" font-size="12">caught by: Universe.survivorship_report</text>
+  </g>
+
+  <!-- LK-03 -->
+  <g transform="translate(772,140)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-03</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">the revision</text>
+    <path d="M246,44 L298,44 L288,34 M298,44 L288,54" stroke="#E6B455" stroke-width="1.5" fill="none"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Moving Number</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">the fundamental you used was quietly</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">restated. whose number did you trade?</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: revisioned ledgers + demo</text>
+  </g>
+
+  <!-- LK-04 -->
+  <g transform="translate(64,412)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-04</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">selection</text>
+    <g fill="#D0C4DF" font-size="11">
+      <text x="250" y="50">N</text>
+    </g>
+    <g stroke="#8A8FA3" stroke-width="1.2" fill="none">
+      <path d="M252,44 A14,14 0 1 1 266,58"/>
+    </g>
+    <path d="M262,40 L268,46 L258,48 Z" fill="#E5484D"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Lucky Monkey</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">overfitting. try forty strategies, keep</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">the best. the best one is mostly luck.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: deflated Sharpe · PBO</text>
+  </g>
+
+  <!-- LK-05 -->
+  <g transform="translate(418,436)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-05</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">the free lunch</text>
+    <path d="M250,52 L296,52 M258,52 L258,40 L288,40 L288,52" stroke="#D0C4DF" stroke-width="1.5" fill="none"/>
+    <text x="264" y="36" fill="#E5484D" font-size="9">free?</text>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Free Lunch</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">cost fantasy. flat 0.1% slippage.</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">reality charges by size, spread, and mood.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">priced by: costs/ · σ√(Q/ADV)</text>
+  </g>
+
+  <!-- LK-06 -->
+  <g transform="translate(772,412)">
+    <rect width="324" height="204" rx="10" fill="#12141C" stroke="#2A2D3A" stroke-width="1.5"/>
+    <rect x="18" y="18" width="52" height="20" rx="10" fill="#0B0C10" stroke="#E5484D" stroke-width="1.2"/>
+    <text x="44" y="32" fill="#E5484D" font-size="10" text-anchor="middle">LK-06</text>
+    <text x="222" y="44" fill="#5A5F72" font-size="10">drift</text>
+    <path d="M250,38 L298,38 M256,38 L256,56 M292,38 L292,50" stroke="#D0C4DF" stroke-width="1.5" fill="none"/>
+    <text x="18" y="86" fill="#F2F3F7" font-size="19">The Shrinking Pond</text>
+    <text x="18" y="112" fill="#8A8FA3" font-size="12">universe drift. a universe that only</text>
+    <text x="18" y="130" fill="#8A8FA3" font-size="12">shrinks is a universe that only wins.</text>
+    <text x="18" y="160" fill="#D0C4DF" font-size="12">caught by: point-in-time membership</text>
+  </g>
+
+  <text x="1096" y="640" fill="#4A4E63" font-size="11" text-anchor="end">all six are caught or priced somewhere in this repo.</text>
+</svg>
+````
+
+</details>
+
+<details>
+<summary>mindmap · the six species as a mermaid map</summary>
+
+```mermaid
+mindmap
+  root((cheating by accident))
+    the time traveler
+      look-ahead bias
+      caught by: the guard and the AST lint
+    the ghost list
+      survivorship bias
+      caught by: universe membership
+    the moving number
+      restatements
+      caught by: revisioned ledgers
+    the lucky monkey
+      overfitting
+      caught by: deflated sharpe and PBO
+    the free lunch
+      flat slippage assumptions
+      priced by: square-root impact
+    the shrinking pond
+      universe drift
+      caught by: point-in-time membership
+```
+
+</details>
+
+<details>
+<summary>OpenSCAD · the printed case for the kill-switch Pi</summary>
 
 ````scad
 // case.scad
@@ -2637,7 +2893,7 @@ ring();
 </details>
 
 <details>
-<summary>Godot 4 source: the market room</summary>
+<summary>Godot 4 · the market room, procedural columns</summary>
 
 ````gd
 # market_room.gd
@@ -2821,17 +3077,8 @@ func _process(delta: float) -> void:
 
 </details>
 
-### The kill switch, on real hardware
-
-| Function | BCM | Physical pin | Wire |
-|---|---|---|---|
-| arm / reset button | BCM17 | 11 | internal pull-up to GND |
-| latched indicator | BCM22 | 15 | 330 ohm to LED, crimson |
-| armed indicator | BCM27 | 13 | 330 ohm to LED, sulfur |
-| status heartbeat | BCM4 | 7 | 330 ohm to LED, blue |
-
 <details>
-<summary>gpiozero source: the kill-switch daemon</summary>
+<summary>Raspberry Pi · the kill-switch daemon, gpiozero</summary>
 
 ````py
 #!/usr/bin/env python3
@@ -2991,12 +3238,8 @@ if __name__ == "__main__":
 
 </details>
 
----
-
-## Network and infrastructure
-
 <details>
-<summary>Wireshark filters and nginx rules</summary>
+<summary>Wireshark and nginx · watching broker traffic, serving reports</summary>
 
 ````md
 # watch_rules.md
@@ -3132,7 +3375,7 @@ server {
 </details>
 
 <details>
-<summary>Terraform source: the report bucket</summary>
+<summary>Terraform · the report bucket and the nightly audit runner</summary>
 
 ````tf
 # main.tf
@@ -3327,7 +3570,7 @@ output "bucket_arn" {
 </details>
 
 <details>
-<summary>OpenSSL source: sign and verify a report</summary>
+<summary>OpenSSL · Ed25519 sign and verify a report artifact</summary>
 
 ````sh
 #!/usr/bin/env bash
@@ -3403,7 +3646,7 @@ sha256sum "$artifact"
 </details>
 
 <details>
-<summary>PostgreSQL source: point-in-time seeds and the leak query</summary>
+<summary>PostgreSQL · point-in-time seeds and the leak-catching query</summary>
 
 ````sql
 -- seeds.sql
@@ -3571,12 +3814,8 @@ ORDER BY d.decision_date;
 
 </details>
 
----
-
-## Machine learning
-
 <details>
-<summary>PyTorch source: the leak classifier, exported to ONNX</summary>
+<summary>PyTorch and ONNX · the leak classifier, accuracy 1.0000 on 2048 windows</summary>
 
 ````py
 #!/usr/bin/env python3
@@ -3743,29 +3982,24 @@ if __name__ == "__main__":
 
 `docs/MILESTONES.md`: five milestones from "find one wrong thing in a CSV"
 to "fit the square-root law on real crypto tapes" to "watch fifty lucky
-monkeys get deflated". Each milestone is one concept interviewers ask about
-and one demoable artifact.
+monkeys get deflated". Each is one concept interviewers ask about and one
+demoable artifact.
 
 ## Limitations
 
-- Fill simulation is bar-close plus latency drift. No queue-position
+- Fill simulation is bar-close plus latency drift; no queue-position
   modeling yet.
-- PBO samples CSCV combinations above 512. Seeds are documented.
-- EDGAR and ALFRED adapters are offline-safe skeletons: real endpoints and
-  parsers, tested on fixtures, no network in tests.
-- The Rust engine carries the guard, forensics, costs, synthetics, checks,
-  and the demo. `live/` is Python-only so far.
+- PBO samples CSCV combinations above 512; seeds are documented.
+- EDGAR and ALFRED adapters are offline-safe skeletons, tested on fixtures.
 - The runtime leak probe cannot see fixed-timestamp peeks; the AST lint
   catches those. Neither substitutes for the guard.
-- The ONNX export is structurally validated (valid protobuf, opset 17) but
-  not numerically compared against torch output yet.
+- The ONNX export is structurally validated, not numerically compared
+  against torch output yet.
 
 ## Status
 
 v0.1.0. 162 Python tests, 94 Rust tests, both suites green in CI, zero
-dependencies in both languages. Tokens and severity colors are pinned in
-`docs/DESIGN.md`. The full build spec, including the planted-defect
-contract, is `docs/SPEC.md`. Regenerate every graphic on this page with
-`python tools/graphics.py` and `python tools/build_readme.py`.
+dependencies in both languages. Build spec: `docs/SPEC.md`. Design tokens:
+`docs/DESIGN.md`.
 
 MIT. Built to learn in public.
