@@ -55,7 +55,7 @@ Leak accounting: 43 decision days priced off a revision first published
 2024-03-01, first read 2024-01-02, up to 58 days before the world had it.
 
 <p align="center">
-  <img src="docs/graphics/receipt.svg" alt="the evidence board" width="720">
+  <img src="docs/diagrams/receipt.svg" alt="the evidence board" width="720">
 </p>
 
 ```bash
@@ -198,6 +198,13 @@ dependencies in both languages. Build spec: `docs/SPEC.md`. Design tokens:
 
 MIT. Built to learn in public.
 """
+
+    # every embedded asset must exist on disk; a wrong path is a 404 on GitHub
+    import re
+    missing = [m for m in re.findall(r'src="([^"]+)"', t)
+               if not m.startswith("http") and not os.path.exists(os.path.join(REPO, m))]
+    if missing:
+        raise SystemExit(f"README references missing files: {missing}")
 
     out = os.path.join(REPO, "README.md")
     with open(out, "w") as f:

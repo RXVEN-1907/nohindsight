@@ -38,7 +38,7 @@ Leak accounting: 43 decision days priced off a revision first published
 2024-03-01, first read 2024-01-02, up to 58 days before the world had it.
 
 <p align="center">
-  <img src="docs/graphics/receipt.svg" alt="the evidence board" width="720">
+  <img src="docs/diagrams/receipt.svg" alt="the evidence board" width="720">
 </p>
 
 ```bash
