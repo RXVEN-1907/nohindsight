@@ -24,10 +24,11 @@
 //! * SYM2 - restatement (fundamentals): the most recent quarter re-filed
 //!   21 days after the original, 30% lower.
 //!
-//! Bars are stamped 20:00 UTC - 4pm US Eastern, the close the bar summarizes
-//! - with event_time == knowledge_time: the stated simplification is that a
-//! bar is knowable at its own close.  The crimes need roughly n_days >= 12
-//! to fit; below that each block shrinks to what the timeline allows.
+//! Bars are stamped 20:00 UTC, 4pm US Eastern, the close the bar
+//! summarizes, with event_time == knowledge_time: the stated
+//! simplification is that a bar is knowable at its own close.  The crimes
+//! need roughly n_days >= 12 to fit; below that each block shrinks to what
+//! the timeline allows.
 
 use crate::core::{days_in_month, Bar, Ledger, Time, Value};
 use crate::rng::SplitMix64;
