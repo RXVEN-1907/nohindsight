@@ -22,4 +22,4 @@ jobs:
       - name: Smoke the CLI
         run: |
           python -m nohindsight version
-          python -m nohindsight demo --output /tmp/nh-demo
+          python -m nohindsight demo --out /tmp/nh-demo

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 640" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <rect x="0" y="0" width="940" height="640" rx="16" fill="#12141C" stroke="#2A2D3A" stroke-width="2"/>
+  <!-- title bar -->
+  <rect x="1" y="1" width="938" height="44" rx="15" fill="#0B0C10"/>
+  <rect x="1" y="30" width="938" height="15" fill="#0B0C10"/>
+  <circle cx="28" cy="23" r="6.5" fill="#E5484D"/>
+  <circle cx="50" cy="23" r="6.5" fill="#E6B455"/>
+  <circle cx="72" cy="23" r="6.5" fill="#5B8DEF"/>
+  <text x="470" y="28" fill="#5A5F72" font-size="13" text-anchor="middle">nohindsight — python -m nohindsight demo</text>
+  <line x1="1" y1="45" x2="939" y2="45" stroke="#2A2D3A" stroke-width="1"/>
+
+  <!-- body -->
+  <g font-size="14.5">
+    <text x="28" y="82"  fill="#D0C4DF">$</text>
+    <text x="48" y="82"  fill="#F2F3F7">python -m nohindsight demo</text>
+
+    <text x="28" y="116" fill="#5A5F72">[1/5]</text>
+    <text x="80" y="116" fill="#8A8FA3">planting crimes — split(SYM3)·gap(SYM5)·stale(SYM6)·duplicate(SYM7)·restatement(SYM2)</text>
+
+    <text x="28" y="146" fill="#5A5F72">[2/5]</text>
+    <text x="80" y="146" fill="#8A8FA3">the police:</text>
+    <text x="196" y="146" fill="#E5484D">5 findings — LEAK×2</text>
+    <text x="336" y="146" fill="#E6B455">WARN×3</text>
+    <text x="428" y="146" fill="#8A8FA3">— the split was caught at 4:1 on 5× volume</text>
+
+    <text x="28" y="176" fill="#5A5F72">[3/5]</text>
+    <text x="80" y="176" fill="#8A8FA3">replay: honest (guarded view)</text>
+    <text x="330" y="176" fill="#5A5F72">vs</text>
+    <text x="352" y="176" fill="#8A8FA3">naive (today's number stamped onto history)</text>
+
+    <text x="28" y="212" fill="#5A5F72">[4/5]</text>
+    <text x="80" y="212" fill="#F2F3F7">forensics:</text>
+
+    <text x="56" y="242" fill="#8A8FA3">honest</text>
+    <text x="160" y="242" fill="#D0C4DF" font-weight="bold">SUSPICIOUS</text>
+    <text x="320" y="242" fill="#8A8FA3">sharpe</text>
+    <text x="392" y="242" fill="#F2F3F7">0.69</text>
+    <text x="470" y="242" fill="#8A8FA3">dsr_prob</text>
+    <text x="560" y="242" fill="#F2F3F7">1.000</text>
+    <text x="650" y="242" fill="#8A8FA3">p</text>
+    <text x="680" y="242" fill="#F2F3F7">0.111</text>
+
+    <text x="56" y="272" fill="#8A8FA3">naive</text>
+    <text x="160" y="272" fill="#E5484D" font-weight="bold">REAL</text>
+    <text x="320" y="272" fill="#8A8FA3">sharpe</text>
+    <text x="392" y="272" fill="#F2F3F7">1.17</text>
+    <text x="470" y="272" fill="#8A8FA3">dsr_prob</text>
+    <text x="560" y="272" fill="#F2F3F7">1.000</text>
+    <text x="650" y="272" fill="#8A8FA3">p</text>
+    <text x="680" y="272" fill="#F2F3F7">0.020</text>
+
+    <text x="28" y="314" fill="#E6B455">⚠ leak receipt:</text>
+    <text x="160" y="314" fill="#8A8FA3">43 decision days read from the future — up to</text>
+    <text x="560" y="314" fill="#E6B455">58 days early</text>
+
+    <text x="28" y="344" fill="#5A5F72">wrote report.html — honest curve in lavender, leaking curve in crimson</text>
+  </g>
+
+  <!-- the closing line, set like a quote -->
+  <line x1="28" y1="376" x2="912" y2="376" stroke="#2A2D3A" stroke-width="1"/>
+  <g font-size="16">
+    <text x="28"  y="416" fill="#D0C4DF">The naive strategy made more money. It was reading a number</text>
+    <text x="28"  y="442" fill="#D0C4DF">the world didn't have yet. That is the whole problem this</text>
+    <text x="28"  y="468" fill="#D0C4DF">library exists for.</text>
+  </g>
+
+  <g font-size="13.5" fill="#8A8FA3">
+    <text x="28" y="516">honest verdict: SUSPICIOUS — Sharpe 0.69 over 749 obs; sign-flipped 2000×,</text>
+    <text x="28" y="538">11.1% of no-edge paths matched or beat it. Not enough evidence either way.</text>
+  </g>
+
+  <rect x="1" y="596" width="938" height="43" rx="0" fill="#0B0C10"/>
+  <rect x="1" y="596" width="938" height="2" fill="#2A2D3A"/>
+  <text x="28" y="623" fill="#4A4E63" font-size="12.5">exit 0 · 162 python tests green · cargo test green · zero dependencies</text>
+</svg>

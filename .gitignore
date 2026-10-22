@@ -10,3 +10,4 @@ htmlcov/
 demo/_output/
 *.report.html
 .DS_Store
+/target
