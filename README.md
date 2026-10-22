@@ -1,5 +1,10 @@
 # nohindsight
 
+[![ci](https://github.com/RXVEN-1907/nohindsight/actions/workflows/ci.yml/badge.svg)](https://github.com/RXVEN-1907/nohindsight/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT-705EB1)](LICENSE)
+[![dependencies](https://img.shields.io/badge/dependencies-zero-0B0C10?labelColor=12141C)](nohindsight/core.py)
+[![python](https://img.shields.io/badge/python-3.10%2B-705EB1)](pyproject.toml)
+
 **A quant toolkit that answers one question: is your strategy real, or did you cheat by accident?**
 
 Not another backtester — there are plenty, and they all flatter you. This is
