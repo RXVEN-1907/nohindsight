@@ -16,19 +16,20 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 FRAMES="${1:-/tmp/nh_frames}"
 OUT="$REPO/docs/graphics"
-WORK="/tmp/nh_build"
+# private scratch dir, cleaned on exit: a fixed /tmp path would let another
+# user on a shared host pre-plant a symlink or a stale wav here
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
 AUDIO="$WORK/audio/leak_chorus.wav"
 
 command -v ffmpeg >/dev/null || { echo "ffmpeg not found"; exit 1; }
 [ -d "$FRAMES" ] || { echo "frames dir not found: $FRAMES"; exit 1; }
 
 # --- soundtrack -------------------------------------------------------------
-if [ ! -f "$AUDIO" ]; then
-  mkdir -p "$WORK/gallery/audio" "$WORK/gallery/data" "$WORK/audio"
-  git -C "$REPO" show 2df2423:gallery/audio/sonify.py > "$WORK/gallery/audio/sonify.py"
-  cp "$REPO/docs/data/leak_demo.json" "$WORK/gallery/data/leak_demo.json"
-  python3 "$WORK/gallery/audio/sonify.py" --out "$WORK/audio"
-fi
+mkdir -p "$WORK/gallery/audio" "$WORK/gallery/data" "$WORK/audio"
+git -C "$REPO" show 2df2423:gallery/audio/sonify.py > "$WORK/gallery/audio/sonify.py"
+cp "$REPO/docs/data/leak_demo.json" "$WORK/gallery/data/leak_demo.json"
+python3 "$WORK/gallery/audio/sonify.py" --out "$WORK/audio"
 
 # --- mp4: 1080p, h264 yuv420p, sonified soundtrack, trimmed to video --------
 ffmpeg -y -framerate 30 -i "$FRAMES/f_%04d.png" -i "$AUDIO" \
