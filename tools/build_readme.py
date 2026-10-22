@@ -110,14 +110,14 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    D[data: point-in-time ledgers] --> G{{guard: AsOfView}}
-    G --> S[strategy on a Clock]
-    S --> C[costs: fees, spread, impact]
-    C --> F[forensics: DSR, PBO, permutation]
-    K[checks: scans data and code] -.findings.-> D
-    K -.findings.-> S
-    F --> L[live: paper broker, kill switch]
-    L -.same code path.-> D
+    D["data: point-in-time ledgers"] --> G{{"guard: AsOfView"}}
+    G --> S["strategy on a Clock"]
+    S --> C["costs: fees, spread, impact"]
+    C --> F["forensics: DSR, PBO, permutation"]
+    K["checks: scans data and code"] -. findings .-> D
+    K -. findings .-> S
+    F --> L["live: paper broker, kill switch"]
+    L -. same code path .-> D
     classDef data fill:#12141C,stroke:#705EB1,color:#F2F3F7
     classDef guard fill:#1C1626,stroke:#D0C4DF,color:#D0C4DF
     classDef plain fill:#12141C,stroke:#5A5F72,color:#F2F3F7
