@@ -11,3 +11,4 @@ demo/_output/
 *.report.html
 .DS_Store
 /target
+docs/graphics/frames/
