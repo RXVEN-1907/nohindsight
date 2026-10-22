@@ -12,3 +12,4 @@ demo/_output/
 .DS_Store
 /target
 docs/graphics/frames/
+docs/graphics/*.mp4
