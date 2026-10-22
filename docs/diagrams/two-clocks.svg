@@ -1,84 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 620" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <title>nohindsight - two clocks: event time vs knowledge time</title>
   <defs>
-    <marker id="arr-lav" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arr-lav" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#D0C4DF"/>
     </marker>
-    <marker id="arr-crim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arr-crim" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#E5484D"/>
     </marker>
   </defs>
 
-  <rect width="1160" height="620" fill="#0B0C10"/>
-  <g stroke="#1A1C26" stroke-width="1">
-    <line x1="64" y1="380" x2="1096" y2="380"/>
-    <line x1="64" y1="240" x2="1096" y2="240"/>
+  <rect width="1200" height="560" fill="#0B0C10"/>
+
+  <!-- header -->
+  <text><tspan x="72" y="64" font-size="20" font-weight="bold" fill="#F2F3F7">two clocks</tspan><tspan x="72" y="90" font-size="12.5" fill="#8A8FA3">every datum exists twice: as an event, and as knowledge</tspan></text>
+  <text text-anchor="end" font-size="11" fill="#8A8FA3"><tspan x="1128" y="60">fig. 01 / RESTATEMENT_LEAK</tspan><tspan x="1128" y="80">key: SYM2.revenue</tspan></text>
+
+  <!-- event_time: what happened in the world -->
+  <text x="72" y="168" font-size="12" fill="#8A8FA3">event_time</text>
+  <line x1="72" y1="206" x2="1128" y2="206" stroke="#2A2D3A" stroke-width="1.5"/>
+  <g stroke="#2A2D3A" stroke-width="1" opacity="0.55">
+    <line x1="160" y1="203" x2="160" y2="209"/><line x1="374" y1="203" x2="374" y2="209"/><line x1="588" y1="203" x2="588" y2="209"/>
+    <line x1="844" y1="203" x2="844" y2="209"/><line x1="1040" y1="203" x2="1040" y2="209"/>
   </g>
+  <line x1="72" y1="200" x2="72" y2="212" stroke="#2A2D3A" stroke-width="1.5"/>
+  <line x1="1128" y1="200" x2="1128" y2="212" stroke="#2A2D3A" stroke-width="1.5"/>
 
-  <!-- title block -->
-  <text x="64" y="84" fill="#F2F3F7" font-size="22" letter-spacing="5">THE TWO CLOCKS</text>
-  <text x="64" y="112" fill="#8A8FA3" font-size="14">every datum exists twice - as an event, and as knowledge</text>
+  <line x1="168" y1="200" x2="168" y2="212" stroke="#8A8FA3" stroke-width="1.5"/>
+  <text x="168" y="236" font-size="11" fill="#8A8FA3" text-anchor="middle">quarter close 2023-12-31</text>
 
-  <!-- event_time track -->
-  <text x="64" y="194" fill="#D0C4DF" font-size="13">event_time</text>
-  <line x1="250" y1="190" x2="1060" y2="190" stroke="#2A2D3A" stroke-width="2"/>
-  <g fill="#3A3E4E">
-    <rect x="249" y="186" width="2" height="8"/>
-    <rect x="519" y="186" width="2" height="8"/>
-    <rect x="809" y="186" width="2" height="8"/>
-    <rect x="1059" y="186" width="2" height="8"/>
+  <line x1="717" y1="200" x2="717" y2="212" stroke="#D0C4DF" stroke-width="2"/>
+  <text x="749" y="188" font-size="11" text-anchor="end"><tspan fill="#8A8FA3">filed 2024-02-09: </tspan><tspan fill="#D0C4DF">253.4</tspan></text>
+
+  <rect x="900" y="148" width="208" height="24" fill="#12141C" stroke="#E6B455" stroke-width="1.25"/>
+  <line x1="1004" y1="172" x2="1004" y2="200" stroke="#E6B455" stroke-width="1" opacity="0.6"/>
+  <line x1="1004" y1="200" x2="1004" y2="212" stroke="#E6B455" stroke-width="2"/>
+  <text x="1004" y="164" font-size="11" text-anchor="middle"><tspan fill="#8A8FA3">restated 2024-03-01: </tspan><tspan fill="#E6B455">177.4</tspan></text>
+
+  <!-- the backtest playhead -->
+  <rect x="600" y="96" width="158" height="22" fill="#12141C" stroke="#D0C4DF" stroke-width="1.25"/>
+  <text x="679" y="111" font-size="11.5" fill="#D0C4DF" text-anchor="middle">backtest now: FEB 12</text>
+  <line x1="758" y1="118" x2="758" y2="404" stroke="#D0C4DF" stroke-width="1.5"/>
+
+  <!-- knowledge_time: when the data could be known -->
+  <text x="72" y="358" font-size="12" fill="#8A8FA3">knowledge_time</text>
+  <line x1="72" y1="380" x2="1128" y2="380" stroke="#2A2D3A" stroke-width="1.5"/>
+  <g stroke="#2A2D3A" stroke-width="1" opacity="0.55">
+    <line x1="160" y1="377" x2="160" y2="383"/><line x1="374" y1="377" x2="374" y2="383"/><line x1="588" y1="377" x2="588" y2="383"/>
+    <line x1="844" y1="377" x2="844" y2="383"/><line x1="1040" y1="377" x2="1040" y2="383"/>
   </g>
-  <!-- the event: quarter closes, revenue is 90 -->
-  <rect x="250" y="164" width="196" height="24" rx="5" fill="#221E33" stroke="#705EB1" stroke-width="1.5"/>
-  <text x="262" y="180" fill="#D0C4DF" font-size="12">quarter closes · revenue = 90.0</text>
-  <line x1="348" y1="188" x2="348" y2="192" stroke="#705EB1" stroke-width="1.5"/>
+  <line x1="72" y1="374" x2="72" y2="386" stroke="#2A2D3A" stroke-width="1.5"/>
+  <line x1="1128" y1="374" x2="1128" y2="386" stroke="#2A2D3A" stroke-width="1.5"/>
+  <line x1="195" y1="374" x2="195" y2="386" stroke="#E5484D" stroke-width="2"/>
+  <text x="167" y="422" font-size="11"><tspan fill="#E5484D">2024-01-02: </tspan><tspan fill="#8A8FA3">the first of 43 decision days reading the future</tspan></text>
 
-  <!-- knowledge_time track -->
-  <text x="64" y="334" fill="#D0C4DF" font-size="13">knowledge_time</text>
-  <line x1="250" y1="330" x2="1060" y2="330" stroke="#2A2D3A" stroke-width="2"/>
-  <g fill="#3A3E4E">
-    <rect x="249" y="326" width="2" height="8"/>
-    <rect x="519" y="326" width="2" height="8"/>
-    <rect x="809" y="326" width="2" height="8"/>
-    <rect x="1059" y="326" width="2" height="8"/>
-  </g>
-  <g font-size="11" fill="#5A5F72">
-    <text x="243" y="356">FEB 1</text>
-    <text x="503" y="356">FEB 15</text>
-    <text x="795" y="356">MAR 1</text>
-    <text x="1036" y="356">MAR 15</text>
-  </g>
+  <!-- the two reads -->
+  <path d="M 717 216 C 730 268, 742 322, 755 374" fill="none" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr-lav)"/>
+  <text x="770" y="256" font-size="11" fill="#D0C4DF">reads the past</text>
+  <path d="M 1004 218 C 830 300, 420 340, 200 372" fill="none" stroke="#E5484D" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arr-crim)"/>
+  <text x="720" y="336" font-size="11" fill="#E5484D" text-anchor="end">reads the future</text>
 
-  <!-- filing -->
-  <rect x="292" y="304" width="140" height="24" rx="5" fill="#14161D" stroke="#D0C4DF" stroke-width="1.5"/>
-  <text x="304" y="320" fill="#F2F3F7" font-size="12">filed FEB 4 · 90.0</text>
-  <!-- restatement -->
-  <rect x="652" y="304" width="164" height="24" rx="5" fill="#14161D" stroke="#E6B455" stroke-width="1.5"/>
-  <text x="664" y="320" fill="#F2F3F7" font-size="12">restated FEB 25 · 61.0</text>
-  <text x="828" y="320" fill="#8A8FA3" font-size="11">a revision is history, not a leak</text>
+  <!-- the two answers -->
+  <rect x="72" y="476" width="266" height="58" fill="#12141C" stroke="#D0C4DF" stroke-width="1.25"/>
+  <text><tspan x="88" y="498" font-size="13" fill="#8A8FA3">what the guard returns: </tspan><tspan font-size="13" font-weight="bold" fill="#D0C4DF">253.4</tspan><tspan x="88" y="519" font-size="11" fill="#8A8FA3">the number the world had on FEB 12</tspan></text>
 
-  <!-- playhead: backtest now = FEB 12 -->
-  <line x1="462" y1="140" x2="462" y2="352" stroke="#D0C4DF" stroke-width="2"/>
-  <rect x="386" y="122" width="152" height="22" rx="11" fill="#D0C4DF"/>
-  <text x="400" y="137" fill="#0B0C10" font-size="12" font-weight="bold">backtest now: FEB 12</text>
-
-  <!-- honest read -->
-  <path d="M462,270 L366,304" stroke="#D0C4DF" stroke-width="2" marker-end="url(#arr-lav)"/>
-  <text x="368" y="270" fill="#D0C4DF" font-size="12">honest read</text>
-
-  <!-- leak path -->
-  <path d="M466,270 L712,302" stroke="#E5484D" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arr-crim)"/>
-  <text x="520" y="286" fill="#E5484D" font-size="12">the leak: 13 days into the future</text>
-
-  <!-- verdict chips -->
-  <rect x="250" y="432" width="336" height="92" rx="10" fill="#12141C" stroke="#D0C4DF" stroke-width="1.5"/>
-  <text x="274" y="462" fill="#F2F3F7" font-size="15">what the guard returns: 90.0</text>
-  <text x="274" y="486" fill="#8A8FA3" font-size="12">the number the world had on FEB 12</text>
-  <text x="274" y="506" fill="#D0C4DF" font-size="12">no leak</text>
-
-  <rect x="640" y="432" width="428" height="92" rx="10" fill="#12141C" stroke="#E5484D" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text x="664" y="462" fill="#F2F3F7" font-size="15">what a naive merge returns: 61.0</text>
-  <text x="664" y="486" fill="#8A8FA3" font-size="12">a number the world would only have on FEB 25</text>
-  <text x="664" y="506" fill="#E5484D" font-size="12">silent, invisible, and it makes the backtest better</text>
-
-  <text x="1096" y="596" fill="#4A4E63" font-size="11" text-anchor="end">nohindsight · the data refuses to lie</text>
+  <rect x="795" y="476" width="333" height="58" fill="#12141C" stroke="#E5484D" stroke-width="1.25" stroke-dasharray="6 4"/>
+  <text><tspan x="811" y="498" font-size="13" fill="#8A8FA3">what a naive merge returns: </tspan><tspan font-size="13" font-weight="bold" fill="#E5484D">177.4</tspan><tspan x="811" y="519" font-size="10.5" fill="#8A8FA3">published 2024-03-01, read up to 58 days early</tspan></text>
 </svg>

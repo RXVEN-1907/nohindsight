@@ -1,28 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 420" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
-<rect width="1400" height="420" fill="#0B0C10"/>
-<line x1="72" y1="150" x2="1328" y2="150" stroke="#161822" stroke-width="1"/>
-<line x1="72" y1="250" x2="1328" y2="250" stroke="#161822" stroke-width="1"/>
-<text x="72" y="120" font-size="58" font-weight="bold"><tspan fill="#D0C4DF">no</tspan><tspan fill="#F2F3F7">hindsight</tspan></text>
-<line x1="142" y1="102" x2="512" y2="102" stroke="#E5484D" stroke-width="4" stroke-linecap="round"/>
-<text x="74" y="162" fill="#8A8FA3" font-size="16">is your strategy real, or did it cheat</text>
-<text x="74" y="184" fill="#8A8FA3" font-size="16">by accident?</text>
-<text x="74" y="238" fill="#5A5F72" font-size="13">point-in-time data · leak guards · real costs</text>
-<text x="74" y="258" fill="#5A5F72" font-size="13">deflated sharpe · python api · rust engine</text>
-<line x1="600" y1="128.0" x2="1320" y2="128.0" stroke="#2A2D3A" stroke-width="1"/>
-<text x="590" y="132.0" fill="#4A4E63" font-size="12" text-anchor="end">100k</text>
-<line x1="600" y1="218.2" x2="1320" y2="218.2" stroke="#2A2D3A" stroke-width="1"/>
-<text x="590" y="222.2" fill="#4A4E63" font-size="12" text-anchor="end">120k</text>
-<line x1="600" y1="308.4" x2="1320" y2="308.4" stroke="#2A2D3A" stroke-width="1"/>
-<text x="590" y="312.4" fill="#4A4E63" font-size="12" text-anchor="end">140k</text>
-<rect x="600.0" y="100" width="46.0" height="266" fill="#E5484D" opacity="0.08"/>
-<line x1="600.0" y1="100" x2="600.0" y2="366" stroke="#E5484D" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>
-<line x1="646.0" y1="100" x2="646.0" y2="366" stroke="#E5484D" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>
-<text x="608.0" y="120" fill="#E5484D" font-size="12.5">the leak window</text>
-<polyline points="600.0,128.0 607.7,135.2 615.3,133.4 623.0,116.8 630.6,112.2 638.3,90.9 646.0,103.5 653.6,110.4 661.3,119.1 668.9,121.6 676.6,127.1 684.3,110.2 691.9,114.7 699.6,109.9 707.2,118.5 714.9,123.4 722.6,121.9 730.2,111.0 737.9,127.9 745.5,117.7 753.2,126.5 760.9,113.8 768.5,101.8 776.2,102.3 783.8,103.5 791.5,103.6 799.1,104.5 806.8,98.7 814.5,93.7 822.1,91.4 829.8,86.7 837.4,89.4 845.1,100.9 852.8,104.9 860.4,99.9 868.1,107.2 875.7,100.7 883.4,106.5 891.1,97.9 898.7,100.0 906.4,101.8 914.0,102.1 921.7,94.4 929.4,91.4 937.0,89.6 944.7,94.8 952.3,109.7 960.0,104.5 967.7,114.9 975.3,108.7 983.0,117.4 990.6,107.1 998.3,108.4 1006.0,111.8 1013.6,119.8 1021.3,121.1 1028.9,133.4 1036.6,135.5 1044.3,152.0 1051.9,143.2 1059.6,146.7 1067.2,152.9 1074.9,160.6 1082.6,142.8 1090.2,147.9 1097.9,155.4 1105.5,168.3 1113.2,157.4 1120.9,164.5 1128.5,171.3 1136.2,167.1 1143.8,163.6 1151.5,161.5 1159.1,170.2 1166.8,176.4 1174.5,181.3 1182.1,178.4 1189.8,189.6 1197.4,188.1 1205.1,208.9 1212.8,188.8 1220.4,201.2 1228.1,207.6 1235.7,193.6 1243.4,214.1 1251.1,210.2 1258.7,213.7 1266.4,200.5 1274.0,205.2 1281.7,207.4 1289.4,219.8 1297.0,217.3 1304.7,216.8 1312.3,223.1 1320.0,226.7" fill="none" stroke="#D0C4DF" stroke-width="2.4" stroke-linejoin="round"/>
-<polyline points="600.0,128.0 607.7,132.3 615.3,134.1 623.0,149.7 630.6,155.7 638.3,171.7 646.0,171.3 653.6,179.9 661.3,190.7 668.9,193.9 676.6,200.9 684.3,179.6 691.9,185.3 699.6,179.3 707.2,190.0 714.9,196.1 722.6,194.3 730.2,180.6 737.9,201.8 745.5,189.1 753.2,200.1 760.9,184.2 768.5,169.2 776.2,169.8 783.8,171.3 791.5,171.5 799.1,172.5 806.8,165.3 814.5,159.0 822.1,156.1 829.8,150.3 837.4,153.6 845.1,168.0 852.8,173.0 860.4,166.7 868.1,176.0 875.7,167.8 883.4,175.0 891.1,164.3 898.7,167.0 906.4,169.2 914.0,169.6 921.7,159.9 929.4,156.1 937.0,153.9 944.7,160.3 952.3,179.0 960.0,172.5 967.7,185.5 975.3,177.8 983.0,188.7 990.6,175.8 998.3,177.4 1006.0,181.7 1013.6,191.6 1021.3,193.3 1028.9,208.7 1036.6,211.3 1044.3,231.9 1051.9,221.0 1059.6,225.4 1067.2,233.1 1074.9,242.7 1082.6,220.5 1090.2,226.9 1097.9,236.2 1105.5,252.3 1113.2,238.8 1120.9,247.6 1128.5,256.1 1136.2,250.9 1143.8,246.5 1151.5,243.9 1159.1,254.7 1166.8,262.5 1174.5,268.6 1182.1,265.0 1189.8,279.0 1197.4,277.1 1205.1,303.1 1212.8,278.0 1220.4,293.5 1228.1,301.6 1235.7,284.0 1243.4,309.6 1251.1,304.8 1258.7,309.2 1266.4,292.6 1274.0,298.5 1281.7,301.3 1289.4,316.8 1297.0,313.7 1304.7,313.0 1312.3,320.9 1320.0,325.4" fill="none" stroke="#E5484D" stroke-width="2.4" stroke-linejoin="round"/>
-<rect x="1334" y="306.4" width="52" height="22" rx="11" fill="#12141C" stroke="#E5484D" stroke-width="1.4"/>
-<text x="1360" y="321.4" fill="#E5484D" font-size="12" text-anchor="middle">REAL</text>
-<rect x="1334" y="232.7" width="86" height="22" rx="11" fill="#12141C" stroke="#D0C4DF" stroke-width="1.4"/>
-<text x="1377" y="247.7" fill="#D0C4DF" font-size="12" text-anchor="middle">SUSPICIOUS</text>
-<text x="1328" y="396" fill="#4A4E63" font-size="12" text-anchor="end">95 daily samples from one deterministic demo run</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="420" viewBox="0 0 1400 420" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <title>nohindsight - point-in-time backtesting without the leak</title>
+  <defs>
+    <marker id="arr-crim" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#E5484D"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="420" fill="#0B0C10"/>
+
+  <!-- the name is the thesis: hindsight, struck out -->
+  <text x="96" y="244" font-size="84" font-weight="bold"><tspan fill="#D0C4DF">no</tspan><tspan fill="#F2F3F7">hindsight</tspan></text>
+  <line x1="201" y1="222" x2="800" y2="222" stroke="#E5484D" stroke-width="3"/>
+  <text x="96" y="306" font-size="15" fill="#8A8FA3">is your strategy real, or did it cheat by accident?</text>
+
+  <!-- two-track timeline, right half: the same story on two clocks -->
+  <text x="800" y="150" font-size="11.5" fill="#8A8FA3">event_time</text>
+  <line x1="800" y1="168" x2="1330" y2="168" stroke="#2A2D3A" stroke-width="1"/>
+  <text x="800" y="288" font-size="11.5" fill="#8A8FA3">knowledge_time</text>
+  <line x1="800" y1="306" x2="1330" y2="306" stroke="#2A2D3A" stroke-width="1"/>
+  <g stroke="#2A2D3A" stroke-width="1" opacity="0.55">
+    <line x1="853" y1="165" x2="853" y2="171"/><line x1="853" y1="303" x2="853" y2="309"/>
+    <line x1="906" y1="165" x2="906" y2="171"/><line x1="906" y1="303" x2="906" y2="309"/>
+    <line x1="959" y1="165" x2="959" y2="171"/><line x1="959" y1="303" x2="959" y2="309"/>
+    <line x1="1012" y1="165" x2="1012" y2="171"/><line x1="1012" y1="303" x2="1012" y2="309"/>
+    <line x1="1065" y1="165" x2="1065" y2="171"/><line x1="1065" y1="303" x2="1065" y2="309"/>
+    <line x1="1118" y1="165" x2="1118" y2="171"/><line x1="1118" y1="303" x2="1118" y2="309"/>
+    <line x1="1171" y1="165" x2="1171" y2="171"/><line x1="1171" y1="303" x2="1171" y2="309"/>
+    <line x1="1224" y1="165" x2="1224" y2="171"/><line x1="1224" y1="303" x2="1224" y2="309"/>
+    <line x1="1277" y1="165" x2="1277" y2="171"/><line x1="1277" y1="303" x2="1277" y2="309"/>
+  </g>
+
+  <!-- events at 9 px per day: FEB 09, then FEB 12, then MAR 01 -->
+  <line x1="980" y1="162" x2="980" y2="174" stroke="#D0C4DF" stroke-width="2"/>
+  <text x="972" y="204" font-size="11" fill="#8A8FA3" text-anchor="end">filed FEB 09</text>
+  <line x1="1160" y1="162" x2="1160" y2="174" stroke="#E5484D" stroke-width="2"/>
+  <text x="1168" y="204" font-size="11" fill="#8A8FA3">restated MAR 01</text>
+
+  <!-- the playhead is now; the arc is what a naive merge reaches for -->
+  <line x1="1007" y1="124" x2="1007" y2="330" stroke="#D0C4DF" stroke-width="1.5"/>
+  <line x1="1003" y1="124" x2="1011" y2="124" stroke="#D0C4DF" stroke-width="1.5"/>
+  <text x="999" y="348" font-size="11" fill="#D0C4DF" text-anchor="end">now: FEB 12</text>
+  <path d="M 1007 154 C 1050 116, 1116 114, 1154 148" fill="none" stroke="#E5484D" stroke-width="1.75" stroke-dasharray="5 4" marker-end="url(#arr-crim)"/>
+  <text x="1084" y="96" font-size="10.5" fill="#E5484D" text-anchor="middle">the leak: 58 days early</text>
+
+  <!-- folio line -->
+  <line x1="96" y1="376" x2="1304" y2="376" stroke="#2A2D3A" stroke-width="1"/>
+  <text x="96" y="398" font-size="12" fill="#8A8FA3">point-in-time data</text>
+  <text x="760" y="398" font-size="12" fill="#8A8FA3">leak guards</text>
+  <text x="1304" y="398" font-size="12" fill="#8A8FA3" text-anchor="end">deflated sharpe</text>
 </svg>
