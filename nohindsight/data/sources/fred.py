@@ -1,13 +1,13 @@
-"""nohindsight.data.sources.fred — ALFRED vintages, the honest macro feed.
+"""nohindsight.data.sources.fred - ALFRED vintages, the honest macro feed.
 
 FRED shows a series as revised today.  ALFRED shows every vintage as each
 revision was first published.  The vintage CSV endpoint needs no API key:
 
     https://alfred.stlouisfed.org/graph/alfred_graph.csv?id=UNRATE&cosd=2018-01-01
 
-Its rows carry ``realtime_start`` — the day that vintage became public —
+Its rows carry ``realtime_start`` - the day that vintage became public -
 which is exactly a knowledge_time.  The plain FRED observations API (today's
-fully revised series — the dishonest one, useful only for comparison) does
+fully revised series - the dishonest one, useful only for comparison) does
 need a free key: https://fredaccount.stlouisfed.org/apikeys
 """
 
@@ -59,7 +59,7 @@ def alfred_vintage_url(
 
 
 def fred_series_url(series_id: str, api_key: str | None = None) -> str:
-    """Today's fully revised series — the one that quietly rewrites history."""
+    """Today's fully revised series - the one that quietly rewrites history."""
     url = f"{FRED_API}/series/observations?series_id={series_id}&file_type=json"
     if api_key is not None:
         url += f"&api_key={api_key}"
@@ -81,12 +81,12 @@ def vintages_to_ledger(csv_text: str, series_id: str) -> Ledger:
 
     Columns: realtime_start, realtime_end, date, and one value column named
     after the series.  Per row:
-        knowledge_time = realtime_start — when that vintage was published
-        event_time     = date           — the observation being described
+        knowledge_time = realtime_start - when that vintage was published
+        event_time     = date           - the observation being described
         value          = the series column, as float
     The same date appearing under many realtime_starts is the point: those
     are the vintages, and the Ledger keeps every one of them.  FRED marks a
-    missing observation with "." — those rows are skipped.
+    missing observation with "." - those rows are skipped.
     """
     ledger = Ledger(f"fred.{series_id}")
     reader = csv.DictReader(io.StringIO(csv_text))

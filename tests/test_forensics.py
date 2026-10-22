@@ -1,7 +1,7 @@
-"""tests.test_forensics — forensics against hand-computed truth.
+"""tests.test_forensics - forensics against hand-computed truth.
 
 Every expected value is computed inside the test from raw arithmetic
-(explicit loops, plain algebra, statistics.NormalDist) — never by calling
+(explicit loops, plain algebra, statistics.NormalDist) - never by calling
 the module under test to build its own expectation.  Randomness is seeded
 locally per test with random.Random(<literal>); nothing depends on the
 wall clock, the global random module, or run order.
@@ -49,8 +49,8 @@ def _border_matrix() -> list[list[float]]:
 
     Block A Sharpes order configs 0 > 1 > 2; block B orders them 1 > 0 > 2
     (two-valued rows chosen so every Sharpe is distinct and exact).  Both
-    train halves nominate a config that ranks EXACTLY 1 of 3 OOS —
-    rel = 0.5, lam = 0 — so this pins the documented rule that the border
+    train halves nominate a config that ranks EXACTLY 1 of 3 OOS -
+    rel = 0.5, lam = 0 - so this pins the documented rule that the border
     counts as overfit.
     """
     block_a = [[0.03, 0.02, -0.01], [0.01, 0.0, -0.03]]
@@ -241,7 +241,7 @@ class PSRTests(unittest.TestCase):
     def test_psr_skew_penalty(self):
         # Mirror construction: identical mean and std, opposite skew.  The
         # negative-skew twin must score the lower PSR against the same
-        # benchmark — that is the whole point of the correction.
+        # benchmark - that is the whole point of the correction.
         c, d = 0.001, 0.01
         pos = [c - d] * 3 + [c + 3 * d]
         neg = [c + d] * 3 + [c - 3 * d]
@@ -351,7 +351,7 @@ class PBOTests(unittest.TestCase):
 
     def test_pbo_border_rank_counts_as_overfit(self):
         # Both splits land at exactly rel = 0.5 (lam = 0); counting the
-        # border is the documented conservative choice — without it this
+        # border is the documented conservative choice - without it this
         # would read 0.0 instead of 1.0.
         self.assertEqual(pbo(_border_matrix(), blocks=2), 1.0)
 

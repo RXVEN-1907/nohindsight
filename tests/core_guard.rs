@@ -71,7 +71,7 @@ fn guard_fires_on_future_reads() {
 #[test]
 fn revisions_resolve_by_the_clock() {
     let ledger = fund_ledger();
-    // Before the original: the number does not exist — not None, not zero.
+    // Before the original: the number does not exist - not None, not zero.
     let clock = Clock::at(t("2024-01-02"));
     let view = ledger.view(&clock);
     assert_eq!(view.revisions("SYM2.revenue").len(), 0);
@@ -85,7 +85,7 @@ fn revisions_resolve_by_the_clock() {
     let clock = Clock::at(t("2024-02-28"));
     let view = ledger.view(&clock);
     assert_eq!(view.get("SYM2.revenue").expect("ok"), &Value::Num(253.4));
-    // From the restatement's knowledge day: the restatement — and both
+    // From the restatement's knowledge day: the restatement - and both
     // revisions are "known" (a restatement in progress, resolved).
     let clock = Clock::at(t("2024-03-01"));
     let view = ledger.view(&clock);
@@ -146,7 +146,7 @@ fn unknown_keys_are_not_yet_known_not_leaks() {
         other => panic!("expected NotYetKnown, got {other:?}"),
     }
     assert!(!view.contains("SYM9.revenue"));
-    // A key that exists but only in the future is a LEAK, not a NotYetKnown —
+    // A key that exists but only in the future is a LEAK, not a NotYetKnown -
     // the distinction the guard exists to make.
     let clock = Clock::at(t("2024-01-02"));
     let early = ledger.view(&clock);
@@ -173,7 +173,7 @@ fn known_keys_only_lists_knowable_keys() {
     let clock = Clock::at(t("2024-03-01"));
     let view = ledger.view(&clock);
     assert_eq!(view.known_keys().len(), 2);
-    // The raw ledger exposes both keys all along — iterating IT is the
+    // The raw ledger exposes both keys all along - iterating IT is the
     // survivorship-bias trap the docs warn about.
     assert_eq!(ledger.keys().len(), 2);
 }
@@ -181,7 +181,7 @@ fn known_keys_only_lists_knowable_keys() {
 #[test]
 fn latest_is_the_terminal_snapshot_value_at_respects_a_clock() {
     let ledger = fund_ledger();
-    // The terminal snapshot is the restatement — the naive read.
+    // The terminal snapshot is the restatement - the naive read.
     assert_eq!(
         ledger.latest("SYM2.revenue").expect("exists").value,
         Value::Num(177.4)

@@ -1,22 +1,22 @@
-//! nohindsight costs — the reality tax, itemized.
+//! nohindsight costs - the reality tax, itemized.
 //!
 //! A backtest without costs is a fantasy with good marketing.  Every trade
 //! pays four honest lines:
 //!
-//! * `fee`          — what your broker charges        ([`FeeSchedule`])
-//! * `spread_cost`  — what crossing the spread costs ([`SpreadModel`])
-//! * `impact_cost`  — what moving the market costs   ([`ImpactModel`])
-//! * `borrow_cost`  — what being short overnight costs ([`BorrowModel`])
+//! * `fee`          - what your broker charges        ([`FeeSchedule`])
+//! * `spread_cost`  - what crossing the spread costs ([`SpreadModel`])
+//! * `impact_cost`  - what moving the market costs   ([`ImpactModel`])
+//! * `borrow_cost`  - what being short overnight costs ([`BorrowModel`])
 //!
-//! Impact follows the square-root law — `impact_bps = coeff * sigma_bps *
-//! sqrt(qty / adv)` — the empirical regularity documented by Bouchaud,
+//! Impact follows the square-root law - `impact_bps = coeff * sigma_bps *
+//! sqrt(qty / adv)` - the empirical regularity documented by Bouchaud,
 //! Farmer & Lillo's studies of order flow and formalized in the optimal
 //! execution framework of Almgren & Chriss (2000): quadruple the size,
 //! double the impact.
 //!
 //! Costs is the one department that needs no clock: a Trade carries its own
 //! holding_days and nothing here reads data, so nothing here can peek at
-//! the future.  The dishonesty costs enable is not lookahead — it is the
+//! the future.  The dishonesty costs enable is not lookahead - it is the
 //! quiet subtraction that turns a real edge into noise.  [`fantasy_vs_real`]
 //! exists to make that subtraction loud.
 //!
@@ -32,7 +32,7 @@ use crate::stats::fsum;
 pub enum Side {
     /// Buy to open / sell to close a long.
     Buy,
-    /// Sell — treated as holding a SHORT position for `holding_days`; borrow
+    /// Sell - treated as holding a SHORT position for `holding_days`; borrow
     /// is charged on sells only.
     Sell,
 }
@@ -118,14 +118,14 @@ impl From<crate::stats::StatsError> for CostsError {
 /// * `qty` is UNSIGNED size; direction lives in `side`.  A negative qty is
 ///   a bug, and the constructor says so.
 /// * `side == Sell` is treated as holding a SHORT position for
-///   `holding_days` — borrow is charged on sells only.  This model prices
+///   `holding_days` - borrow is charged on sells only.  This model prices
 ///   one-shot trades, not position timelines; a long round trip is
 ///   buy-then-sell and pays borrow on neither leg.
 /// * `ts` is stored exactly as given (an ISO string); this module never
 ///   parses it.  Persistence layers should pass ISO strings.
 /// * `sigma_bps` (daily volatility in bps) and `adv` (average daily volume,
 ///   same units as qty) are optional context.  Without them the impact line
-///   comes back zero with `impact_explained = false` — see
+///   comes back zero with `impact_explained = false` - see
 ///   [`ImpactModel::estimate`] for why that distinction matters.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Trade {
@@ -180,7 +180,7 @@ impl Trade {
         })
     }
 
-    /// price * qty — the money the trade moves, independent of side.
+    /// price * qty - the money the trade moves, independent of side.
     pub fn notional(&self) -> f64 {
         self.price.abs() * self.qty.abs()
     }
@@ -195,7 +195,7 @@ impl Trade {
 /// cannot state one.
 ///
 /// `impact_explained` is false when an impact model ran but lacked
-/// sigma/ADV.  Reports should then say "impact unestimated", not "0" — a
+/// sigma/ADV.  Reports should then say "impact unestimated", not "0" - a
 /// silent zero is how impact quietly vanishes from a backtest.
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct CostBreakdown {
@@ -263,7 +263,7 @@ impl FeeSchedule {
 
 /// The cost of crossing the spread.
 ///
-/// THE CONVENTION — READ THIS TWICE:
+/// THE CONVENTION - READ THIS TWICE:
 ///
 /// A quote is bid/ask around a mid.  A market order does not trade at the
 /// mid; it CROSSES, paying the HALF-spread (ask-mid for a buy, mid-bid for
@@ -273,7 +273,7 @@ impl FeeSchedule {
 /// `cost = price * qty * (spread_bps / 2) / 1e4`
 ///
 /// A round trip is TWO Trade records (entry and exit) and pays two
-/// half-spreads — i.e. exactly the full spread, once.  If your numbers show
+/// half-spreads - i.e. exactly the full spread, once.  If your numbers show
 /// half a spread per round trip here, you have built a strategy that trades
 /// in a market with no other side.  Conversely: do not "correct" this to a
 /// full spread per trade, or you will pay the spread twice.
@@ -281,7 +281,7 @@ impl FeeSchedule {
 /// Volatility scaling: real spreads widen when volatility spikes.
 /// [`SpreadModel::volatility_scaled`] multiplies the base by
 /// (1 + mult * sigma_bps/1000) when the trade carries a sigma, and leaves
-/// the base untouched when it does not — an unestimated sigma is not a calm
+/// the base untouched when it does not - an unestimated sigma is not a calm
 /// market, but we cannot charge for fear we cannot see.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SpreadModel {
@@ -333,27 +333,27 @@ impl SpreadModel {
 /// Which impact law to apply.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ImpactKind {
-    /// impact_bps = coeff * sigma_bps * sqrt(qty / adv) — the square-root
+    /// impact_bps = coeff * sigma_bps * sqrt(qty / adv) - the square-root
     /// law (Bouchaud, Farmer & Lillo; Almgren & Chriss 2000).
     Sqrt,
-    /// impact_bps = eta * (qty / adv) — the linear alternative, kept for
+    /// impact_bps = eta * (qty / adv) - the linear alternative, kept for
     /// comparison: it is what naive execution models assume and what the
     /// square-root law says is far too kind at size.
     Linear,
 }
 
-/// Price impact — you are not the only one in the book.
+/// Price impact - you are not the only one in the book.
 ///
 /// Impact grows with the square root of participation (qty/adv), is
 /// measured in bps of the trade's notional, and scales with the day's
-/// volatility — a violent market moves further when you push it.
+/// volatility - a violent market moves further when you push it.
 /// coeff=1.0 is a placeholder, not a law of nature; calibrate it against
 /// your own fills and stop trusting the default.
 ///
 /// If a required input is missing (ADV always; sigma for the sqrt law) the
 /// model returns impact 0.0 with explained=false: an unestimated impact is
 /// NOT a zero impact, and the flag exists so reports can say "impact
-/// unestimated — no sigma/ADV" out loud instead of silently booking a
+/// unestimated - no sigma/ADV" out loud instead of silently booking a
 /// costless whale trade.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ImpactModel {
@@ -436,7 +436,7 @@ impl BorrowModel {
 /// The composed reality tax: fees + spread + impact + borrow.
 ///
 /// Every component left `None` is a cost line of zero.  The model will not
-/// remind you that you forgot impact — the impact_explained flag only fires
+/// remind you that you forgot impact - the impact_explained flag only fires
 /// when an impact model EXISTS but lacked sigma/ADV.  If you want the report
 /// to be able to warn, pass an impact model.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -493,7 +493,7 @@ impl CostModel {
 
     /// Aggregate cost rate: total cost over total notional, in bps.
     ///
-    /// Weighted by notional, not averaged — 1bp on $1M plus 100bps on $10
+    /// Weighted by notional, not averaged - 1bp on $1M plus 100bps on $10
     /// is 1.001bps, not 50.5.  Zero notional trades cost nothing and say so
     /// (0.0, not a division by zero).
     pub fn total_bps(&self, trades: &[Trade]) -> f64 {
@@ -514,13 +514,13 @@ impl CostModel {
 ///
 /// Simplification, stated: the per-period drag costs_bps/1e4 is subtracted
 /// from the MEAN per-period return while the standard deviation is left
-/// untouched — costs are modeled as a deterministic levy uncorrelated with
+/// untouched - costs are modeled as a deterministic levy uncorrelated with
 /// returns.  Compounding and the dispersion of per-trade costs are
 /// second-order here; the first-order truth this function exists for is
 /// that a small per-trade cost applied at high turnover is not small.
 ///
 /// Sharpe convention: sample standard deviation (ddof=1), annualized by
-/// sqrt(periods_per_year) — the same convention forensics uses.
+/// sqrt(periods_per_year) - the same convention forensics uses.
 ///
 /// `shrinkage` is NaN when the pre-cost Sharpe is exactly zero (the ratio
 /// is undefined; the absolute after-cost Sharpe tells the story).  Above
@@ -620,7 +620,7 @@ mod tests {
         // Quadruple the size, double the impact.
         let big = impact.estimate(400.0, Some(10_000.0), Some(200.0));
         assert!((big.0 - 2.0 * base.0).abs() < 1e-12);
-        // Missing ADV or sigma: zero, but NOT explained — that is the flag's
+        // Missing ADV or sigma: zero, but NOT explained - that is the flag's
         // whole reason to exist.
         assert_eq!(impact.estimate(100.0, None, Some(200.0)), (0.0, false));
         assert_eq!(impact.estimate(100.0, Some(10_000.0), None), (0.0, false));

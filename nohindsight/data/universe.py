@@ -1,8 +1,8 @@
-"""nohindsight.data.universe — who existed, and when.
+"""nohindsight.data.universe - who existed, and when.
 
 The survivorship question, as data.  A backtest that picks its symbols from
-today's list only ever trades survivors; the ghosts — companies that listed,
-died, and were quietly erased from the menu — never got traded, so the
+today's list only ever trades survivors; the ghosts - companies that listed,
+died, and were quietly erased from the menu - never got traded, so the
 results are flattered.  The report exists so a backtester can ask out loud:
 "did I trade a world that only contains survivors?"
 """
@@ -36,7 +36,7 @@ class Universe:
 
     Boundary convention: a symbol is a member on its listing day (inclusive)
     and is not a member on its delisting day (exclusive).  Re-adding a
-    symbol raises — silently replacing a listing history is exactly how
+    symbol raises - silently replacing a listing history is exactly how
     survivorship bias sneaks in unnoticed.
     """
 
@@ -54,7 +54,7 @@ class Universe:
             prior = self._members[symbol]
             raise ValueError(
                 f"{symbol!r} already in universe (listed "
-                f"{prior.listed.isoformat()}) — one spell per symbol"
+                f"{prior.listed.isoformat()}) - one spell per symbol"
             )
         m = Membership(symbol=symbol, listed=listed, delisted=delisted)
         self._members[symbol] = m
@@ -70,7 +70,7 @@ class Universe:
         )
 
     def delisted_between(self, start: datetime | str, end: datetime | str) -> list[str]:
-        """Symbols whose delisting falls in [start, end] — both ends inclusive."""
+        """Symbols whose delisting falls in [start, end] - both ends inclusive."""
         lo, hi = to_utc(start), to_utc(end)
         return sorted(
             m.symbol
@@ -83,7 +83,7 @@ class Universe:
 
         ever_listed  symbols that had listed by as_of
         current      still listed at as_of
-        ghosts       listed in the past, gone by as_of — the companies a
+        ghosts       listed in the past, gone by as_of - the companies a
                      survivorship-biased backtest silently never traded
         """
         when = to_utc(as_of)

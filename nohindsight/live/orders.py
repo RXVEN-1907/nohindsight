@@ -1,4 +1,4 @@
-"""nohindsight.live.orders — the paper-trade vocabulary.
+"""nohindsight.live.orders - the paper-trade vocabulary.
 
 Orders are intents; fills are facts; refusals are the system saying no.
 
@@ -6,7 +6,7 @@ Sign convention, everywhere in ``live``: ``qty > 0`` buys, ``qty < 0``
 sells.  One sign, no "side" enum to get wrong.
 
 Money crosses this module as ``decimal.Decimal``.  Anything a caller hands
-us (int, float, str, Decimal) is coerced through ``to_decimal`` —
+us (int, float, str, Decimal) is coerced through ``to_decimal`` -
 ``Decimal(str(x))`` keeps the shortest repr you wrote as the exact number
 you meant, which is the whole defense against float drift.
 """
@@ -70,7 +70,7 @@ class LimitOrder:
 class Fill:
     """One executed slice of one order.
 
-    qty and price are Decimal — money math never touches float here.  fee
+    qty and price are Decimal - money math never touches float here.  fee
     is charged in cash on every fill: buys pay it on top of the notional,
     sells net it out of the proceeds.
     """
@@ -88,7 +88,7 @@ class Refusal:
     """A 'no' with its reason attached.
 
     Every refusal names the rule that produced it so reports can count
-    which rule saved you (or nagged you) — drawdown, buying power, fat
+    which rule saved you (or nagged you) - drawdown, buying power, fat
     finger, order rate, or the fill emulator's own seeded rejections.
     """
 

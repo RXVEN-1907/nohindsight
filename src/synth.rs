@@ -1,38 +1,38 @@
-//! nohindsight synth — a small world with crimes planted in it.
+//! nohindsight synth - a small world with crimes planted in it.
 //!
 //! Everything here is deterministic given its seed (one [`SplitMix64`] per
-//! call, draws in a fixed, documented order — see the DRAW ORDER CONTRACT in
+//! call, draws in a fixed, documented order - see the DRAW ORDER CONTRACT in
 //! [`crate::rng`]), so the demo tells the same story every run and the tests
 //! can assert on exact numbers.
 //!
 //! The prices generator plants four data crimes, one symbol each, and the
 //! fundamentals generator plants a restatement.  These are the module's
-//! contract with the checks package and the demo — the detectors are
+//! contract with the checks package and the demo - the detectors are
 //! supposed to find them, so the numbers are planted exactly, not
 //! approximately:
 //!
-//! * SYM3 — split: one overnight close->close drop of exactly 4:1
-//!   (log return = -ln 4) with a 5x volume spike; history is left raw — no
+//! * SYM3 - split: one overnight close->close drop of exactly 4:1
+//!   (log return = -ln 4) with a 5x volume spike; history is left raw - no
 //!   back-adjustment, which is precisely the crime a chart vendor would
 //!   have hidden;
-//! * SYM5 — gap: nine consecutive trading days missing (exchange closure);
+//! * SYM5 - gap: nine consecutive trading days missing (exchange closure);
 //!   the walk simply pauses and resumes where it left off, like a real tape;
-//! * SYM6 — stale bars: five consecutive flat bars at the last honest
-//!   close, volume zero — a halted symbol or a dead feed;
-//! * SYM7 — duplicate: one trading day appended twice; the second entry is
+//! * SYM6 - stale bars: five consecutive flat bars at the last honest
+//!   close, volume zero - a halted symbol or a dead feed;
+//! * SYM7 - duplicate: one trading day appended twice; the second entry is
 //!   the correction, knowable the next weekday morning;
-//! * SYM2 — restatement (fundamentals): the most recent quarter re-filed
+//! * SYM2 - restatement (fundamentals): the most recent quarter re-filed
 //!   21 days after the original, 30% lower.
 //!
-//! Bars are stamped 20:00 UTC — 4pm US Eastern, the close the bar summarizes
-//! — with event_time == knowledge_time: the stated simplification is that a
+//! Bars are stamped 20:00 UTC - 4pm US Eastern, the close the bar summarizes
+//! - with event_time == knowledge_time: the stated simplification is that a
 //! bar is knowable at its own close.  The crimes need roughly n_days >= 12
 //! to fit; below that each block shrinks to what the timeline allows.
 
 use crate::core::{days_in_month, Bar, Ledger, Time, Value};
 use crate::rng::SplitMix64;
 
-/// SYM3's 4:1 split — overnight close drops by exactly this.
+/// SYM3's 4:1 split - overnight close drops by exactly this.
 pub const SPLIT_RATIO: f64 = 4.0;
 /// Split-day volume spike (> the split detector's vol_mult default of 3.0).
 pub const SPLIT_VOL_MULT: f64 = 5.0;
@@ -48,7 +48,7 @@ pub const SYMBOLS: [&str; 8] = [
     "SYM1", "SYM2", "SYM3", "SYM4", "SYM5", "SYM6", "SYM7", "SYM8",
 ];
 
-// Fixed calendar anchors — never the wall clock; a generator that depends
+// Fixed calendar anchors - never the wall clock; a generator that depends
 // on the wall clock is not reproducible.
 const FUNDAMENTALS_LAST_QUARTER_END: (i64, u32) = (2023, 4); // year, quarter
 const MACRO_LAST_MONTH_END: (i64, u32) = (2023, 12); // year, month
@@ -103,7 +103,7 @@ pub fn trading_day_stamps(start: Time, n: usize) -> Vec<Time> {
     out
 }
 
-/// 14:00 UTC on the next weekday after `ts` — when a correction lands.
+/// 14:00 UTC on the next weekday after `ts` - when a correction lands.
 pub fn next_weekday_morning(ts: Time) -> Time {
     let mut z = ts.date_days() + 1;
     loop {
@@ -138,7 +138,7 @@ fn one_honest_bar(
     rng: &mut SplitMix64,
 ) -> Bar {
     // Draw order for one honest bar (see the module docs): open, close,
-    // high, low, volume — five gauss calls, two uniforms each.
+    // high, low, volume - five gauss calls, two uniforms each.
     let open = prev_close * (1.0 + rng.gauss(0.0, 0.3 * vol));
     let close = prev_close * (drift + rng.gauss(0.0, vol)).exp();
     let high = open.max(close) * (1.0 + rng.gauss(0.0, 0.5 * vol).abs());
@@ -156,7 +156,7 @@ fn one_honest_bar(
 /// Daily OHLCV bars for SYM1..SYM8 in a [`Ledger`], with four crimes
 /// planted.
 ///
-/// Keys are the symbols; values are [`Value::Bar`]s — the trading day
+/// Keys are the symbols; values are [`Value::Bar`]s - the trading day
 /// itself is the entry's event_time.  Deterministic given seed; RNG
 /// discipline: per-symbol (start, drift, vol, volume base) drawn first in
 /// symbol order, then bar-by-bar noise walking dates outer, symbols inner.
@@ -214,7 +214,7 @@ pub fn synthetic_prices(n_days: usize, seed: u64) -> Result<Ledger, crate::core:
                 volume *= SPLIT_VOL_MULT;
                 close /= SPLIT_RATIO;
                 // Split-day shape: 3 gausses (open, high, low), no
-                // close/volume noise — the crime sets those exactly.
+                // close/volume noise - the crime sets those exactly.
                 let open = close * (1.0 + rng.gauss(0.0, 0.002));
                 let high = open.max(close) * (1.0 + rng.gauss(0.0, 0.002).abs());
                 let low = open.min(close) * (1.0 - rng.gauss(0.0, 0.002).abs());
@@ -232,7 +232,7 @@ pub fn synthetic_prices(n_days: usize, seed: u64) -> Result<Ledger, crate::core:
             if layout.dup_idx == Some(i) && *sym == "SYM7" {
                 // The duplicate: a correction appended the same trading day,
                 // knowable the next weekday morning.  Between the close and
-                // that morning, the view still shows the raw bar — exactly
+                // that morning, the view still shows the raw bar - exactly
                 // the revisioning story the ledger exists to tell.
                 let mut correction = bar;
                 correction.close *= DUP_CORRECTION_FACTOR;
@@ -277,14 +277,14 @@ fn days_from_ymd(y: i64, m: u32, d: u32) -> i64 {
 
 /// Quarterly revenue in millions as reported, with one restatement.
 ///
-/// Key model: one key per symbol, `"<SYM>.revenue"` — each quarter appends a
+/// Key model: one key per symbol, `"<SYM>.revenue"` - each quarter appends a
 /// new revision, because that is how a "current fundamentals" feed actually
 /// behaves: the latest reported number moves forward each quarter, and
 /// which number you were allowed to see is a function of when you looked.
 /// event_time = quarter end; knowledge_time = quarter end plus a drawn
 /// filing lag of 38-52 days (~45, per-symbol per-quarter).
 ///
-/// The crime: SYM2's most recent quarter gets restated — a further revision
+/// The crime: SYM2's most recent quarter gets restated - a further revision
 /// exactly 21 days after the original filing, value 30% lower.  Until that
 /// 21-day mark the honest view still shows the original number; the naive
 /// view (reading today's ledger) never saw the original at all.
@@ -390,7 +390,7 @@ pub fn synthetic_macro(
 }
 
 /// Bars for one ledger key as (event_time, bar) pairs, sorted by
-/// (event_time, knowledge_time) — the shape the replay engine and the
+/// (event_time, knowledge_time) - the shape the replay engine and the
 /// checks police consume.  Corrections ride alongside their original day.
 pub fn bar_history(ledger: &Ledger, key: &str) -> Vec<(Time, Bar)> {
     let mut out: Vec<(Time, Bar)> = ledger
@@ -408,7 +408,7 @@ mod tests {
 
     /// The seed-independent anatomy: 750 days puts the split at index 375,
     /// the SYM5 gap at 450..459, the SYM6 stale run at 250..255 and the
-    /// SYM7 duplicate at 500 — asserted by the integration tests too, but
+    /// SYM7 duplicate at 500 - asserted by the integration tests too, but
     /// pinned here where the layout lives.
     #[test]
     fn layout_matches_the_documented_plants() {

@@ -1,4 +1,4 @@
-"""nohindsight.cli — python -m nohindsight.
+"""nohindsight.cli - python -m nohindsight.
 
 Four doors into the library:
 
@@ -11,7 +11,7 @@ Four doors into the library:
 ``main(argv) -> int`` is the whole contract: 0 means the command ran and
 found nothing disqualifying, 1 means it ran and found leaks (``check``),
 2 means the input itself was unusable.  Argparse's own errors exit 2.
-All printing lives here and in demo/ — the library stays silent.
+All printing lives here and in demo/ - the library stays silent.
 """
 
 from __future__ import annotations
@@ -93,7 +93,7 @@ def _bars_for_key(ledger, key: str) -> list[dict]:
     if not isinstance(first, dict):
         raise ValueError(
             f"{key!r}: check expects bar rows (open/high/low/close columns); "
-            f"got a {type(first).__name__} value — ingest the OHLC columns "
+            f"got a {type(first).__name__} value - ingest the OHLC columns "
             "without value_col"
         )
     return [{"ts": e.event_time.isoformat(), **e.value} for e in entries]
@@ -133,7 +133,7 @@ def _cmd_check(args: argparse.Namespace) -> int:
         f"{counts[Severity.INFO]} info"
     )
     out = args.out or str(csv_path.with_name(csv_path.stem + ".report.html"))
-    render_html(report, None, None, title=f"nohindsight check — {csv_path.name}", out_path=out)
+    render_html(report, None, None, title=f"nohindsight check - {csv_path.name}", out_path=out)
     print(f"report: {out}")
     return _EXIT_LEAKS if report.has_leaks else _EXIT_OK
 
@@ -162,7 +162,7 @@ def _read_returns_csv(path: str) -> tuple[list[float], str]:
             else:
                 raise ValueError(
                     f"{path}: {len(header)} columns, none named "
-                    f"{_RETURNS_COLUMN_CANDIDATES} — pass a one-column CSV"
+                    f"{_RETURNS_COLUMN_CANDIDATES} - pass a one-column CSV"
                 ) from None
     returns: list[float] = []
     for lineno, row in enumerate(rows[start:], start=start + 1):
@@ -179,7 +179,7 @@ def _read_returns_csv(path: str) -> tuple[list[float], str]:
 
 
 def _demo_returns(seed: int = 11, n: int = 500) -> list[float]:
-    """A synthetic stream with a real drift: mean 0.15%/day, sd 1%/day —
+    """A synthetic stream with a real drift: mean 0.15%/day, sd 1%/day -
     a Sharpe around 2.4 that honest forensics should clear."""
     rng = random.Random(seed)
     return [0.0015 + rng.gauss(0.0, 0.01) for _ in range(n)]
@@ -206,7 +206,7 @@ def _cmd_audit(args: argparse.Namespace) -> int:
     numbers = verdict.numbers
     bar = "=" * 64
     print(bar)
-    print(f" nohindsight audit — {source}")
+    print(f" nohindsight audit - {source}")
     print(bar)
     print(f" VERDICT: {verdict.level}")
     print(
@@ -220,7 +220,7 @@ def _cmd_audit(args: argparse.Namespace) -> int:
     print(bar)
 
     out = args.out or default_out
-    render_html(None, verdict, None, title=f"nohindsight audit — {source}", out_path=out)
+    render_html(None, verdict, None, title=f"nohindsight audit - {source}", out_path=out)
     print(f"report: {out}")
     return _EXIT_OK
 

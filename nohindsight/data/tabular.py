@@ -1,9 +1,9 @@
-"""nohindsight.data.tabular — CSV in, honest ledger out.
+"""nohindsight.data.tabular - CSV in, honest ledger out.
 
 A CSV is a pile of strings; this module turns it into revisions with two
 clocks.  It trusts the header row and nothing else: timestamps go through
 core.to_utc, values are floats when they can be parsed as floats and stay
-strings when they can't — CSV has no types, and pretending otherwise is
+strings when they can't - CSV has no types, and pretending otherwise is
 how "N/A" becomes a price.
 """
 
@@ -40,14 +40,14 @@ def ingest_csv(
     `key_col`, `event_col`, `knowledge_col` name the three required
     columns; timestamps may be any ISO-8601 text core.to_utc accepts.
 
-    Value resolution — exactly one of these shapes:
+    Value resolution - exactly one of these shapes:
       * value_cols (a list) -> dict value {col: coerced}
       * value_col           -> a single coerced value
       * neither given       -> every remaining column becomes the dict
 
     Raises ValueError if a required column is missing, if a timestamp
     fails to parse, or on the first row whose knowledge_time precedes its
-    event_time — the message names the file line number.
+    event_time - the message names the file line number.
     """
     ledger = Ledger(name)
     with open(path, "r", encoding="utf-8", newline="") as fh:
@@ -78,7 +78,7 @@ def ingest_csv(
             if kt < et:
                 raise ValueError(
                     f"{path}: line {lineno}: knowledge_time {kt.isoformat()} precedes "
-                    f"event_time {et.isoformat()} — nobody knows things before "
+                    f"event_time {et.isoformat()} - nobody knows things before "
                     "they happen"
                 )
             if value_cols is not None:

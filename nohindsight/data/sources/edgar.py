@@ -1,9 +1,9 @@
-"""nohindsight.data.sources.edgar — SEC XBRL company facts, point-in-time.
+"""nohindsight.data.sources.edgar - SEC XBRL company facts, point-in-time.
 
 SEC requires a User-Agent header on every request and answers 403 without
 one (see https://www.sec.gov/os/accessing-edgar-data).  The default UA
 below names this library; pass your own with a contact address if you pull
-seriously — they do rate-limit.
+seriously - they do rate-limit.
 
 `fetch_json` is the only network call, and every failure it can meet comes
 back as one exception type.  `facts_to_ledger` is a pure function on the
@@ -38,7 +38,7 @@ class EdgarUnavailable(RuntimeError):
 def company_concept_url(cik: int, taxonomy: str, tag: str, unit: str) -> str:
     """URL for one concept of one company, CIK zero-padded to 10 digits.
 
-    Example — cik=320193, taxonomy="us-gaap", tag="Revenues", unit="USD":
+    Example - cik=320193, taxonomy="us-gaap", tag="Revenues", unit="USD":
 
         https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/Revenues/USD.json
     """
@@ -49,7 +49,7 @@ def fetch_json(url: str, user_agent: str = USER_AGENT) -> dict:
     """GET `url` with the mandatory UA header; return the parsed JSON.
 
     Raises EdgarUnavailable on network failure, HTTP error, or a body that
-    will not parse — callers catch one exception and tell the user the
+    will not parse - callers catch one exception and tell the user the
     source is down, not that their strategy is.
     """
     req = urllib.request.Request(url, headers={"User-Agent": user_agent})
@@ -73,12 +73,12 @@ def facts_to_ledger(payload: dict, tag: str) -> Ledger:
     Mapping, per fact (each carries end, filed, val, fy, fp, sometimes
     frame):
         key            "<cik>.<tag>"
-        event_time     end    — the period the number describes
-        knowledge_time filed  — when the world could first see it
+        event_time     end    - the period the number describes
+        knowledge_time filed  - when the world could first see it
         value          val
     Multiple filings for the same period arrive as multiple ledger
     revisions: restatements modeled natively, no dedup, no last-one-wins.
-    Facts missing end/filed/val are skipped — SEC occasionally emits them.
+    Facts missing end/filed/val are skipped - SEC occasionally emits them.
     """
     cik = int(payload.get("cik", 0))
     ledger = Ledger(f"edgar.{cik}.{tag}")

@@ -1,17 +1,17 @@
-"""nohindsight.report — one self-contained HTML file per interrogation.
+"""nohindsight.report - one self-contained HTML file per interrogation.
 
 The design contract (docs/SPEC.md module 6):
 
     canvas      #0B0C10  obsidian ink          text #F2F3F7  clean off-white
-    truth       #D0C4DF  lavender — the honest curve, the baseline, REAL verdicts
-    leaks       #E5484D  crimson  — LEAK findings, FANTASY verdicts, the leak curve
-    warnings    #E6B455  sulfur   — WARN findings, SUSPICIOUS verdicts
-    info        #5B8DEF  blue     — INFO findings
+    truth       #D0C4DF  lavender - the honest curve, the baseline, REAL verdicts
+    leaks       #E5484D  crimson  - LEAK findings, FANTASY verdicts, the leak curve
+    warnings    #E6B455  sulfur   - WARN findings, SUSPICIOUS verdicts
+    info        #5B8DEF  blue     - INFO findings
 
 Everything is inline: no fonts, no scripts, no images fetched.  The report
 is a single file that can be archived next to the ledger it describes and
 will render identically in ten years.  The equity sparkline is a hand-built
-SVG path — line segments, not a chart library — because a report about
+SVG path - line segments, not a chart library - because a report about
 honesty should contain no machinery nobody can audit.
 
 Beyond the five spec parameters, ``render_html`` takes keyword-only extras
@@ -31,7 +31,7 @@ from .forensics.audit import Verdict
 
 __all__ = ["render_html", "PALETTE"]
 
-# The palette, as named constants — reports and tests may import these
+# The palette, as named constants - reports and tests may import these
 # instead of hard-coding hex triplets.
 PALETTE = {
     "bg": "#0B0C10",
@@ -300,7 +300,7 @@ def _sparkline_svg(series: list[dict]) -> str:
             f'font-size="11" font-family="ui-monospace, Menlo, monospace">'
             f"{gv:,.0f}</text>"
         )
-    # the start baseline — where both accounts began
+    # the start baseline - where both accounts began
     start = usable[0]["points"][0][1]
     sy = Y(start)
     parts.append(
@@ -387,7 +387,7 @@ def render_html(
 ) -> str:
     """Render one self-contained dark-theme HTML report to ``out_path``.
 
-    Spec signature: report, verdict, equity, title, out_path — any of the
+    Spec signature: report, verdict, equity, title, out_path - any of the
     first three may be None and its section is omitted.  Keyword-only extras
     (used by the demo): ``leak_equity`` draws a second equity line in
     crimson over the same chart, ``extra_verdicts`` render as further

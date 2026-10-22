@@ -1,4 +1,4 @@
-"""nohindsight.checks.quality — bar-level police.
+"""nohindsight.checks.quality - bar-level police.
 
 Conventions every check in here shares:
 
@@ -10,8 +10,8 @@ Conventions every check in here shares:
     reorder, copy, or mutate.
   * Every check returns list[Finding] and takes no clock: these are
     properties of the data itself, not of when you looked at it.
-  * One finding per offense site — one bad bar, one duplicated instant,
-    one stale run, one gap — so a report can point at the wound.
+  * One finding per offense site - one bad bar, one duplicated instant,
+    one stale run, one gap - so a report can point at the wound.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def _finite_number(value: object) -> bool:
 
 
 def _usable_close(value: object) -> float | None:
-    """Positive finite close, else None — log returns need a real price."""
+    """Positive finite close, else None - log returns need a real price."""
     if isinstance(value, (int, float)) and math.isfinite(value) and value > 0:
         return float(value)
     return None
@@ -57,7 +57,7 @@ def check_ohlc(bars: list[dict]) -> list[Finding]:
 
     Violations are LEAK: data this broken poisons anything built on it.
     At most one finding per bar (unreadable fields short-circuit the
-    geometry test — there is nothing left to judge).
+    geometry test - there is nothing left to judge).
     """
     findings: list[Finding] = []
     for i, bar in enumerate(bars):
@@ -106,7 +106,7 @@ def check_duplicates(bars: list[dict]) -> list[Finding]:
     one thing per instant.  Timestamps are compared as instants via
     to_utc, so "...Z" and "...+00:00" spellings of the same moment
     collide.  One finding per duplicated instant (not per pair).  Bars
-    whose ts can't be parsed are skipped — ingest owns that failure.
+    whose ts can't be parsed are skipped - ingest owns that failure.
     """
     first_seen: dict[datetime, int] = {}
     dupes: dict[datetime, list[int]] = {}
@@ -127,7 +127,7 @@ def check_duplicates(bars: list[dict]) -> list[Finding]:
             severity=Severity.LEAK,
             message=(
                 f"timestamp {ts!r} appears {len(indices)} times "
-                f"(bars {indices}) — one instant, one bar"
+                f"(bars {indices}) - one instant, one bar"
             ),
             where=f"bars[{indices[0]}..{indices[-1]}]",
             detail={"ts": ts, "indices": indices},
@@ -157,8 +157,8 @@ def check_gaps(
 ) -> list[Finding]:
     """Trading-calendar police: an unexplained closure is WARN.
 
-    The gap between consecutive bars is counted in *weekdays* — dates d
-    with earlier.date() < d <= later.date() and d.weekday() < 5 — so an
+    The gap between consecutive bars is counted in *weekdays* - dates d
+    with earlier.date() < d <= later.date() and d.weekday() < 5 - so an
     ordinary weekend (Friday -> Monday) is a gap of 1, same as any other
     healthy overnight.  A spacing of more than max_gap_days weekdays is
     a WARN: the backtest silently held through days it has no data for.
@@ -182,7 +182,7 @@ def check_gaps(
                     severity=Severity.WARN,
                     message=(
                         f"{gap} weekdays between bars[{j}] ({bars[j].get('ts')}) and "
-                        f"bars[{i}] ({bar.get('ts')}) — expected {expected_days}; "
+                        f"bars[{i}] ({bar.get('ts')}) - expected {expected_days}; "
                         "an unexplained closure"
                     ),
                     where=f"bars[{j}..{i}]",
@@ -202,7 +202,7 @@ def check_stale(bars: list[dict], run: int = 4) -> list[Finding]:
     """`run` consecutive identical closes -> WARN: a dead feed or a
     halted symbol.
 
-    Exact equality on close — a stale feed repeats bits, not
+    Exact equality on close - a stale feed repeats bits, not
     approximately.  One finding per maximal run (six identical closes at
     run=4 is one finding, not three).  Bars whose close isn't a number
     don't count toward a run; check_ohlc already flagged those.
@@ -221,7 +221,7 @@ def check_stale(bars: list[dict], run: int = 4) -> list[Finding]:
                 severity=Severity.WARN,
                 message=(
                     f"{length} consecutive identical closes "
-                    f"({bars[i].get('close')!r}) from bars[{i}] to bars[{j}] — "
+                    f"({bars[i].get('close')!r}) from bars[{i}] to bars[{j}] - "
                     "dead feed or halted symbol"
                 ),
                 where=f"bars[{i}..{j}]",
@@ -253,7 +253,7 @@ def check_crossed(bars: list[dict]) -> list[Finding]:
                 code="CROSSED_MARKET",
                 severity=Severity.LEAK,
                 message=(
-                    f"bar {i} ({bar.get('ts')}): bid {bid} > ask {ask} — "
+                    f"bar {i} ({bar.get('ts')}): bid {bid} > ask {ask} - "
                     "a crossed quote is an impossible market"
                 ),
                 where=f"bars[{i}]",
@@ -271,7 +271,7 @@ def check_scale_shock(bars: list[dict], z: float = 8.0) -> list[Finding]:
     pinned): returns are log close-to-close, ln(close_i / close_{i-1});
     "recent" is the trailing 30 returns before the candidate, sample
     stdev; a bar is judged only once 8 returns exist before it.  A
-    window with sigma <= 0 (perfectly flat history) judges nothing — a
+    window with sigma <= 0 (perfectly flat history) judges nothing - a
     flat window has no scale, and the stale check already flagged it.
     Bars with non-finite or non-positive closes are skipped here;
     geometry is check_ohlc's job.
@@ -305,7 +305,7 @@ def check_scale_shock(bars: list[dict], z: float = 8.0) -> list[Finding]:
                 message=(
                     f"bar {i} ({bars[i].get('ts')}): move {r:+.4f} is "
                     f"{score:.1f} sigmas of the trailing {_SHOCK_WINDOW}-bar "
-                    f"distribution (sigma={sigma:.3e}) — candidate split or bad tick"
+                    f"distribution (sigma={sigma:.3e}) - candidate split or bad tick"
                 ),
                 where=f"bars[{i}]",
                 detail={

@@ -1,15 +1,16 @@
 # contributing
 
-The bar for a feature is one question: **does it help answer "is this
-backtest real, or is it lying?"** If not, it belongs in another repo.
+A feature belongs here if it helps answer: is this backtest real, or is it
+lying? If it does not, put it in another repo.
 
 Rules:
-- Pure Python stdlib in `nohindsight/` — no third-party runtime deps.
-- Every check reports findings, never mutates data. The police don't
-  tamper with evidence.
+
+- Pure Python stdlib in `nohindsight/`. No third-party runtime deps.
+- Rust crate `nh` is std-only too. No unsafe.
+- Checks report findings. They never mutate the data they scan.
 - Tests: `python -m unittest discover -s tests -v` (pytest works too).
-  Deterministic — seed everything.
-- Crimson is only ever for leaks. Lavender is only ever for truth.
-  See `docs/DESIGN.md`.
-- Docstrings state assumptions, especially simplifications. An honest
-  library about honesty should document its own shortcuts.
+  Deterministic: seed everything.
+- Colors: leaks are crimson `#E5484D`, honest series are lavender
+  `#D0C4DF`. See `docs/DESIGN.md`.
+- Docstrings state assumptions and simplifications. Readers will ask why;
+  answer them in the file.

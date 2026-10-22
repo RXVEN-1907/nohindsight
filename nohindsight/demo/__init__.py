@@ -1,4 +1,4 @@
-"""nohindsight.demo — the whole story in one run.
+"""nohindsight.demo - the whole story in one run.
 
 One synthetic market, five planted crimes, two strategies that differ in
 exactly one line of code, and the two departments that judge them:
@@ -6,16 +6,16 @@ exactly one line of code, and the two departments that judge them:
   1. Build synthetic prices (seed PRICE_SEED) and fundamentals (seed 7).
      Four data crimes are planted in the prices; one restatement is planted
      in the fundamentals: SYM2 filed $253.4m for Q4 2023, knowable
-     2024-02-09, then re-filed $177.4m — 30% lower — knowable 2024-03-01.
+     2024-02-09, then re-filed $177.4m - 30% lower - knowable 2024-03-01.
   2. The data police (checks.run_all) read SYM3's bars and catch the raw
      4:1 split.
   3. Two strategies run the SAME trading logic through the SAME Replay
      engine, with the same broker seed, fees, and risk limits.  The only
      difference is how they read SYM2's revenue:
 
-       honest — through an AsOfView bound to the replay clock: only what
+       honest - through an AsOfView bound to the replay clock: only what
                 the world had published by then.
-       naive  — ``ledger.value_at(key)`` with no clock: today's terminal
+       naive  - ``ledger.value_at(key)`` with no clock: today's terminal
                 number merged onto every historical decision date.  This
                 is what every beginner's pandas merge does silently.
 
@@ -27,7 +27,7 @@ exactly one line of code, and the two departments that judge them:
 
      Replay's guard is structural but local: it wraps the ledger it was
      given.  A strategy holding a raw reference to ANOTHER ledger reads
-     around the guard — the demo's naive strategy does that on purpose,
+     around the guard - the demo's naive strategy does that on purpose,
      once, with a comment, so the consequence is visible.
   4. forensics.audit interrogates both return streams (n_trials = 1).
   5. report.html: both equity curves (honest lavender, naive crimson),
@@ -79,10 +79,10 @@ N_DAYS = 750
 FUND_SEED = 7      # the module default; pins the restatement numbers above
 PRICE_SEED = 455   # chosen like any good exhibit: so the crime is visible.
                    # Under this seed SYM2 falls ~21% over the leak window while
-                   # SYM1 rises ~26% — the honest strategy eats the drawdown it
+                   # SYM1 rises ~26% - the honest strategy eats the drawdown it
                    # had no honest way to see coming; the naive one was already
-                   # in the winner.  (The planted DATA crimes themselves — the
-                   # split, the gap, the stale run, the duplicate — are
+                   # in the winner.  (The planted DATA crimes themselves - the
+                   # split, the gap, the stale run, the duplicate - are
                    # seed-independent; this seed only picks the weather.)
 
 _RISK = RiskConfig(max_drawdown=0.25, max_position_pct=0.5)
@@ -152,7 +152,7 @@ class NaiveStrategy(_RotationStrategy):
     """Reads revenue from the raw ledger with no clock.
 
     ``value_at(key)`` with as_of=None is 'the number as the terminal shows
-    it today' — the final restated value — stamped onto every historical
+    it today' - the final restated value - stamped onto every historical
     decision date.  Every beginner's pandas merge does this silently; this
     class does it loudly, once, with a comment.
     """
@@ -196,7 +196,7 @@ def _restatement_leak_finding(fund_ledger: Ledger, price_days: list[datetime]) -
         severity=Severity.LEAK,
         message=(
             f"naive read {GATED}.revenue on {len(leak_days)} decision days from the "
-            f"terminal snapshot — a revision first published "
+            f"terminal snapshot - a revision first published "
             f"{restated.knowledge_time.date().isoformat()}, used up to {max_lag} days "
             f"before the world had it (first: {first.date().isoformat()})"
         ),
@@ -230,7 +230,7 @@ def _run_engine(
 
     ``clock`` lets the caller share ONE clock between Replay and a strategy's
     own AsOfView (the honest strategy's fundamentals view must advance with
-    the replay clock or it is frozen at the first day — a leak of the
+    the replay clock or it is frozen at the first day - a leak of the
     opposite kind: it would never learn anything new).
     """
     if clock is None:
@@ -268,7 +268,7 @@ def run(out_dir: str = ".", *, verbose: bool = True, price_seed: int = PRICE_SEE
     prices = synthetic_prices(n_days=N_DAYS, seed=price_seed)
     funds = synthetic_fundamentals(symbols=8, quarters=8, seed=FUND_SEED)
     original, restated = _restatement(funds)
-    say("nohindsight demo — is your strategy real, or did you cheat by accident?")
+    say("nohindsight demo - is your strategy real, or did you cheat by accident?")
     say()
     say(
         f"Step 1. Built a synthetic market: {N_DAYS} trading days for SYM1..SYM8 "
@@ -279,7 +279,7 @@ def run(out_dir: str = ".", *, verbose: bool = True, price_seed: int = PRICE_SEE
     say(
         f"        The crime that matters here: {GATED} filed "
         f"${original.value:,.1f}m for its last quarter, knowable "
-        f"{original.knowledge_time.date().isoformat()} — then re-filed "
+        f"{original.knowledge_time.date().isoformat()} - then re-filed "
         f"${restated.value:,.1f}m (30% lower), knowable "
         f"{restated.knowledge_time.date().isoformat()}."
     )
@@ -298,7 +298,7 @@ def run(out_dir: str = ".", *, verbose: bool = True, price_seed: int = PRICE_SEE
     say(
         "        The split was caught: SYM3's raw 4:1 overnight drop on 5x volume "
         if split_caught
-        else "        WARNING: the split was NOT caught this run — check the seeds"
+        else "        WARNING: the split was NOT caught this run - check the seeds"
     )
 
     # 3. the two strategies, one engine, one difference
@@ -320,9 +320,9 @@ def run(out_dir: str = ".", *, verbose: bool = True, price_seed: int = PRICE_SEE
         "same risk limits.  The only difference is how they read "
         f"{GATED}'s revenue:"
     )
-    say("          honest — through the AsOfView: only what the world had published.")
+    say("          honest - through the AsOfView: only what the world had published.")
     say(
-        "          naive  — ledger.value_at(key) with no clock: today's terminal "
+        "          naive  - ledger.value_at(key) with no clock: today's terminal "
         "number, merged onto every historical date.  Every beginner's pandas "
         "merge does this silently."
     )
@@ -370,13 +370,13 @@ def run(out_dir: str = ".", *, verbose: bool = True, price_seed: int = PRICE_SEE
         report,
         verdict_h,
         curve_h,
-        title="nohindsight — the restatement demo",
+        title="nohindsight - the restatement demo",
         out_path=out_path,
         leak_equity=curve_n,
         extra_verdicts=[verdict_n],
         verdict_labels=[
-            "Honest strategy — AsOfView-guarded read",
-            "Naive strategy — terminal read (the leak)",
+            "Honest strategy - AsOfView-guarded read",
+            "Naive strategy - terminal read (the leak)",
         ],
         notes=[
             closing,

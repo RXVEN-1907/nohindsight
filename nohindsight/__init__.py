@@ -1,4 +1,4 @@
-"""nohindsight — a quant toolkit that answers one question:
+"""nohindsight - a quant toolkit that answers one question:
 
     is your strategy real, or did you cheat by accident?
 

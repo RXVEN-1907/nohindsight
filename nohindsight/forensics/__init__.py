@@ -1,4 +1,4 @@
-"""nohindsight.forensics — is it luck?
+"""nohindsight.forensics - is it luck?
 
 The police in `checks` catch a dirty backtest; this package interrogates a
 CLEAN one.  Four questions, four files:
@@ -8,7 +8,7 @@ CLEAN one.  Four questions, four files:
     pbo      how often the in-sample winner stays a winner out-of-sample
     audit    the verdict, with the reasons in plain language
 
-Everything operates on plain per-period return lists — anything that can
+Everything operates on plain per-period return lists - anything that can
 produce those (a Ledger-driven backtest, a CSV, live fills) can be
 interrogated here.  Pure stdlib; deterministic given seeds.
 """

@@ -1,0 +1,527 @@
+{
+ "meta": {
+  "generator": "gallery/data/export_demo_data.py",
+  "note": "regenerate with: python gallery/data/export_demo_data.py",
+  "seeds": {
+   "price": 455,
+   "fundamentals": 7,
+   "fills": 7
+  }
+ },
+ "honest": {
+  "level": "SUSPICIOUS",
+  "sharpe": 0.691,
+  "dsr_prob": 1.0,
+  "permutation_p": null,
+  "max_drawdown": 0.1106,
+  "reasons": [
+   "Annualized Sharpe is 0.69 over 749 observations (t-stat 1.19, max drawdown 11.1%).",
+   "With a single trial there is no selection effect to deflate: the probability this Sharpe is genuinely above zero is 1.000.",
+   "Flipping every return's sign at random 2000 times, 11.1% of no-edge paths matched or beat your Sharpe (p = 0.111).",
+   "Some tests passed and some did not: not enough evidence either way."
+  ]
+ },
+ "naive": {
+  "level": "REAL",
+  "sharpe": 1.168,
+  "dsr_prob": 1.0,
+  "permutation_p": null,
+  "max_drawdown": 0.1068,
+  "reasons": [
+   "Annualized Sharpe is 1.17 over 749 observations (t-stat 2.01, max drawdown 10.7%).",
+   "With a single trial there is no selection effect to deflate: the probability this Sharpe is genuinely above zero is 1.000.",
+   "Flipping every return's sign at random 2000 times, 2.0% of no-edge paths matched or beat your Sharpe (p = 0.020).",
+   "Every forensic test passed: this looks like a real edge, not fitted noise."
+  ]
+ },
+ "leak": {
+  "code": "RESTATEMENT_LEAK",
+  "severity": "2",
+  "message": "naive read SYM2.revenue on 43 decision days from the terminal snapshot - a revision first published 2024-03-01, used up to 58 days before the world had it (first: 2024-01-02)",
+  "detail": {
+   "key": "SYM2.revenue",
+   "leak_days": "43",
+   "first_leak_day": "2024-01-02",
+   "knowledge_time": "2024-03-01",
+   "max_lag_days": "58"
+  }
+ },
+ "split_caught": true,
+ "curve": [
+  {
+   "date": "2024-01-02",
+   "honest": 99996.51,
+   "naive": 99996.5
+  },
+  {
+   "date": "2024-01-12",
+   "honest": 101583.64,
+   "naive": 100948.41
+  },
+  {
+   "date": "2024-01-24",
+   "honest": 101191.77,
+   "naive": 101344.67
+  },
+  {
+   "date": "2024-02-05",
+   "honest": 97509.76,
+   "naive": 104799.77
+  },
+  {
+   "date": "2024-02-15",
+   "honest": 96496.36,
+   "naive": 106144.11
+  },
+  {
+   "date": "2024-02-27",
+   "honest": 91756.83,
+   "naive": 109687.52
+  },
+  {
+   "date": "2024-03-08",
+   "honest": 94552.2,
+   "naive": 109581.62
+  },
+  {
+   "date": "2024-03-20",
+   "honest": 96092.31,
+   "naive": 111508.53
+  },
+  {
+   "date": "2024-04-01",
+   "honest": 98007.16,
+   "naive": 113904.27
+  },
+  {
+   "date": "2024-04-11",
+   "honest": 98566.56,
+   "naive": 114604.16
+  },
+  {
+   "date": "2024-04-23",
+   "honest": 99798.44,
+   "naive": 116145.42
+  },
+  {
+   "date": "2024-05-03",
+   "honest": 96035.15,
+   "naive": 111437.0
+  },
+  {
+   "date": "2024-05-15",
+   "honest": 97047.82,
+   "naive": 112704.0
+  },
+  {
+   "date": "2024-05-27",
+   "honest": 95974.75,
+   "naive": 111361.44
+  },
+  {
+   "date": "2024-06-06",
+   "honest": 97876.56,
+   "naive": 113740.87
+  },
+  {
+   "date": "2024-06-18",
+   "honest": 98962.26,
+   "naive": 115099.23
+  },
+  {
+   "date": "2024-06-28",
+   "honest": 98646.09,
+   "naive": 114703.66
+  },
+  {
+   "date": "2024-07-10",
+   "honest": 96217.57,
+   "naive": 111665.24
+  },
+  {
+   "date": "2024-07-22",
+   "honest": 99965.9,
+   "naive": 116354.93
+  },
+  {
+   "date": "2024-08-01",
+   "honest": 97714.32,
+   "naive": 113537.89
+  },
+  {
+   "date": "2024-08-13",
+   "honest": 99658.29,
+   "naive": 115970.07
+  },
+  {
+   "date": "2024-08-23",
+   "honest": 96852.43,
+   "naive": 112459.54
+  },
+  {
+   "date": "2024-09-04",
+   "honest": 94189.42,
+   "naive": 109127.73
+  },
+  {
+   "date": "2024-09-16",
+   "honest": 94291.55,
+   "naive": 109255.52
+  },
+  {
+   "date": "2024-09-26",
+   "honest": 94555.69,
+   "naive": 109585.99
+  },
+  {
+   "date": "2024-10-08",
+   "honest": 94588.75,
+   "naive": 109627.36
+  },
+  {
+   "date": "2024-10-18",
+   "honest": 94776.73,
+   "naive": 109862.54
+  },
+  {
+   "date": "2024-10-30",
+   "honest": 93493.26,
+   "naive": 108256.75
+  },
+  {
+   "date": "2024-11-11",
+   "honest": 92377.9,
+   "naive": 106861.27
+  },
+  {
+   "date": "2024-11-21",
+   "honest": 91867.51,
+   "naive": 106222.69
+  },
+  {
+   "date": "2024-12-03",
+   "honest": 90835.67,
+   "naive": 104931.72
+  },
+  {
+   "date": "2024-12-13",
+   "honest": 91432.06,
+   "naive": 105677.88
+  },
+  {
+   "date": "2024-12-25",
+   "honest": 93983.79,
+   "naive": 108870.46
+  },
+  {
+   "date": "2025-01-06",
+   "honest": 94862.96,
+   "naive": 109970.44
+  },
+  {
+   "date": "2025-01-16",
+   "honest": 93753.33,
+   "naive": 108582.13
+  },
+  {
+   "date": "2025-01-28",
+   "honest": 95385.18,
+   "naive": 110623.79
+  },
+  {
+   "date": "2025-02-07",
+   "honest": 93934.76,
+   "naive": 108809.13
+  },
+  {
+   "date": "2025-02-19",
+   "honest": 95218.8,
+   "naive": 110415.64
+  },
+  {
+   "date": "2025-03-03",
+   "honest": 93318.21,
+   "naive": 108037.73
+  },
+  {
+   "date": "2025-03-13",
+   "honest": 93793.01,
+   "naive": 108631.77
+  },
+  {
+   "date": "2025-03-25",
+   "honest": 94188.79,
+   "naive": 109126.95
+  },
+  {
+   "date": "2025-04-04",
+   "honest": 94258.89,
+   "naive": 109214.65
+  },
+  {
+   "date": "2025-04-16",
+   "honest": 92538.93,
+   "naive": 107062.74
+  },
+  {
+   "date": "2025-04-28",
+   "honest": 91875.69,
+   "naive": 106232.93
+  },
+  {
+   "date": "2025-05-08",
+   "honest": 91478.67,
+   "naive": 105736.2
+  },
+  {
+   "date": "2025-05-20",
+   "honest": 92619.71,
+   "naive": 107163.81
+  },
+  {
+   "date": "2025-05-30",
+   "honest": 95922.44,
+   "naive": 111295.99
+  },
+  {
+   "date": "2025-06-11",
+   "honest": 94780.18,
+   "naive": 109866.86
+  },
+  {
+   "date": "2025-06-23",
+   "honest": 97081.2,
+   "naive": 112745.76
+  },
+  {
+   "date": "2025-07-03",
+   "honest": 95713.27,
+   "naive": 111034.28
+  },
+  {
+   "date": "2025-07-15",
+   "honest": 97648.81,
+   "naive": 113455.92
+  },
+  {
+   "date": "2025-07-25",
+   "honest": 95358.42,
+   "naive": 110590.32
+  },
+  {
+   "date": "2025-08-06",
+   "honest": 95635.66,
+   "naive": 110937.19
+  },
+  {
+   "date": "2025-08-18",
+   "honest": 96397.69,
+   "naive": 111890.59
+  },
+  {
+   "date": "2025-08-28",
+   "honest": 98167.39,
+   "naive": 114104.74
+  },
+  {
+   "date": "2025-09-09",
+   "honest": 98465.11,
+   "naive": 114477.23
+  },
+  {
+   "date": "2025-09-19",
+   "honest": 101197.47,
+   "naive": 117895.79
+  },
+  {
+   "date": "2025-10-01",
+   "honest": 101643.75,
+   "naive": 118454.16
+  },
+  {
+   "date": "2025-10-13",
+   "honest": 105303.65,
+   "naive": 123033.2
+  },
+  {
+   "date": "2025-10-23",
+   "honest": 103370.62,
+   "naive": 120614.72
+  },
+  {
+   "date": "2025-11-04",
+   "honest": 104148.79,
+   "naive": 121588.32
+  },
+  {
+   "date": "2025-11-14",
+   "honest": 105508.39,
+   "naive": 123289.37
+  },
+  {
+   "date": "2025-11-26",
+   "honest": 107213.66,
+   "naive": 125422.91
+  },
+  {
+   "date": "2025-12-08",
+   "honest": 103275.5,
+   "naive": 120495.7
+  },
+  {
+   "date": "2025-12-18",
+   "honest": 104411.85,
+   "naive": 121917.44
+  },
+  {
+   "date": "2025-12-30",
+   "honest": 106057.5,
+   "naive": 123976.38
+  },
+  {
+   "date": "2026-01-09",
+   "honest": 108918.29,
+   "naive": 127555.63
+  },
+  {
+   "date": "2026-01-21",
+   "honest": 106516.69,
+   "naive": 124550.9
+  },
+  {
+   "date": "2026-02-02",
+   "honest": 108088.91,
+   "naive": 126517.96
+  },
+  {
+   "date": "2026-02-12",
+   "honest": 109593.14,
+   "naive": 128399.97
+  },
+  {
+   "date": "2026-02-24",
+   "honest": 108670.0,
+   "naive": 127244.99
+  },
+  {
+   "date": "2026-03-06",
+   "honest": 107879.84,
+   "naive": 126256.39
+  },
+  {
+   "date": "2026-03-18",
+   "honest": 107421.08,
+   "naive": 125682.41
+  },
+  {
+   "date": "2026-03-30",
+   "honest": 109339.01,
+   "naive": 128082.02
+  },
+  {
+   "date": "2026-04-09",
+   "honest": 110726.74,
+   "naive": 129818.26
+  },
+  {
+   "date": "2026-04-21",
+   "honest": 111804.57,
+   "naive": 131166.78
+  },
+  {
+   "date": "2026-05-01",
+   "honest": 111175.81,
+   "naive": 130380.11
+  },
+  {
+   "date": "2026-05-13",
+   "honest": 113645.17,
+   "naive": 133469.63
+  },
+  {
+   "date": "2026-05-25",
+   "honest": 113317.65,
+   "naive": 133059.86
+  },
+  {
+   "date": "2026-06-04",
+   "honest": 117928.54,
+   "naive": 138828.74
+  },
+  {
+   "date": "2026-06-16",
+   "honest": 113462.9,
+   "naive": 133241.59
+  },
+  {
+   "date": "2026-06-26",
+   "honest": 116217.22,
+   "naive": 136687.63
+  },
+  {
+   "date": "2026-07-08",
+   "honest": 117651.77,
+   "naive": 138482.45
+  },
+  {
+   "date": "2026-07-20",
+   "honest": 114530.0,
+   "naive": 134576.68
+  },
+  {
+   "date": "2026-07-30",
+   "honest": 119079.22,
+   "naive": 140268.4
+  },
+  {
+   "date": "2026-08-11",
+   "honest": 118217.24,
+   "naive": 139189.94
+  },
+  {
+   "date": "2026-08-21",
+   "honest": 118996.87,
+   "naive": 140165.37
+  },
+  {
+   "date": "2026-09-02",
+   "honest": 116064.17,
+   "naive": 136496.14
+  },
+  {
+   "date": "2026-09-14",
+   "honest": 117105.75,
+   "naive": 137799.31
+  },
+  {
+   "date": "2026-09-24",
+   "honest": 117605.39,
+   "naive": 138424.43
+  },
+  {
+   "date": "2026-10-06",
+   "honest": 120340.23,
+   "naive": 141846.09
+  },
+  {
+   "date": "2026-10-16",
+   "honest": 119801.66,
+   "naive": 141172.27
+  },
+  {
+   "date": "2026-10-28",
+   "honest": 119676.84,
+   "naive": 141016.1
+  },
+  {
+   "date": "2026-11-09",
+   "honest": 121069.54,
+   "naive": 142758.57
+  },
+  {
+   "date": "2026-11-16",
+   "honest": 121873.93,
+   "naive": 143764.97
+  }
+ ]
+}

@@ -96,7 +96,7 @@ fn the_stale_run_is_planted_exactly() {
         assert_eq!(b.volume, 0.0);
     }
     // It is exactly five: the run starts at the LAST honest close (the
-    // witness bar before it closes at the same price, by design — the feed
+    // witness bar before it closes at the same price, by design - the feed
     // froze THERE), and the bar after the run moves again.
     assert_eq!(
         bars[stale_start - 1].1.close,
@@ -151,7 +151,7 @@ fn the_duplicate_is_a_next_morning_correction() {
         "the correction is knowable later"
     );
     // The correction is the raw bar with the close nudged +30bps and the
-    // volume +10% — the same numbers the module's constants name.
+    // volume +10% - the same numbers the module's constants name.
     let raw_bar = raw.value.as_bar().expect("bar");
     let fix_bar = correction.value.as_bar().expect("bar");
     assert!((fix_bar.close / raw_bar.close - DUP_CORRECTION_FACTOR).abs() < 1e-12);
@@ -209,7 +209,7 @@ fn same_seed_same_world_and_macro_carries_two_vintages() {
     let c = synthetic_prices(N_DAYS, PRICE_SEED + 1).expect("ok");
     assert_ne!(a.entries()[0].value, c.entries()[0].value);
 
-    // Macro: two vintages per month — first at +7 days, revised at +38.
+    // Macro: two vintages per month - first at +7 days, revised at +38.
     // The ledger sorts by knowledge time, so vintages from adjacent months
     // interleave; group by event_time to check the pairs.
     let macro_ledger = synthetic_macro("UNRATE", 2, 11).expect("ok");
@@ -240,7 +240,7 @@ fn same_seed_same_world_and_macro_carries_two_vintages() {
         );
     }
     // Reading the revised vintage for a past month is reading a number
-    // nobody in that month had — the view at +10 days shows only the first.
+    // nobody in that month had - the view at +10 days shows only the first.
     let mid = history[0].event_time.plus_days(10).expect("in range");
     assert!(matches!(
         macro_ledger.value_at("UNRATE", mid),

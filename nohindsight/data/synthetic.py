@@ -1,4 +1,4 @@
-"""nohindsight.data.synthetic — a small world with crimes planted in it.
+"""nohindsight.data.synthetic - a small world with crimes planted in it.
 
 Everything here is deterministic given its seed (one ``random.Random`` per
 call, draws in a fixed, documented order), so the demo tells the same story
@@ -6,25 +6,25 @@ every run and the tests can assert on exact numbers.
 
 The prices generator plants four data crimes, one symbol each, and the
 fundamentals generator plants a restatement.  These are the module's
-contract with the checks package and the demo — the detectors are supposed
+contract with the checks package and the demo - the detectors are supposed
 to find them, so the numbers are planted exactly, not approximately:
 
     SYM3  split        one overnight close->close drop of exactly 4:1
                        (log return = -ln 4) with a 5x volume spike;
-                       history is left raw — no back-adjustment, which is
+                       history is left raw - no back-adjustment, which is
                        precisely the crime a chart vendor would have hidden
     SYM5  gap          nine consecutive trading days missing (exchange
                        closure); the walk simply pauses and resumes where
                        it left off, like a real tape
     SYM6  stale bars   five consecutive flat bars at the last honest close,
-                       volume zero — a halted symbol or a dead feed
+                       volume zero - a halted symbol or a dead feed
     SYM7  duplicate    one trading day appended twice; the second entry is
                        the correction, knowable the next weekday morning
     SYM2  restatement  (fundamentals) the most recent quarter re-filed
                        21 days after the original, 30% lower
 
-Bars are stamped 20:00 UTC — 4pm US Eastern, the close the bar summarizes
-— with event_time == knowledge_time: the stated simplification is that a
+Bars are stamped 20:00 UTC - 4pm US Eastern, the close the bar summarizes
+- with event_time == knowledge_time: the stated simplification is that a
 bar is knowable at its own close.  The crimes need roughly n_days >= 12 to
 fit; below that each block shrinks to what the timeline allows.
 """
@@ -52,7 +52,7 @@ __all__ = [
 
 # Planted-crime constants: the demo and the checks module depend on these
 # magnitudes, so they live here, named, rather than as magic numbers.
-SPLIT_RATIO = 4.0  # SYM3's 4:1 split — overnight close drops by exactly this
+SPLIT_RATIO = 4.0  # SYM3's 4:1 split - overnight close drops by exactly this
 SPLIT_VOL_MULT = 5.0  # split-day volume spike (> checks' vol_mult default of 3.0)
 GAP_DAYS = 9  # SYM5's exchange closure, in trading days
 STALE_DAYS = 5  # SYM6's dead-feed run of identical closes (> checks' run default of 4)
@@ -60,7 +60,7 @@ DUP_CORRECTION_FACTOR = 1.003  # SYM7's correction: close nudged +30bps, volume 
 
 _SYMBOLS = ("SYM1", "SYM2", "SYM3", "SYM4", "SYM5", "SYM6", "SYM7", "SYM8")
 
-# Fixed calendar anchors — never datetime.now(); a generator that depends on
+# Fixed calendar anchors - never datetime.now(); a generator that depends on
 # the wall clock is not reproducible.
 _FUNDAMENTALS_LAST_QUARTER_END = date(2023, 12, 31)
 _MACRO_LAST_MONTH_END = date(2023, 12, 31)
@@ -79,7 +79,7 @@ def _trading_day_stamps(start: str, n: int) -> list[datetime]:
 
 
 def _next_weekday_morning(ts: datetime) -> datetime:
-    """14:00 UTC on the next weekday after ts — when a correction lands."""
+    """14:00 UTC on the next weekday after ts - when a correction lands."""
     d = ts.date() + timedelta(days=1)
     while d.weekday() >= 5:
         d += timedelta(days=1)
@@ -126,7 +126,7 @@ def synthetic_prices(n_days: int = 750, seed: int = 42, start: str = "2024-01-02
     """Daily OHLCV bars for SYM1..SYM8, with four crimes planted.
 
     Keys are the symbols; values are plain dicts
-    ``{"open", "high", "low", "close", "volume"}`` of floats — the trading
+    ``{"open", "high", "low", "close", "volume"}`` of floats - the trading
     day itself is the entry's event_time.  Deterministic given seed; RNG
     discipline: per-symbol (start, drift, vol, volume base) drawn first in
     symbol order, then bar-by-bar noise walking dates outer, symbols inner.
@@ -212,14 +212,14 @@ def _quarter_ends(count: int) -> list[date]:
 def synthetic_fundamentals(symbols: int = 8, quarters: int = 8, seed: int = 7) -> Ledger:
     """Quarterly revenue in millions as reported, with one restatement.
 
-    Key model: one key per symbol, ``"<SYM>.revenue"`` — each quarter
+    Key model: one key per symbol, ``"<SYM>.revenue"`` - each quarter
     appends a new revision, because that is how a "current fundamentals"
     feed actually behaves: the latest reported number moves forward each
     quarter, and which number you were allowed to see is a function of when
     you looked.  event_time = quarter end; knowledge_time = quarter end
     plus a drawn filing lag of 38-52 days (~45, per-symbol per-quarter).
 
-    The crime: SYM2's most recent quarter gets restated — a further
+    The crime: SYM2's most recent quarter gets restated - a further
     revision exactly 21 days after the original filing, value 30% lower.
     Until that 21-day mark the honest view still shows the original number;
     the naive view (reading today's ledger) never saw the original at all.
@@ -301,7 +301,7 @@ def synthetic_macro(series: str = "UNRATE", years: int = 6, seed: int = 11) -> L
 def synthetic_trades(n: int = 400, seed: int = 3) -> list[dict]:
     """`n` trade records for the costs module to price out.
 
-    ``{"ts", "symbol", "side", "price", "qty"}`` — ts an ISO string inside
+    ``{"ts", "symbol", "side", "price", "qty"}`` - ts an ISO string inside
     2024-Q1, side "buy"/"sell".  qty is log-normal with a deliberate fat
     tail: mostly a few hundred shares, ~5% block trades large enough that
     impact (not fees) dominates.  Deterministic given seed.

@@ -1,7 +1,7 @@
-"""nohindsight.checks.registry — one call to ask everything.
+"""nohindsight.checks.registry - one call to ask everything.
 
 `run_all` is the front door the CLI and the demo use: hand it bars, get
-back one CheckReport.  The checks are independent witnesses — one ugly
+back one CheckReport.  The checks are independent witnesses - one ugly
 overnight bar can legitimately draw both a SPLIT_SUSPECTED and a
 SCALE_SHOCK; nobody dedupes testimony, the report weights it.
 
@@ -56,7 +56,7 @@ def run_all(bars: list[dict], *, with_lookahead_scan: str | None = None) -> Chec
 def summarize(report: CheckReport) -> str:
     """Aligned text table: one row per (severity, code) group with its
     count, worst severity first.  An empty report renders as
-    "no findings" — also a verdict, and the good one."""
+    "no findings" - also a verdict, and the good one."""
     if not report.findings:
         return "no findings"
     groups: dict[tuple[Severity, str], int] = {}

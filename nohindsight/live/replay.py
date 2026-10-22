@@ -1,20 +1,20 @@
-"""nohindsight.live.replay — the honest backtest loop.
+"""nohindsight.live.replay - the honest backtest loop.
 
 Replay walks a bar ledger forward in time and hands the strategy ONLY an
 AsOfView (plus a Ctx that routes orders through risk into the broker).  The
-strategy structurally cannot read the raw ledger — it never receives it.
+strategy structurally cannot read the raw ledger - it never receives it.
 The guard is not a lint rule, it is a type.
 
 One honest caveat, noted because this library is about honesty: the view
 exposes the clock it is bound to, so a hostile strategy could move time
-itself.  The guard is against ACCIDENTAL leakage — reading data the world
-hadn't produced yet — which is the kind that actually happens.  Adversaries
+itself.  The guard is against ACCIDENTAL leakage - reading data the world
+hadn't produced yet - which is the kind that actually happens.  Adversaries
 are out of scope.
 
 Assumptions Replay makes about the ledger (stated, not hidden):
 
 * Bar entries are keyed by symbol; the value is the bar dict.
-* A bar's knowledge_time equals its event_time — the close is knowable at
+* A bar's knowledge_time equals its event_time - the close is knowable at
   the close.  A ledger that knows its bars LATER than they happen will
   raise LeakError here, loudly; that is the guard doing its job.
 * The clock must start at or before the first event time.  Clock cannot
@@ -54,7 +54,7 @@ class Ctx:
 
     `bars` holds the bar dicts that arrived THIS step (already read through
     the AsOfView, so they carry no future).  Submitting an order for a
-    symbol that did not arrive is refused ("no_market") — you can only
+    symbol that did not arrive is refused ("no_market") - you can only
     trade a symbol the view just showed you.
     """
 
@@ -80,7 +80,7 @@ class Ctx:
             refusal = Refusal(
                 order.order_id,
                 "no_market",
-                f"no bar for {order.symbol!r} arrived at {self._ts.isoformat()} — "
+                f"no bar for {order.symbol!r} arrived at {self._ts.isoformat()} - "
                 "you can only trade a symbol the view just showed you",
             )
             self._record(refusal)
@@ -115,7 +115,7 @@ class Replay:
 
     The strategy receives ``(view, ctx)`` per bar and nothing else: the
     view is an AsOfView bound to the replay clock (reading the future
-    raises LeakError), and ctx.submit() is the only door to the broker —
+    raises LeakError), and ctx.submit() is the only door to the broker -
     and it opens through the risk guard.
     """
 
@@ -155,7 +155,7 @@ class Replay:
         if self.clock.now > first:
             raise ValueError(
                 f"clock starts at {self.clock.now.isoformat()}, after the first "
-                f"bar at {first.isoformat()} — start the clock at or before "
+                f"bar at {first.isoformat()} - start the clock at or before "
                 "the data; Clock cannot rewind"
             )
 

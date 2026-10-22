@@ -1,4 +1,4 @@
-"""nohindsight.data — append-only, revisioned, point-in-time ledgers.
+"""nohindsight.data - append-only, revisioned, point-in-time ledgers.
 
 core.py defines what an honest datum is (event_time, knowledge_time, and a
 guard that refuses the future).  This package makes such data: synthetic

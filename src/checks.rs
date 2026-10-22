@@ -1,16 +1,16 @@
-//! nohindsight checks — the bar-level police.
+//! nohindsight checks - the bar-level police.
 //!
 //! Conventions every check in here shares:
 //!
-//! * A *bar row* is a [`BarRow`]: a timestamp plus a [`Bar`] — the checks
+//! * A *bar row* is a [`BarRow`]: a timestamp plus a [`Bar`] - the checks
 //!   never look at anything else.
 //! * Rows arrive sorted ascending by ts.  That ordering is the caller's
 //!   contract ([`bar_history`], the CLI's check command); checks are pure
 //!   functions and never reorder, copy, or mutate.
 //! * Every check returns `Vec<Finding>` and takes no clock: these are
 //!   properties of the data itself, not of when you looked at it.
-//! * One finding per offense site — one bad bar, one duplicated instant,
-//!   one stale run, one gap — so a report can point at the wound.
+//! * One finding per offense site - one bad bar, one duplicated instant,
+//!   one stale run, one gap - so a report can point at the wound.
 //!
 //! This is the compact Rust police: the Python package also ships crossed
 //! quotes and a bid/ask column family; the engine covers the structural
@@ -45,7 +45,7 @@ impl fmt::Display for Severity {
 /// One offense, at one site, with the message that argues it.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Finding {
-    /// Stable code, e.g. "SPLIT_SUSPECTED" — the same codes the Python
+    /// Stable code, e.g. "SPLIT_SUSPECTED" - the same codes the Python
     /// police print.
     pub code: &'static str,
     pub severity: Severity,
@@ -54,7 +54,7 @@ pub struct Finding {
     pub index: usize,
 }
 
-/// A timestamp plus its bar — one row of a price series.
+/// A timestamp plus its bar - one row of a price series.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BarRow {
     pub ts: Time,
@@ -63,7 +63,7 @@ pub struct BarRow {
 
 /// Rows (ts + bar) for one ledger key, sorted ascending by event_time.
 /// Corrections share their original day's event_time and ride right after
-/// it — which is exactly how the duplicate detector sees them.
+/// it - which is exactly how the duplicate detector sees them.
 pub fn rows_for_key(ledger: &Ledger, key: &str) -> Vec<BarRow> {
     bar_history(ledger, key)
         .into_iter()
@@ -139,7 +139,7 @@ pub fn check_duplicates(rows: &[BarRow]) -> Vec<Finding> {
             code: "DUPLICATE_TS",
             severity: Severity::Leak,
             message: format!(
-                "timestamp {} appears {} times (bars {:?}) — one instant, one bar",
+                "timestamp {} appears {} times (bars {:?}) - one instant, one bar",
                 ts.to_iso(),
                 indices.len(),
                 indices
@@ -168,8 +168,8 @@ fn weekdays_between(d1: Time, d2: Time) -> usize {
 
 /// Trading-calendar police: an unexplained closure is WARN.
 ///
-/// The gap between consecutive bars is counted in *weekdays* — dates d with
-/// earlier.date() < d <= later.date() and d a weekday — so an ordinary
+/// The gap between consecutive bars is counted in *weekdays* - dates d with
+/// earlier.date() < d <= later.date() and d a weekday - so an ordinary
 /// weekend (Friday -> Monday) is a gap of 1, same as any other healthy
 /// overnight.  A spacing of more than `max_gap_days` weekdays is a WARN:
 /// the backtest silently held through days it has no data for.
@@ -184,7 +184,7 @@ pub fn check_gaps(rows: &[BarRow], max_gap_days: usize) -> Vec<Finding> {
                     code: "CALENDAR_GAP",
                     severity: Severity::Warn,
                     message: format!(
-                        "{} weekdays between bars[{}] ({}) and bars[{}] ({}) — \
+                        "{} weekdays between bars[{}] ({}) and bars[{}] ({}) - \
                          expected 1; an unexplained closure",
                         gap,
                         j,
@@ -204,7 +204,7 @@ pub fn check_gaps(rows: &[BarRow], max_gap_days: usize) -> Vec<Finding> {
 /// `run` consecutive identical closes -> WARN: a dead feed or a halted
 /// symbol.
 ///
-/// Exact equality on close — a stale feed repeats bits, not approximately.
+/// Exact equality on close - a stale feed repeats bits, not approximately.
 /// One finding per maximal run (six identical closes at run=4 is one
 /// finding, not three).
 pub fn check_stale(rows: &[BarRow], run: usize) -> Vec<Finding> {
@@ -221,7 +221,7 @@ pub fn check_stale(rows: &[BarRow], run: usize) -> Vec<Finding> {
                 code: "STALE_CLOSES",
                 severity: Severity::Warn,
                 message: format!(
-                    "{} consecutive identical closes ({}) from bars[{}] to bars[{}] — \
+                    "{} consecutive identical closes ({}) from bars[{}] to bars[{}] - \
                      dead feed or halted symbol",
                     length, rows[i].bar.close, i, j
                 ),
@@ -235,7 +235,7 @@ pub fn check_stale(rows: &[BarRow], run: usize) -> Vec<Finding> {
 
 /// Round-ratio landing pads for the split detector, with the match rule:
 /// ||r| - ln k| <= max(0.01, 0.02 * ln k).  Round ratios are landing pads,
-/// not sniper targets — a 4:1 split with 0.5% of same-day drift must still
+/// not sniper targets - a 4:1 split with 0.5% of same-day drift must still
 /// be caught.
 const SPLIT_RATIOS: [f64; 5] = [2.0, 3.0, 4.0, 5.0, 10.0];
 const SPLIT_TOL_REL: f64 = 0.02;
@@ -252,7 +252,7 @@ fn matching_ratio(abs_log_return: f64) -> Option<f64> {
 /// {2, 3, 4, 5, 10}, AND volume ratio > vol_mult -> LEAK finding.
 ///
 /// The volume condition is load-bearing: a crash is not a split.  A bar
-/// pair with a non-positive previous volume has no ratio and no verdict —
+/// pair with a non-positive previous volume has no ratio and no verdict -
 /// say nothing rather than guess.  Severity is LEAK because an unadjusted
 /// split in a backtest produces phantom PnL.
 pub fn detect_splits(rows: &[BarRow], vol_mult: f64) -> Vec<Finding> {
@@ -277,7 +277,7 @@ pub fn detect_splits(rows: &[BarRow], vol_mult: f64) -> Vec<Finding> {
             code: "SPLIT_SUSPECTED",
             severity: Severity::Leak,
             message: format!(
-                "overnight close ratio {:.3} at bars[{i}] ({}) — |log return| {:.3} \
+                "overnight close ratio {:.3} at bars[{i}] ({}) - |log return| {:.3} \
                  lands on ln {k} with {volume_ratio:.1}x volume (> {vol_mult}x): \
                  unadjusted split; raw levels book phantom PnL",
                 r.exp(),
@@ -302,7 +302,7 @@ const SHOCK_MIN_OBS: usize = 8; // fewer than this and a sigma is a rumor
 /// Method, documented rather than tunable: returns are log close-to-close;
 /// "recent" is the trailing 30 returns before the candidate, sample stdev; a
 /// bar is judged only once 8 returns exist before it.  A window with sigma
-/// <= 0 (perfectly flat history) judges nothing — a flat window has no
+/// <= 0 (perfectly flat history) judges nothing - a flat window has no
 /// scale, and the stale check already flagged it.
 pub fn check_scale_shock(rows: &[BarRow], z: f64) -> Vec<Finding> {
     let mut rets: Vec<Option<f64>> = vec![None]; // rets[i] links bars[i-1] -> bars[i]
@@ -339,7 +339,7 @@ pub fn check_scale_shock(rows: &[BarRow], z: f64) -> Vec<Finding> {
                 severity: Severity::Warn,
                 message: format!(
                     "bar {i} ({}): move {r:+.4} is {score:.1} sigmas of the \
-                     trailing {SHOCK_WINDOW}-bar distribution (sigma={sigma:.3e}) — \
+                     trailing {SHOCK_WINDOW}-bar distribution (sigma={sigma:.3e}) - \
                      candidate split or bad tick",
                     rows[i].ts.to_iso()
                 ),
@@ -350,7 +350,7 @@ pub fn check_scale_shock(rows: &[BarRow], z: f64) -> Vec<Finding> {
     out
 }
 
-/// A revision whose knowledge_time precedes its event_time is impossible —
+/// A revision whose knowledge_time precedes its event_time is impossible -
 /// the world can't know things before they happen.  (The Ledger refuses to
 /// build one; a CSV the police are fed can still carry the contradiction,
 /// so the police check it.)
@@ -362,7 +362,7 @@ pub fn check_knowledge_order(rows: &[BarRow], knowledge: &[Time]) -> Vec<Finding
                 code: "KNOWLEDGE_BEFORE_EVENT",
                 severity: Severity::Leak,
                 message: format!(
-                    "bar {i} ({}): knowledge_time {} precedes event_time {} — \
+                    "bar {i} ({}): knowledge_time {} precedes event_time {} - \
                      the world can't know things before they happen",
                     row.ts.to_iso(),
                     kt.to_iso(),
@@ -377,7 +377,7 @@ pub fn check_knowledge_order(rows: &[BarRow], knowledge: &[Time]) -> Vec<Finding
 
 /// Every structural check at once, in report order: geometry, duplicates,
 /// gaps, stale runs, splits, scale shocks.  (Knowledge order is the CLI's
-/// business — the ledger can't hold an impossible revision, a CSV can.)
+/// business - the ledger can't hold an impossible revision, a CSV can.)
 pub fn run_all(rows: &[BarRow]) -> Vec<Finding> {
     let mut findings = Vec::new();
     findings.extend(check_ohlc(rows));
@@ -394,7 +394,7 @@ pub fn has_leaks(findings: &[Finding]) -> bool {
     findings.iter().any(|f| f.severity == Severity::Leak)
 }
 
-/// The text summary: one table of codes, severities and counts — the shape
+/// The text summary: one table of codes, severities and counts - the shape
 /// the CLI prints and the demo folds into its story.
 pub fn summarize(findings: &[Finding]) -> String {
     if findings.is_empty() {

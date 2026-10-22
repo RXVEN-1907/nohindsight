@@ -1,10 +1,10 @@
-"""nohindsight.forensics.deflate — the deflated Sharpe ratio.
+"""nohindsight.forensics.deflate - the deflated Sharpe ratio.
 
 Reference: Bailey & Lopez de Prado (2014), "The Deflated Sharpe Ratio"
 (SSRN 2460551).
 
 A Sharpe measured after picking the best of N trials is not the strategy's
-Sharpe — it is the survivor's.  This file prices that difference:
+Sharpe - it is the survivor's.  This file prices that difference:
 
     moments()             the shape statistics the correction needs
     psr()                 probability the observed Sharpe clears a benchmark
@@ -12,7 +12,7 @@ Sharpe — it is the survivor's.  This file prices that difference:
     deflated_psr()        psr() against that luckiest-of-N hurdle
 
 Everything takes per-period returns (0.01 = 1%).  Phi and Phi-inverse come
-from statistics.NormalDist — trusted stdlib, one less thing to get wrong.
+from statistics.NormalDist - trusted stdlib, one less thing to get wrong.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def moments(returns: Sequence[float]) -> tuple[float, float, float, float]:
     actually observed, not an estimate of some superpopulation.  Kurtosis is
     Pearson's (a normal stream scores 3.0), not the excess form.  A stream
     with no dispersion has no shape to speak of either: std 0.0, skew 0.0,
-    kurtosis 3.0 — stated so callers never have to guess.
+    kurtosis 3.0 - stated so callers never have to guess.
     """
     values = list(returns)
     n = len(values)
@@ -78,8 +78,8 @@ def psr(
     """Probabilistic Sharpe Ratio: Phi((SR - SR*) * sqrt(n-1) / sqrt(1 - g3*SR + ((g4-1)/4)*SR^2)).
 
     Convention (the literature wobbles here, so it is stated): SR and SR*
-    are ANNUALIZED Sharpes — `returns` is per-period, the benchmark you pass
-    is annualized — and the annualized SR is also what appears inside the
+    are ANNUALIZED Sharpes - `returns` is per-period, the benchmark you pass
+    is annualized - and the annualized SR is also what appears inside the
     denominator's variance term.  g3 is skew, g4 Pearson kurtosis
     (normal = 3.0).  The denominator is clamped at 1e-12: a degenerate
     variance term means the Sharpe is the whole story, i.e. certainty.
@@ -133,7 +133,7 @@ def _hurdle_from_trial_count(n_trials: int) -> float:
     """SR0 when only the trial COUNT is known: assume unit cross-trial variance.
 
     An annualized-Sharpe spread of 1.0 across trials is generous for real
-    daily strategies, so this hurdle is usually too HIGH — it refuses credit
+    daily strategies, so this hurdle is usually too HIGH - it refuses credit
     more often than the true trials would.  Conservative-ish is the right
     direction to be wrong in for a tool that catches self-deception.
     """
@@ -153,7 +153,7 @@ def deflated_psr(
 
     With `trial_sharpes` supplied, the hurdle is their expected maximum
     (expected_max_sharpe).  When they are unavailable, only the trial COUNT
-    is used and the cross-trial variance is assumed to be 1.0 — a
+    is used and the cross-trial variance is assumed to be 1.0 - a
     conservative-ish fallback, documented in _hurdle_from_trial_count.
     n_trials = 1 means no selection ever happened: the hurdle is a zero
     Sharpe and this collapses to the plain PSR against 0.

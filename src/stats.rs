@@ -1,4 +1,4 @@
-//! nohindsight stats — the five classical numbers, plus the normal curve.
+//! nohindsight stats - the five classical numbers, plus the normal curve.
 //!
 //! Nothing here is clever.  Each function is one formula over a slice of
 //! per-period returns, written out so a reader can check it against a
@@ -9,7 +9,7 @@
 //! Conventions (stated once, kept everywhere):
 //!
 //! * per-period returns as fractions (0.01 = 1% per period);
-//! * dispersion for Sharpe/t-stat is the SAMPLE standard deviation, ddof=1 —
+//! * dispersion for Sharpe/t-stat is the SAMPLE standard deviation, ddof=1 -
 //!   a backtest is a sample, not a population;
 //! * the shape moments ([`moments`]) are POPULATION moments over the sample
 //!   (1/n): they describe the shape of the stream you actually observed, and
@@ -20,7 +20,7 @@
 //!   callers always receive a number they can order.
 //!
 //! The normal curve: [`normal_cdf`] goes through a hand-rolled `erfc` (no
-//! libm crate) — an alternating power series for the small-argument branch
+//! libm crate) - an alternating power series for the small-argument branch
 //! and a modified-Lentz continued fraction (DLMF 7.9.1) for the tail, each
 //! good to a few ulps; [`inv_normal_cdf`] is Acklam's rational inverse with
 //! one Halley refinement step, which lands near machine precision (target
@@ -65,7 +65,7 @@ impl fmt::Display for StatsError {
 
 impl Error for StatsError {}
 
-/// Compensated (Neumaier) summation — the zero-dependency stand-in for
+/// Compensated (Neumaier) summation - the zero-dependency stand-in for
 /// math.fsum.  Errors that a plain running sum would lose to cancellation
 /// are carried in a second accumulator instead.
 pub fn fsum(values: impl IntoIterator<Item = f64>) -> f64 {
@@ -85,7 +85,7 @@ pub fn fsum(values: impl IntoIterator<Item = f64>) -> f64 {
 
 /// mean/std(ddof=1), via [`fsum`] for numerical care.
 ///
-/// Needs at least 2 observations — a dispersion estimate from one point is
+/// Needs at least 2 observations - a dispersion estimate from one point is
 /// a confession, not a statistic.
 pub fn mean_and_sample_std(values: &[f64]) -> Result<(f64, f64), StatsError> {
     let n = values.len();
@@ -132,7 +132,7 @@ pub fn sharpe(returns: &[f64], periods_per_year: u32) -> Result<f64, StatsError>
 /// Annualized Sortino against a MAR of 0: (mean / downside dev) * sqrt(ppy).
 ///
 /// Downside deviation is a population quantity over EVERY observation:
-/// sqrt((1/n) * sum(min(r, 0)^2)) — periods above target contribute zero,
+/// sqrt((1/n) * sum(min(r, 0)^2)) - periods above target contribute zero,
 /// they are not dropped.  Implementations disagree on 1/n vs 1/(n-1) and on
 /// dropping upside periods; we use the full-sample 1/n form and say so.
 pub fn sortino(returns: &[f64], periods_per_year: u32) -> Result<f64, StatsError> {
@@ -172,7 +172,7 @@ pub enum DdKind {
 /// `values` is either a per-period return stream (compounded internally as
 /// cumprod(1 + r)) or an equity curve (wealth levels); [`DdKind::Auto`]
 /// guesses between them: any value <= 0, or every value with |v| < 1, reads
-/// as returns.  The guess is a documented rule, not mind-reading — an equity
+/// as returns.  The guess is a documented rule, not mind-reading - an equity
 /// account living entirely inside (0, 1) dollars must pass [`DdKind::Equity`]
 /// explicitly.
 ///
@@ -224,7 +224,7 @@ pub fn max_drawdown(values: &[f64], kind: DdKind) -> f64 {
 /// Calmar: CAGR / max drawdown, both computed from the same stream.
 ///
 /// CAGR = (prod(1 + r)) ** (periods_per_year / n) - 1.  Assumption: input is
-/// per-period RETURNS, not equity levels — calmar has no auto-guessing.
+/// per-period RETURNS, not equity levels - calmar has no auto-guessing.
 ///
 /// A stream with no drawdown settles by the sign of its CAGR (inf for a
 /// gain, 0.0 for flat).  A total wipeout (some 1 + r <= 0) has no
@@ -256,7 +256,7 @@ pub fn calmar(returns: &[f64], periods_per_year: u32) -> Result<f64, StatsError>
     }
 }
 
-/// prod(1 + r) — the compounded growth factor of a return stream.
+/// prod(1 + r) - the compounded growth factor of a return stream.
 fn compound_growth(returns: &[f64]) -> f64 {
     let mut equity = 1.0;
     for r in returns {
@@ -281,7 +281,7 @@ pub fn t_stat(returns: &[f64]) -> Result<f64, StatsError> {
 /// actually observed, not an estimate of some superpopulation.  Kurtosis is
 /// Pearson's (a normal stream scores 3.0), not the excess form.  A stream
 /// with no dispersion has no shape to speak of either: std 0.0, skew 0.0,
-/// kurtosis 3.0 — stated so callers never have to guess.
+/// kurtosis 3.0 - stated so callers never have to guess.
 pub fn moments(values: &[f64]) -> Result<(f64, f64, f64, f64), StatsError> {
     let n = values.len();
     if n == 0 {
@@ -376,10 +376,10 @@ fn erfc_continued_fraction(x: f64) -> f64 {
 /// The complementary error function, std-only.
 ///
 /// Branches, documented: series for 0 <= x < 2 (erfc = 1 - erf, which loses
-/// at most ~7 significant digits of erfc near x = 2 — still far past the
+/// at most ~7 significant digits of erfc near x = 2 - still far past the
 /// engine's 1e-9 promises), continued fraction for x >= 2 (no cancellation
 /// in the tail), and erfc(-x) = 2 - erfc(x) by symmetry.  exp(-x^2)
-/// underflows to 0 past x ~ 27; erfc goes with it — the double range, not a
+/// underflows to 0 past x ~ 27; erfc goes with it - the double range, not a
 /// bug.
 pub fn erfc(x: f64) -> f64 {
     if x.is_nan() {
@@ -438,7 +438,7 @@ const ACKLAM_P_LOW: f64 = 0.024_25;
 /// Halley refinement step against [`normal_cdf`].
 ///
 /// Accuracy, documented: the rational core is ~1.15e-9 relative; the Halley
-/// step (which needs only a good Phi — hence the careful erfc) pulls the
+/// step (which needs only a good Phi - hence the careful erfc) pulls the
 /// central and moderately-tail region to near machine precision, ~1e-15.
 /// Deep-tail inputs (p below ~1e-300) run out of double range; they return
 /// finite answers whose precision degrades gracefully rather than NaN.
@@ -527,7 +527,7 @@ mod tests {
     #[test]
     fn moments_match_the_reference_implementation() {
         // These decimals were computed with the Python package's
-        // deflate.moments (same 1/n, Pearson conventions) — the two engines
+        // deflate.moments (same 1/n, Pearson conventions) - the two engines
         // must agree to full displayed precision.
         let s = [0.03, -0.01, 0.02, -0.02, 0.04];
         let (mean, std, skew, kurt) = moments(&s).expect("non-empty");
@@ -550,7 +550,7 @@ mod tests {
     #[test]
     fn erfc_matches_known_constants() {
         // From Python's math.erfc (double precision), tolerance 1e-12
-        // relative — the two implementations are independent.
+        // relative - the two implementations are independent.
         assert!(close(erfc(0.0), 1.0, 1e-15));
         assert!(close(erfc(0.5), 0.479_500_122_186_953_5, 1e-12));
         assert!(close(erfc(1.0), 0.157_299_207_050_285_13, 1e-12));

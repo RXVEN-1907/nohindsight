@@ -1,4 +1,4 @@
-"""nohindsight.live.fillsim — deterministic cruelty for your algo.
+"""nohindsight.live.fillsim - deterministic cruelty for your algo.
 
 A fill emulator that lies to you in a reproducible way: partial fills that
 still sum to your full size, rejections that come back as refusals instead
@@ -10,10 +10,10 @@ Conventions (documented, not negotiable):
 
 * **Market orders** fill at the bar's close, drifted adversely by latency:
   slip = latency_seconds * 1 bp (at the default 250 ms ceiling that is at
-  most 0.25 bp — small, nonzero, and always against you).  Buys pay up,
+  most 0.25 bp - small, nonzero, and always against you).  Buys pay up,
   sells sell down.  The fill timestamp is bar ts + the drawn latency.
 * **Limit orders** fill at the limit price exactly, only when the bar's
-  range contains it (``low <= limit_price <= high``, buys and sells alike —
+  range contains it (``low <= limit_price <= high``, buys and sells alike -
   the spec fixes the buy case; we mirror it for sells).  With only OHLC the
   intrabar path is unknowable, and filling at the limit is the conservative
   choice for both sides: any edge we report is understated, never inflated.
@@ -23,13 +23,13 @@ Conventions (documented, not negotiable):
 * **Partial fills**: with probability ``partial_rate`` an order is sliced
   into 2-3 fills.  Slices are cut from the order quantity in Decimal space
   and the last slice is computed as the remainder, so partial fills sum
-  EXACTLY to the order quantity — always, by construction.  Fractional
+  EXACTLY to the order quantity - always, by construction.  Fractional
   shares are allowed; the sum is what must be exact.
-* **Rejections**: with probability ``reject_rate`` an order is refused —
+* **Rejections**: with probability ``reject_rate`` an order is refused -
   no exception, just an empty fill list and a ``Refusal``.
 * **RNG draw order per call** (fix your seed and this order is frozen):
   reject roll; then for a market order the latency draw, for a limit order
-  the crossing test (no randomness) and — only if it crosses — the latency
+  the crossing test (no randomness) and - only if it crosses - the latency
   draw; then the partial roll, the slice count, and the cut points.
 """
 
@@ -59,7 +59,7 @@ class FillEmulator:
     """Seeded, deterministic fill simulator.
 
     Assumption worth stating: we fill against ONE bar you hand us.  We do
-    not model the order book, queue position, or other participants — a
+    not model the order book, queue position, or other participants - a
     daily OHLC bar does not contain that information, and pretending it
     does would be a leak in the opposite direction (inventing detail the
     data never had).
@@ -166,7 +166,7 @@ class FillEmulator:
         computed as ``amount - sum(previous)`` so the sum closes on the
         order quantity exactly (no fraction of a share is ever lost to
         rounding).  Exact for quantities up to Decimal's default 28
-        significant digits — beyond that is not a quantity, it's a typo.
+        significant digits - beyond that is not a quantity, it's a typo.
         """
         if n <= 1 or amount <= 0:
             return [amount]

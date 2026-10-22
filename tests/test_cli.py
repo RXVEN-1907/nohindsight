@@ -1,9 +1,9 @@
-"""tests.test_cli — the integration seam: report, cli, demo.
+"""tests.test_cli - the integration seam: report, cli, demo.
 
 Everything here runs the REAL pipeline (synthetic data -> checks -> replay ->
 audit -> report) and asserts on what lands on disk and on stdout, because
 the integration module's product is exactly that: files and exit codes.
-Deterministic throughout — the demo's report is byte-for-byte reproducible.
+Deterministic throughout - the demo's report is byte-for-byte reproducible.
 """
 
 from __future__ import annotations
@@ -105,7 +105,7 @@ class TestDemo(unittest.TestCase):
         self.assertIn("RESTATEMENT_LEAK", report)
 
     def test_demo_report_is_reproducible_byte_for_byte(self):
-        """Same seeds, same bytes — a report that cannot be reproduced is a
+        """Same seeds, same bytes - a report that cannot be reproduced is a
         story, not a test."""
         with tempfile.TemporaryDirectory() as t1, tempfile.TemporaryDirectory() as t2:
             _run(["demo", "--out", t1])
@@ -116,7 +116,7 @@ class TestDemo(unittest.TestCase):
 
     def test_demo_naive_sharpe_beats_honest(self):
         """The demo's whole point, asserted: the leak looks BETTER on
-        returns — which is exactly why the police department exists."""
+        returns - which is exactly why the police department exists."""
         from nohindsight import demo
 
         result = demo.run(tempfile.mkdtemp(), verbose=False)
@@ -124,7 +124,7 @@ class TestDemo(unittest.TestCase):
             result["naive_verdict"].numbers["sharpe"],
             result["honest_verdict"].numbers["sharpe"],
         )
-        # the honest engine never tripped the kill switch — the divergence
+        # the honest engine never tripped the kill switch - the divergence
         # in the story is the restatement, not the risk guard
         rules = {r.rule for r in result["honest_refusals"]}
         self.assertNotIn("kill_switch", rules)

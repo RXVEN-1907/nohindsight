@@ -1,4 +1,4 @@
-//! nohindsight demo — the whole story in one run.
+//! nohindsight demo - the whole story in one run.
 //!
 //! One synthetic market, five planted crimes, two strategies that differ in
 //! exactly one closure, and the two departments that judge them:
@@ -13,9 +13,9 @@
 //!    engine, with the same fees and the same starting cash.  The only
 //!    difference is how they read SYM2's revenue:
 //!
-//!    * honest — through an [`AsOfView`][crate::core::AsOfView] bound to the
+//!    * honest - through an [`AsOfView`][crate::core::AsOfView] bound to the
 //!      replay clock: only what the world had published by then;
-//!    * naive — `Ledger::latest(key)`: today's terminal number merged onto
+//!    * naive - `Ledger::latest(key)`: today's terminal number merged onto
 //!      every historical decision date.  This is what every beginner's
 //!      pandas merge does silently.
 //!
@@ -32,7 +32,7 @@
 //!
 //! Deterministic end to end: same seeds, same words, every run.  (The
 //! Python demo also writes an HTML report; the engine's story lives on
-//! stdout — the terminal is the artifact here.)
+//! stdout - the terminal is the artifact here.)
 //!
 //! THE SEEDS, stated like any good exhibit: [`FUND_SEED`] is picked so the
 //! restatement straddles the floor (the original above it, the re-filed
@@ -40,7 +40,7 @@
 //! honest strategy is already in the name), and [`PRICE_SEED`] is picked so
 //! the inversion is visible: the honest strategy rides SYM2 through the
 //! leak window's weather while the naive one was already parked in the
-//! winner.  Neither was the first seed tried — [`find_story_seed`] is the
+//! winner.  Neither was the first seed tried - [`find_story_seed`] is the
 //! scan that found them, kept in the library so the choice can be replayed
 //! and audited instead of being folklore.
 
@@ -65,7 +65,7 @@ pub const N_DAYS: usize = 750;
 
 /// The price-seed exhibit: under this seed the naive strategy posts the
 /// higher Sharpe (1.14 vs 0.69) AND lands in a different verdict level than
-/// the honest one — REAL against SUSPICIOUS — the inversion the whole
+/// the honest one - REAL against SUSPICIOUS - the inversion the whole
 /// library exists to explain.  Found by [`find_story_seed`] (first pair it
 /// returns, scanning fund seeds from 1 and price seeds from 1); the scan is
 /// kept in the library so the choice is re-derivable, not folklore.
@@ -83,7 +83,7 @@ pub enum DemoError {
     /// The audit refused a stream.
     Forensics(crate::forensics::ForensicsError),
     /// The world is missing a crime the story depends on (a seed broke the
-    /// narrative contract — see the constants above).
+    /// narrative contract - see the constants above).
     MissingCrime(&'static str),
     /// The replay clock refused to advance (only possible if the stamps are
     /// not monotonic, which the generator guarantees).
@@ -147,7 +147,7 @@ pub struct World {
 
 /// Align one symbol's bar history onto the stamp grid (both sorted; a
 /// linear merge).  A missing day would be a gap, which SYM1/SYM2 never
-/// have — a short vector here is a generator bug the caller reports.
+/// have - a short vector here is a generator bug the caller reports.
 fn align(bars: &[(Time, crate::core::Bar)], stamps: &[Time]) -> Vec<crate::core::Bar> {
     let mut out = Vec::with_capacity(stamps.len());
     let mut cursor = 0usize;
@@ -341,7 +341,7 @@ pub struct StorySeed {
 
 /// The fund half of the contract: the number knowable on day one clears
 /// the floor, the original filing clears it, and the restated number does
-/// not — the seam the demo's gate falls into.
+/// not - the seam the demo's gate falls into.
 fn fund_seed_opens_the_seam(funds: &Ledger, first_stamp: Time) -> bool {
     let history = funds.history(GATED_REVENUE);
     if history.len() < 9 {
@@ -427,7 +427,7 @@ pub fn run_pair(
 /// Scan seeds for a pair that tells the story, starting at the given
 /// numbers.  Criteria, in order: a fund seed whose restatement straddles
 /// the floor (see [`fund_seed_opens_the_seam`]), then a price seed whose
-/// two verdicts differ — honest SUSPICIOUS and naive REAL — with the naive
+/// two verdicts differ - honest SUSPICIOUS and naive REAL - with the naive
 /// Sharpe strictly higher.  Deterministic; used to pick the pinned
 /// constants, kept public so the choice is auditable.
 pub fn find_story_seed(
@@ -533,7 +533,7 @@ fn print_verdict_row(name: &str, level: Level, sharpe: f64, dsr_prob: f64, p: f6
     );
 }
 
-/// The exact closing line — the demo's contract with every reader.
+/// The exact closing line - the demo's contract with every reader.
 pub const CLOSING_LINE: &str = "The naive strategy made more money. It was reading a \
 number the world didn't have yet. That is the whole problem this library exists for.";
 
@@ -565,7 +565,7 @@ pub fn run() -> Result<DemoResult, DemoError> {
     println!(
         "{}",
         paint.bold_lavender(
-            "nohindsight demo — is your strategy real, or did you cheat by accident?"
+            "nohindsight demo - is your strategy real, or did you cheat by accident?"
         )
     );
     println!();
@@ -579,7 +579,7 @@ pub fn run() -> Result<DemoResult, DemoError> {
     );
     println!(
         "        The crime that matters here: {GATED} filed ${original_value:.1}m for its \
-         last quarter, knowable {} — then re-filed ${restated_value:.1}m (30% lower), \
+         last quarter, knowable {} - then re-filed ${restated_value:.1}m (30% lower), \
          knowable {}.",
         original.knowledge_time.to_date_iso(),
         restated.knowledge_time.to_date_iso()
@@ -601,7 +601,7 @@ pub fn run() -> Result<DemoResult, DemoError> {
     } else {
         println!(
             "        {}",
-            paint.crimson("WARNING: the split was NOT caught this run — check the seeds.")
+            paint.crimson("WARNING: the split was NOT caught this run - check the seeds.")
         );
     }
 
@@ -613,9 +613,9 @@ pub fn run() -> Result<DemoResult, DemoError> {
         "Step 3. Two strategies, one replay engine, same fees, same starting cash, same \
          rule.  The only difference is how they read {GATED}'s revenue:"
     );
-    println!("          honest — through the AsOfView: only what the world had published.");
+    println!("          honest - through the AsOfView: only what the world had published.");
     println!(
-        "          naive  — Ledger::latest(key) with no clock: today's terminal number, \
+        "          naive  - Ledger::latest(key) with no clock: today's terminal number, \
          merged onto every historical date.  Every beginner's pandas merge does this \
          silently."
     );
@@ -636,7 +636,7 @@ pub fn run() -> Result<DemoResult, DemoError> {
         );
     } else {
         println!(
-            "        naive held {GATED} for {} days — on the terminal snapshot, which is \
+            "        naive held {GATED} for {} days - on the terminal snapshot, which is \
              the leak.",
             engine_n.hold_days
         );
@@ -667,7 +667,7 @@ pub fn run() -> Result<DemoResult, DemoError> {
     } else {
         println!(
             "        {}",
-            paint.crimson("WARNING: the inversion did not happen this run — check the seeds.")
+            paint.crimson("WARNING: the inversion did not happen this run - check the seeds.")
         );
     }
 
@@ -677,7 +677,7 @@ pub fn run() -> Result<DemoResult, DemoError> {
     println!("{rule}");
     println!(
         "{}",
-        paint.bold_lavender(" Leak receipt — the naive read, itemized")
+        paint.bold_lavender(" Leak receipt - the naive read, itemized")
     );
     println!("{rule}");
     println!(" {:<22} {}", "key:", paint.crimson(&receipt.key));
@@ -812,7 +812,7 @@ mod tests {
         let sr = sharpe(&rets, 252).expect("ok");
         assert!(sr.is_finite());
         // Sanity on the cash model: equity never wanders far from the
-        // starting cash plus market moves — no negative-black-hole bugs.
+        // starting cash plus market moves - no negative-black-hole bugs.
         for (_, eq) in &a.equity_curve {
             assert!(*eq > 0.0, "equity went negative: {eq}");
         }

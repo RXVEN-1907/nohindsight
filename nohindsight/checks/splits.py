@@ -1,10 +1,10 @@
-"""nohindsight.checks.splits — the unadjusted-split detector.
+"""nohindsight.checks.splits - the unadjusted-split detector.
 
 An unadjusted split left in the bars is free money for a backtest: the
 close drops by k overnight and every return, share count, and drawdown
 computed on the raw levels is fiction.  The signature of a real split
 is a big overnight ratio landing (within tolerance) on a *round* ratio
-k, *and* a volume spike — markets don't usually quadruple their volume
+k, *and* a volume spike - markets don't usually quadruple their volume
 on an ordinary bad day.
 
 Both directions count: a 4:1 forward split shows |log return| ~ ln 4,
@@ -22,7 +22,7 @@ __all__ = ["detect_splits"]
 
 _RATIOS = (2, 3, 4, 5, 10)
 # Match tolerance: ||r| - ln k| <= max(TOL_ABS, TOL_REL * ln k).
-# Round ratios are landing pads, not sniper targets — a 4:1 split with
+# Round ratios are landing pads, not sniper targets - a 4:1 split with
 # 0.5% of same-day drift must still be caught.
 _TOL_REL = 0.02
 _TOL_ABS = 0.01
@@ -51,7 +51,7 @@ def detect_splits(bars: list[dict], vol_mult: float = 3.0) -> list[Finding]:
 
     The volume condition is load-bearing: a crash is not a split.  A bar
     pair with a missing or non-positive previous volume has no ratio and
-    no verdict — say nothing rather than guess.  Severity is LEAK because
+    no verdict - say nothing rather than guess.  Severity is LEAK because
     an unadjusted split in a backtest produces phantom PnL.
     """
     findings: list[Finding] = []
@@ -77,7 +77,7 @@ def detect_splits(bars: list[dict], vol_mult: float = 3.0) -> list[Finding]:
             severity=Severity.LEAK,
             message=(
                 f"overnight close ratio {math.exp(r):.3f} at bars[{i}] "
-                f"({cur.get('ts')}) — |log return| {abs(r):.3f} lands on ln {k} "
+                f"({cur.get('ts')}) - |log return| {abs(r):.3f} lands on ln {k} "
                 f"with {volume_ratio:.1f}x volume (> {vol_mult}x): unadjusted "
                 "split; raw levels book phantom PnL"
             ),

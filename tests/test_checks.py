@@ -1,9 +1,9 @@
-"""tests.test_checks — the police, cross-examined.
+"""tests.test_checks - the police, cross-examined.
 
 Every fixture is hand-built and every expected value is written where a
 reader can check it against the documented convention.  There is no
 randomness anywhere in this file: nothing is seeded because nothing is
-drawn — the checks and the fixtures are deterministic by construction.
+drawn - the checks and the fixtures are deterministic by construction.
 
 Fixture dates live in January 2024 (Jan 1 is a Monday), so the weekday
 arithmetic in gap tests is checkable by eye.
@@ -32,7 +32,7 @@ from nohindsight.checks import (
 from nohindsight.core import Clock, Ledger, LeakError, to_utc
 
 # A gentle sawtooth: every return is +/-0.00995, so the trailing sigma
-# is 0.00995 and ordinary bars sit at 1.0 z — miles from the z=8 line.
+# is 0.00995 and ordinary bars sit at 1.0 z - miles from the z=8 line.
 SAWTOOTH = [100.0, 101.0]
 
 
@@ -113,7 +113,7 @@ class QualityTests(unittest.TestCase):
 
     def test_ohlc_violation_is_one_leak_pointing_at_the_bar(self):
         bars = _bars([100.0, 101.0, 102.0])
-        bars[1]["high"] = 100.5  # high < close (101.0) — impossible geometry
+        bars[1]["high"] = 100.5  # high < close (101.0) - impossible geometry
         findings = check_ohlc(bars)
         self.assertEqual(len(findings), 1)
         finding = findings[0]
@@ -150,7 +150,7 @@ class QualityTests(unittest.TestCase):
 
     def test_long_closure_is_one_gap_warning(self):
         # Fri 2024-01-05 -> Mon 2024-01-15: six weekdays of spacing
-        # (Jan 8-12, then Jan 15) — more than max_gap_days=5.
+        # (Jan 8-12, then Jan 15) - more than max_gap_days=5.
         dates = ["2024-01-04", "2024-01-05", "2024-01-15", "2024-01-16"]
         bars = _bars([100.0] * 4, dates=dates)
         findings = check_gaps(bars)
@@ -189,7 +189,7 @@ class QualityTests(unittest.TestCase):
     def test_scale_shock_fires_exactly_once(self):
         # 40 sawtooth bars, one +48.5% jump (ln(150/101) = +0.396 = 39.8
         # sigma of the +/-0.00995 sawtooth), then quiet bars whose window
-        # now contains the shock — their sigma is inflated, so they stay
+        # now contains the shock - their sigma is inflated, so they stay
         # under the line.
         closes = SAWTOOTH * 20 + [150.0, 151.0, 150.0, 151.0]
         bars = _bars(closes)
@@ -201,7 +201,7 @@ class QualityTests(unittest.TestCase):
         self.assertGreater(finding.detail["z_score"], 8.0)
 
     def test_scale_shock_skips_flat_history(self):
-        # A perfectly flat window has sigma 0 — no scale, no verdict.
+        # A perfectly flat window has sigma 0 - no scale, no verdict.
         # The stale check owns that case; the split detector owns the jump.
         bars = _bars([100.0] * 6 + [200.0])
         self.assertEqual(check_scale_shock(bars), [])
@@ -303,7 +303,7 @@ class RuntimeProbeTests(unittest.TestCase):
             return view.get("SYM2.revenue")
 
         # At t0 and t0+1d the honest view shows rev0 both times (the
-        # restatement is 5 days from being knowable) — same world, same
+        # restatement is 5 days from being knowable) - same world, same
         # answer, probe passes.
         self.assertEqual(
             assert_no_future_access(honest, self.ledger, self.clock, steps=1),
@@ -315,7 +315,7 @@ class RuntimeProbeTests(unittest.TestCase):
 
         def peeker(view):
             # The classic: bypass the view, read the ledger relative to
-            # "now + 5 days" — a restatement lands inside the probe window.
+            # "now + 5 days" - a restatement lands inside the probe window.
             return ledger.value_at("SYM2.revenue", view.as_of + timedelta(days=5))
 
         # At t0 the peek returns 120.0 (restatement not knowable at

@@ -15,7 +15,7 @@ fn temp_csv(name: &str, body: &str) -> std::path::PathBuf {
     path
 }
 
-/// A deterministic pseudo-random stream for crafted CSVs (xorshift32) —
+/// A deterministic pseudo-random stream for crafted CSVs (xorshift32) -
 /// tests stay seed-pinned without a rand crate.
 struct Xor32(u32);
 impl Xor32 {
@@ -77,7 +77,7 @@ fn demo_exits_zero_and_tells_the_whole_story() {
     assert!(stdout.contains("max days early:"));
     assert!(stdout.contains("Honest verdict:"));
     assert!(stdout.contains("honest") && stdout.contains("naive"));
-    // The naive one is printed HIGHER than the honest one — the inversion
+    // The naive one is printed HIGHER than the honest one - the inversion
     // is the story, so pin it in the output itself.  (Match the table rows,
     // not the Step 3 prose lines that also begin with the names.)
     let honest_line = stdout
@@ -111,7 +111,7 @@ fn demo_exits_zero_and_tells_the_whole_story() {
 
 #[test]
 fn audit_clears_a_real_drift_and_exits_zero() {
-    // mean 0.15%/day, sd 1%/day — Sharpe ~2.4, the honest-forensics pass.
+    // mean 0.15%/day, sd 1%/day - Sharpe ~2.4, the honest-forensics pass.
     let path = returns_csv(
         "real",
         |i, rng| {
@@ -205,7 +205,7 @@ fn audit_respects_trials_and_refuses_bad_input() {
     std::fs::remove_file(&headerless).ok();
 }
 
-/// A weekday-spaced ISO stamp `week` weeks after 2024-01-02, at the close —
+/// A weekday-spaced ISO stamp `week` weeks after 2024-01-02, at the close -
 /// built with the engine's own calendar.
 fn weekly_stamp(week: usize) -> String {
     use nh::core::Time;
@@ -221,7 +221,7 @@ fn weekly_stamp(week: usize) -> String {
 fn check_passes_a_clean_tape_and_convicts_a_split() {
     // A noisy-but-honest year of one symbol, weekly rows: exit 0, no leaks.
     // (Rows carry real jitter so the scale-shock detector has a truthful
-    // sigma to judge against — a perfectly geometric tape would flag its
+    // sigma to judge against - a perfectly geometric tape would flag its
     // own float rounding, which is the detector working, not a bug.)
     let mut rng = Xor32(0xA11CE);
     let mut clean = String::from("symbol,ts,open,high,low,close,volume\n");
@@ -245,7 +245,7 @@ fn check_passes_a_clean_tape_and_convicts_a_split() {
     assert!(stdout.contains("scanned 1 symbol(s): 0 leaks"));
     std::fs::remove_file(&path).ok();
 
-    // The planted crime: a raw 4:1 overnight drop on 5x volume — exit 1.
+    // The planted crime: a raw 4:1 overnight drop on 5x volume - exit 1.
     let mut rng = Xor32(0xA11CE); // same weather, so only the crime differs
     let mut split = String::from("symbol,ts,open,high,low,close,volume\n");
     let mut close = 100.0;

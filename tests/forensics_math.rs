@@ -11,7 +11,7 @@ use nh::rng::SplitMix64;
 use nh::stats::{max_drawdown, moments, sharpe, DdKind};
 
 /// The worked example, as decimals: the stream's moments, Sharpe and PSR
-/// were computed with the Python package's deflate module — same
+/// were computed with the Python package's deflate module - same
 /// conventions (population moments, annualized SR inside the variance
 /// term, ddof=1 Sharpe), independent code.
 const STREAM: [f64; 5] = [0.03, -0.01, 0.02, -0.02, 0.04];
@@ -42,7 +42,7 @@ fn psr_matches_the_hand_pinned_worked_example() {
     let z1 = (sr_ann - 1.0) * (4.0f64).sqrt() / var_term.sqrt();
     let z0 = (sr_ann - 0.0) * (4.0f64).sqrt() / var_term.sqrt();
     // Phi(z) through the crate's normal CDF must equal each psr answer to
-    // a rounding error — the exact decimals above are what keeps this
+    // a rounding error - the exact decimals above are what keeps this
     // honest (the crate's Phi is the same call site psr uses).
     assert!((nh::stats::normal_cdf(z1) - psr_bench1).abs() < 1e-12);
     assert!((nh::stats::normal_cdf(z0) - psr_bench0).abs() < 1e-12);
@@ -97,7 +97,7 @@ fn expected_max_sharpe_grows_with_trials_and_variance() {
 }
 
 /// A seeded all-noise matrix: 320 rows x 8 configs, each an iid N(0, 0.01)
-/// stream from one splitmix64 — no config has an edge, so the in-sample
+/// stream from one splitmix64 - no config has an edge, so the in-sample
 /// winner is a coin flip out-of-sample.
 fn noise_matrix(rows: usize, configs: usize, seed: u64) -> Vec<Vec<f64>> {
     let mut rng = SplitMix64::new(seed);

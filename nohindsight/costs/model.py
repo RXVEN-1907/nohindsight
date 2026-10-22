@@ -1,4 +1,4 @@
-"""nohindsight.costs.model — the reality tax, itemized.
+"""nohindsight.costs.model - the reality tax, itemized.
 
 A backtest without costs is a fantasy with good marketing.  Every trade
 pays four honest lines:
@@ -8,15 +8,15 @@ pays four honest lines:
     impact_cost   what moving the market costs        (ImpactModel)
     borrow_cost   what being short overnight costs    (BorrowModel)
 
-Impact follows the square-root law — impact_bps = coeff * sigma_bps *
-sqrt(qty / adv) — the empirical regularity documented by Bouchaud,
+Impact follows the square-root law - impact_bps = coeff * sigma_bps *
+sqrt(qty / adv) - the empirical regularity documented by Bouchaud,
 Farmer & Lillo's studies of order flow and formalized in the optimal
 execution framework of Almgren & Chriss (2000): quadruple the size,
 double the impact.
 
 Costs is the one department that needs no clock: a Trade carries its own
 holding_days and nothing here reads data, so nothing here can peek at
-the future.  The dishonesty costs enable is not lookahead — it is the
+the future.  The dishonesty costs enable is not lookahead - it is the
 quiet subtraction that turns a real edge into noise.  fantasy_vs_real
 exists to make that subtraction loud.
 
@@ -57,14 +57,14 @@ class Trade:
       - ``qty`` is UNSIGNED size; direction lives in ``side``.  A
         negative qty is a bug, and __post_init__ says so.
       - ``side == "sell"`` is treated as holding a SHORT position for
-        ``holding_days`` — borrow is charged on sells only.  This model
+        ``holding_days`` - borrow is charged on sells only.  This model
         prices one-shot trades, not position timelines; a long round
         trip is buy-then-sell and pays borrow on neither leg.
       - ``ts`` is stored exactly as given (str or datetime); this module
         never parses it.  Persistence layers should pass ISO strings.
       - ``sigma_bps`` (daily volatility in bps) and ``adv`` (average
         daily volume, same units as qty) are optional context.  Without
-        them the impact line comes back zero with explained=False —
+        them the impact line comes back zero with explained=False -
         see ImpactModel.estimate for why that distinction matters.
     """
 
@@ -93,7 +93,7 @@ class Trade:
 
     @property
     def notional(self) -> float:
-        """price * qty — the money the trade moves, independent of side."""
+        """price * qty - the money the trade moves, independent of side."""
         return abs(self.price) * abs(self.qty)
 
 
@@ -108,7 +108,7 @@ class CostBreakdown:
     breakdown without its base cannot state one.
 
     ``impact_explained`` is False when an impact model ran but lacked
-    sigma/ADV.  Reports should then say "impact unestimated", not "0" —
+    sigma/ADV.  Reports should then say "impact unestimated", not "0" -
     a silent zero is how impact quietly vanishes from a backtest.
     """
 
@@ -166,7 +166,7 @@ class FeeSchedule:
 class SpreadModel:
     """The cost of crossing the spread.
 
-    THE CONVENTION — READ THIS TWICE:
+    THE CONVENTION - READ THIS TWICE:
 
     A quote is bid/ask around a mid.  A market order does not trade at
     the mid; it CROSSES, paying the HALF-spread (ask-mid for a buy,
@@ -176,7 +176,7 @@ class SpreadModel:
         cost = price * qty * (spread_bps / 2) / 1e4
 
     A round trip is TWO Trade records (entry and exit) and pays two
-    half-spreads — i.e. exactly the full spread, once.  If your numbers
+    half-spreads - i.e. exactly the full spread, once.  If your numbers
     show half a spread per round trip here, you have built a strategy
     that trades in a market with no other side.  Conversely: do not
     "correct" this to a full spread per trade, or you will pay the
@@ -185,7 +185,7 @@ class SpreadModel:
     Volatility scaling: real spreads widen when volatility spikes.
     volatility_scaled multiplies the base by (1 + mult * sigma_bps/1000)
     when the trade carries a sigma, and leaves the base untouched when
-    it does not — an unestimated sigma is not a calm market, but we
+    it does not - an unestimated sigma is not a calm market, but we
     cannot charge for fear we cannot see.
     """
 
@@ -227,7 +227,7 @@ class SpreadModel:
 
 
 class ImpactModel:
-    """Price impact — you are not the only one in the book.
+    """Price impact - you are not the only one in the book.
 
     The square-root law (Bouchaud, Farmer & Lillo on order-flow
     impact; Almgren & Chriss 2000 for the execution-framework view):
@@ -236,18 +236,18 @@ class ImpactModel:
 
     Impact grows with the square root of participation (qty/adv), is
     measured in bps of the trade's notional, and scales with the day's
-    volatility — a violent market moves further when you push it.
+    volatility - a violent market moves further when you push it.
     coeff=1.0 is a placeholder, not a law of nature; calibrate it
     against your own fills and stop trusting the default.
 
     The linear alternative (impact_bps = eta * participation, eta=0.1)
-    is kept for comparison — it is what naive execution models assume
+    is kept for comparison - it is what naive execution models assume
     and what the square-root law says is far too kind at size.
 
     If a required input is missing (ADV always; sigma for the sqrt law)
     the model returns impact 0.0 with explained=False: an unestimated
     impact is NOT a zero impact, and the flag exists so reports can say
-    "impact unestimated — no sigma/ADV" out loud instead of silently
+    "impact unestimated - no sigma/ADV" out loud instead of silently
     booking a costless whale trade.
     """
 
@@ -327,7 +327,7 @@ class CostModel:
     """The composed reality tax: fees + spread + impact + borrow.
 
     Every component left None is a cost line of zero.  The model will
-    not remind you that you forgot impact — the impact_explained flag
+    not remind you that you forgot impact - the impact_explained flag
     only fires when an impact model EXISTS but lacked sigma/ADV.  If you
     want the report to be able to warn, pass an impact model.
     """
@@ -375,7 +375,7 @@ class CostModel:
     def total_bps(self, trades: Sequence[Trade]) -> float:
         """Aggregate cost rate: total cost over total notional, in bps.
 
-        Weighted by notional, not averaged — 1bp on $1M plus 100bps on
+        Weighted by notional, not averaged - 1bp on $1M plus 100bps on
         $10 is 1.001bps, not 50.5.  Zero notional trades cost nothing
         and say so (0.0, not a division by zero).
         """
@@ -404,14 +404,14 @@ def fantasy_vs_real(
 
     Simplification, stated: the per-period drag costs_bps/1e4 is
     subtracted from the MEAN per-period return while the standard
-    deviation is left untouched — costs are modeled as a deterministic
+    deviation is left untouched - costs are modeled as a deterministic
     levy uncorrelated with returns.  Compounding and the dispersion of
     per-trade costs are second-order here; the first-order truth this
     function exists for is that a small per-trade cost applied at high
     turnover is not small.
 
     Sharpe convention: sample standard deviation (ddof=1), annualized by
-    sqrt(periods_per_year) — the same convention forensics.stats uses.
+    sqrt(periods_per_year) - the same convention forensics.stats uses.
 
     Returns a dict with keys:
 

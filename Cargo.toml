@@ -3,7 +3,7 @@ name = "nh"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
-description = "nohindsight engine — Python is the research API, Rust is the engine."
+description = "nohindsight engine - Python is the research API, Rust is the engine."
 license = "MIT"
 
 # Zero dependencies by contract: the two-clock guard, the forensics and the

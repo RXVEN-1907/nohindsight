@@ -1,4 +1,4 @@
-"""nohindsight.forensics.stats — the five classical numbers.
+"""nohindsight.forensics.stats - the five classical numbers.
 
 Nothing here is clever.  Each function is one formula over a plain list of
 per-period returns, written out so a reader can check it against a textbook
@@ -7,7 +7,7 @@ these numbers; this file just refuses to get the arithmetic wrong.
 
 Conventions (stated once, kept everywhere in this package):
   * per-period returns as fractions (0.01 = 1% per period);
-  * dispersion is the SAMPLE standard deviation, ddof=1 — a backtest is a
+  * dispersion is the SAMPLE standard deviation, ddof=1 - a backtest is a
     sample, not a population;
   * annualization multiplies the per-period ratio by sqrt(periods_per_year);
   * a stream with zero dispersion is degenerate, not divine: the ratio
@@ -26,7 +26,7 @@ __all__ = ["sharpe", "sortino", "max_drawdown", "calmar", "t_stat"]
 def _mean_and_sample_std(values: Sequence[float]) -> tuple[float, float]:
     """(mean, sample std with ddof=1), via math.fsum for numerical care.
 
-    Needs at least 2 observations — a dispersion estimate from one point is
+    Needs at least 2 observations - a dispersion estimate from one point is
     a confession, not a statistic.
     """
     n = len(values)
@@ -57,7 +57,7 @@ def sharpe(returns: Sequence[float], periods_per_year: int = 252) -> float:
     """Annualized Sharpe: (mean / sample std) * sqrt(periods_per_year).
 
     Zero-dispersion streams resolve to +inf / -inf by the sign of the mean
-    (0.0 when the mean is exactly zero) rather than raising — see the module
+    (0.0 when the mean is exactly zero) rather than raising - see the module
     docstring.  Raises ValueError on fewer than 2 observations.
     """
     if periods_per_year <= 0:
@@ -71,7 +71,7 @@ def sortino(returns: Sequence[float], periods_per_year: int = 252) -> float:
     """Annualized Sortino against a MAR of 0: (mean / downside dev) * sqrt(ppy).
 
     Downside deviation is a population quantity over EVERY observation:
-    sqrt((1/n) * sum(min(r, 0)^2)) — periods above target contribute zero,
+    sqrt((1/n) * sum(min(r, 0)^2)) - periods above target contribute zero,
     they are not dropped.  Convention note: implementations disagree on 1/n
     vs 1/(n-1) and on dropping upside periods; we use the full-sample 1/n
     form and say so.  Zero downside (no losing period at all) resolves like
@@ -97,7 +97,7 @@ def max_drawdown(
     internally as cumprod(1 + r)) or an equity curve (wealth levels).
     kind="auto" guesses between them: any value <= 0, or every value with
     |v| < 1, reads as returns; anything else reads as equity levels.  The
-    guess is a documented rule, not mind-reading — an equity account living
+    guess is a documented rule, not mind-reading - an equity account living
     entirely inside (0, 1) dollars, or per-period returns beyond +/-100%,
     must pass kind explicitly.
 
@@ -138,12 +138,12 @@ def calmar(returns: Sequence[float], periods_per_year: int = 252) -> float:
 
     CAGR = (prod(1 + r)) ** (periods_per_year / n) - 1; the drawdown is
     max_drawdown on the compounded curve.  Assumption: input is per-period
-    RETURNS, not equity levels — calmar has no auto-guessing, pass returns.
+    RETURNS, not equity levels - calmar has no auto-guessing, pass returns.
 
     A stream with no drawdown settles by the sign of its CAGR (inf for a
     gain, 0.0 for flat).  A total wipeout (some 1 + r <= 0) has no
     logarithmic CAGR; it is scored as CAGR = -1.0 (everything lost is
-    everything lost, whatever the path), and the drawdown can exceed 1.0 —
+    everything lost, whatever the path), and the drawdown can exceed 1.0 -
     see max_drawdown.
     """
     values = list(returns)

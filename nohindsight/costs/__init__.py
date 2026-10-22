@@ -1,6 +1,6 @@
-"""nohindsight.costs — reality tax: fees, spread, impact, borrow.
+"""nohindsight.costs - reality tax: fees, spread, impact, borrow.
 
-The department that answers "your Sharpe is 2.0 — after what, exactly?".
+The department that answers "your Sharpe is 2.0 - after what, exactly?".
 Every component is priced separately so the report can name which line
 ate the edge:
 
@@ -14,7 +14,7 @@ ate the edge:
 
 Pure arithmetic on Trade records: no clock, no data access, no way to
 peek at the future.  The dishonesty costs enable is subtraction, not
-lookahead — see fantasy_vs_real.
+lookahead - see fantasy_vs_real.
 """
 
 from .model import (

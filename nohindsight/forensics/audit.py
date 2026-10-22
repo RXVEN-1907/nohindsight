@@ -1,12 +1,12 @@
-"""nohindsight.forensics.audit — the verdict.
+"""nohindsight.forensics.audit - the verdict.
 
 One function, one dataclass.  audit() runs every forensic test this package
 knows on one return stream and hands back a Verdict: a level, the numbers
-behind it, and the reasons in plain language — because "DSR = 0.37"
+behind it, and the reasons in plain language - because "DSR = 0.37"
 convinces nobody, while "the best of 40 luckies scores about 1.1 and yours
 barely clears it" does.
 
-Thresholds (documented, deliberately not per-call knobs — a kill switch you
+Thresholds (documented, deliberately not per-call knobs - a kill switch you
 can argue with is a suggestion):
     REAL      dsr_prob >= 0.95 and p < 0.05 and (PBO, when present) < 0.2
     FANTASY   dsr_prob < 0.5  or  p >= 0.2  or (PBO, when present) >= 0.5
@@ -41,7 +41,7 @@ class Verdict:
     """The audit's answer, built to be printed and to be argued with.
 
     level: one of "REAL", "SUSPICIOUS", "FANTASY".  numbers: every statistic
-    computed along the way (floats/ints/None — JSON-friendly, so the report
+    computed along the way (floats/ints/None - JSON-friendly, so the report
     layer can serialize it as-is).  reasons: plain-language sentences, one
     per forensic test, each citing the actual numbers it argues about.
     """
@@ -93,7 +93,7 @@ def audit(
     """Interrogate one return stream and return a Verdict.
 
     `returns` is the strategy's per-period stream.  `n_trials` is how many
-    configurations were tried before this one was chosen — the deflation
+    configurations were tried before this one was chosen - the deflation
     hinge.  When `strategy_returns` (the whole family's matrix, time x
     configs) is supplied, PBO joins the panel; it runs with the pbo module's
     default combination cap.  Deterministic given seed.

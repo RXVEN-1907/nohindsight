@@ -1,4 +1,4 @@
-"""nohindsight.forensics.pbo — probability of backtest overfitting via CSCV.
+"""nohindsight.forensics.pbo - probability of backtest overfitting via CSCV.
 
 Combinatorially Symmetric Cross-Validation (Bailey, Borwein, Lopez de Prado,
 Zhu 2017).  Cut history into even blocks; over every way of choosing half
@@ -16,7 +16,7 @@ disagree, so they are written here):
   * rel = rank / (n_configs - 1) in [0, 1]; the logit is
     lam = ln(rel / (1 - rel)), so the best rank maps to lam -> -inf and the
     worst to lam -> +inf;
-  * PBO counts combinations with lam >= 0 — the worse half.  A border rank
+  * PBO counts combinations with lam >= 0 - the worse half.  A border rank
     (rel exactly 0.5, reachable when n_configs is odd) maps to lam = 0 and
     IS counted as overfit: conservative.  With an even n_configs the
     half-split lands between ranks and there is no border case;
@@ -50,7 +50,7 @@ def _validate_matrix(
     except TypeError:
         raise TypeError(
             "strategy_returns must be a matrix (rows = time, columns = "
-            f"configs); got the scalar {matrix[0]!r} — a flat return stream "
+            f"configs); got the scalar {matrix[0]!r} - a flat return stream "
             "belongs in audit(returns), not in pbo()"
         ) from None
     if n_configs < 2:
@@ -63,11 +63,11 @@ def _validate_matrix(
         except TypeError:
             raise TypeError(
                 f"row {i} is a scalar ({row!r}), not a sequence of per-config "
-                "returns — the matrix must be rectangular (time x configs)"
+                "returns - the matrix must be rectangular (time x configs)"
             ) from None
         if row_len != n_configs:
             raise ValueError(
-                f"row {i} has {row_len} values, expected {n_configs} — "
+                f"row {i} has {row_len} values, expected {n_configs} - "
                 "the matrix must be rectangular (time x configs)"
             )
     if blocks < 2 or blocks % 2 != 0:
@@ -115,7 +115,7 @@ def _pooled_sharpe(sums: Sequence[float], sumsqs: Sequence[float], n_obs: int) -
     Mathematically identical to computing stats.sharpe on the concatenated
     rows (the pooled sum of squares collapses to the same sample variance,
     ddof=1), but costs O(blocks) per config instead of O(rows).  The
-    zero-dispersion convention is stats._signed_ratio — shared on purpose.
+    zero-dispersion convention is stats._signed_ratio - shared on purpose.
     """
     total = math.fsum(sums)
     mean = total / n_obs
@@ -130,7 +130,7 @@ def _pbo_detail(
     max_combos: int = 512,
     seed: int = 0,
 ) -> tuple[float, int, list[int]]:
-    """(pbo, n_combos, oos_rank_of_is_best_per_combo) — the shared engine."""
+    """(pbo, n_combos, oos_rank_of_is_best_per_combo) - the shared engine."""
     matrix = [list(row) for row in strategy_returns]
     n_rows, n_configs, rows_per_block = _validate_matrix(matrix, blocks)
     usable = rows_per_block * blocks  # tail rows are trimmed, documented
@@ -184,7 +184,7 @@ def pbo(
     """Probability of backtest overfitting, in [0, 1].
 
     `strategy_returns` is a rectangular matrix: rows are time, columns are
-    configurations (trials) — matrix[t][c] is config c's return at time t.
+    configurations (trials) - matrix[t][c] is config c's return at time t.
     Rows are cut into `blocks` even blocks (a short tail is trimmed);
     whenever there are more than `max_combos` train halves, a seeded unique
     sample of them is used instead (deterministic given seed).
@@ -206,7 +206,7 @@ def overfit_report(
     Returns {"pbo", "n_combos", "is_best_oos_median_rank"}: the probability,
     how many train/test splits backed it, and the median out-of-sample rank
     of the in-sample winner (0 = it kept winning, n_configs-1 = it kept
-    losing).  A low PBO with a high median rank would be a contradiction —
+    losing).  A low PBO with a high median rank would be a contradiction -
     if you see one, check the conventions in the module docstring.
     """
     value, n_combos, ranks = _pbo_detail(strategy_returns, blocks, max_combos, seed)

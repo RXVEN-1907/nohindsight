@@ -1,22 +1,22 @@
-//! nohindsight core — the two clocks and the guard.
+//! nohindsight core - the two clocks and the guard.
 //!
 //! Every datum in nohindsight carries two times:
 //!
-//! * `event_time` — when the thing happened in the world
-//! * `knowledge_time` — when an honest observer could have first known it
+//! * `event_time` - when the thing happened in the world
+//! * `knowledge_time` - when an honest observer could have first known it
 //!
 //! A backtest that reads data whose `knowledge_time` is after "now" has
 //! leaked: it used information the future hadn't produced yet.  The guard
 //! makes that a hard error, not a warning.  Data access goes through an
 //! [`AsOfView`] attached to a [`Clock`]; the view physically refuses to show
 //! anything the clock hasn't seen happen.  There is no bypass method on the
-//! view — that's the point.
+//! view - that's the point.
 //!
 //! Time is [`Time`]: i64 nanoseconds since the Unix epoch, UTC only.  No
 //! chrono, no timezone database.  The ISO-8601 parser accepts the one
 //! spelling finance data actually uses ("YYYY-MM-DD", optionally
 //! "THH:MM[:SS[.fff]]", optionally "Z" or "+00:00"; a naive timestamp is
-//! assumed UTC — naive timestamps in finance data are ambiguous enough
+//! assumed UTC - naive timestamps in finance data are ambiguous enough
 //! already, so we pick UTC and say so rather than guess a market timezone).
 //!
 //! Zero dependencies.  Everything in the engine is built on this file.
@@ -83,7 +83,7 @@ pub fn days_in_month(y: i64, m: u32) -> u32 {
 
 /// An instant: i64 nanoseconds since the epoch, UTC.
 ///
-/// Copyable, totally ordered, and nothing else — deliberately dumber than a
+/// Copyable, totally ordered, and nothing else - deliberately dumber than a
 /// timezone-aware datetime so the guard's arithmetic can't hide a surprise.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
 pub struct Time {
@@ -150,7 +150,7 @@ impl Time {
         self.nanos
     }
 
-    /// Whole days since the epoch (floor division — times inside a day
+    /// Whole days since the epoch (floor division - times inside a day
     /// belong to the day they started in).
     pub fn date_days(self) -> i64 {
         self.nanos.div_euclid(NANOS_PER_DAY)
@@ -371,7 +371,7 @@ impl Time {
         }
     }
 
-    /// "2024-03-01" — just the date.
+    /// "2024-03-01" - just the date.
     pub fn to_date_iso(self) -> String {
         let (y, mo, d) = self.date_parts();
         format!("{y:04}-{mo:02}-{d:02}")
@@ -391,7 +391,7 @@ impl FromStr for Time {
     }
 }
 
-/// "21 days, 0:00:00" — a Python-timedelta-shaped duration string for the
+/// "21 days, 0:00:00" - a Python-timedelta-shaped duration string for the
 /// leak messages.  Assumes a non-negative delta (the guard only ever
 /// measures forward distances).
 fn format_delta(nanos: i64) -> String {
@@ -416,7 +416,7 @@ fn format_delta(nanos: i64) -> String {
 // Value / Bar
 // ---------------------------------------------------------------------------
 
-/// One OHLCV bar — the shape a price series takes inside a [`Value`].
+/// One OHLCV bar - the shape a price series takes inside a [`Value`].
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Bar {
     pub open: f64,
@@ -493,7 +493,7 @@ impl fmt::Display for EntryError {
             } => write!(
                 f,
                 "impossible entry for {key:?}: knowledge_time ({}) precedes \
-                 event_time ({}) — the world can't know things before they happen",
+                 event_time ({}) - the world can't know things before they happen",
                 knowledge_time, event_time
             ),
         }
@@ -543,7 +543,7 @@ impl Entry {
 /// A clock you can freeze, fork, and walk.  Backtests use this instead of
 /// the wall clock; the present is whatever the clock says it is.
 ///
-/// Time only moves forward.  Trying to rewind is an error — a backtest that
+/// Time only moves forward.  Trying to rewind is an error - a backtest that
 /// rewinds its clock is a time machine, not a backtest.
 ///
 /// The "now" lives in a `Cell` on purpose: the clock is shared mutable state
@@ -668,7 +668,7 @@ impl From<TimeError> for LedgerError {
 
 /// The honest "not found": no revision of `key` was knowable yet.
 ///
-/// Before the first filing, the fundamental does not exist — it is not None,
+/// Before the first filing, the fundamental does not exist - it is not None,
 /// not zero, not forward-filled.  This error is the data saying so.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AsOfKeyError {
@@ -741,7 +741,7 @@ impl Error for ReadError {}
 ///
 /// Storage note, stated: Python kept the key map in insertion order; this
 /// implementation keeps it in a `BTreeMap`, i.e. sorted by key.  Nothing in
-/// the honest path depends on the difference — `known_keys` is the thing
+/// the honest path depends on the difference - `known_keys` is the thing
 /// strategies iterate, and it filters by the clock either way.
 pub struct Ledger {
     name: String,
@@ -788,7 +788,7 @@ impl Ledger {
     }
 
     /// Every revision ever appended for `key`, in knowledge order.
-    /// This is the raw, unguarded side of the ledger — strategies should
+    /// This is the raw, unguarded side of the ledger - strategies should
     /// not be holding it; the checks and the leak accountant do.
     pub fn history(&self, key: &str) -> &[Entry] {
         self.by_key.get(key).map_or(&[], |v| v.as_slice())
@@ -826,7 +826,7 @@ impl Ledger {
         self.entries.is_empty()
     }
 
-    /// Latest revision of `key` knowable at `as_of` — the only honest
+    /// Latest revision of `key` knowable at `as_of` - the only honest
     /// question a raw ledger can answer.  [`AsOfKeyError`] when nothing was
     /// knowable yet: the truthful answer, not a filled value.
     pub fn value_at(&self, key: &str, as_of: Time) -> Result<&Value, AsOfKeyError> {
@@ -846,12 +846,12 @@ impl Ledger {
 
     /// Revisions of `key` knowable at `as_of`, oldest first.  Two revisions
     /// known at once means: the number changed and the world had noticed by
-    /// then — a restatement in progress.
+    /// then - a restatement in progress.
     pub fn revisions_known(&self, key: &str, as_of: Time) -> Vec<&Entry> {
         self.history(key).iter().filter(|e| e.at(as_of)).collect()
     }
 
-    /// The terminal snapshot: the revision with the highest knowledge time —
+    /// The terminal snapshot: the revision with the highest knowledge time -
     /// "the number as the terminal shows it today".  This is the UNGUARDED
     /// read every beginner's pandas merge performs silently; the demo's
     /// naive strategy does it loudly, once, so the consequence is visible.
@@ -877,7 +877,7 @@ impl Ledger {
 /// This is what strategies receive.  Every read is stamped against the
 /// view's clock; a read of data first knowable later than now is a
 /// [`ReadError::Leak`].  There is deliberately no method to bypass the
-/// guard — the raw side lives on the ledger, and handing a strategy the
+/// guard - the raw side lives on the ledger, and handing a strategy the
 /// ledger is a visible, blameable act (the demo does exactly that on
 /// purpose, once).
 pub struct AsOfView<'a> {
@@ -920,7 +920,7 @@ impl<'a> AsOfView<'a> {
             })
         } else {
             // The key exists but the clock hasn't seen it: reading it now
-            // would be a leak.  Report the FIRST revision's knowledge time —
+            // would be a leak.  Report the FIRST revision's knowledge time -
             // the earliest moment any version of this datum existed.
             Err(ReadError::Leak {
                 key: key.to_string(),
@@ -944,7 +944,7 @@ impl<'a> AsOfView<'a> {
 
     /// Number-or-default read: like Python's `get_or`, both a leak and an
     /// unknown resolve to `default`.  If you want the leak loud, use
-    /// [`AsOfView::get`] — this one is for strategies with a stated
+    /// [`AsOfView::get`] - this one is for strategies with a stated
     /// fall-back rule.
     pub fn get_num_or(&self, key: &str, default: f64) -> f64 {
         self.try_get(key).and_then(Value::as_num).unwrap_or(default)
@@ -954,7 +954,7 @@ impl<'a> AsOfView<'a> {
     ///
     /// Iterate over THIS, never over `ledger.keys()`: the ledger's full key
     /// list includes companies that hadn't listed yet and series that
-    /// started later — iterating it is survivorship bias with extra steps.
+    /// started later - iterating it is survivorship bias with extra steps.
     pub fn known_keys(&self) -> Vec<String> {
         let when = self.clock.now();
         self.ledger
@@ -1059,7 +1059,7 @@ mod tests {
             "2024-01-02T24:00:00", // hour 24
             "2024-01-02T10:61:00", // minute 61
             "2024-01-02T10:00:60", // second 60
-            "2024-01-02T10:00",    // fine actually — exclude below
+            "2024-01-02T10:00",    // fine actually - exclude below
         ] {
             if bad == "2024-01-02T10:00" {
                 assert!(Time::parse(bad).is_ok());

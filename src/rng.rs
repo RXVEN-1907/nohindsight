@@ -1,23 +1,23 @@
-//! nohindsight rng — one deterministic stream, seeded, documented.
+//! nohindsight rng - one deterministic stream, seeded, documented.
 //!
 //! Every random number in the engine comes from a [`SplitMix64`]: the same
 //! seed builds the same world, run after run, on every platform.  No `rand`
-//! crate, no OS entropy in anything deterministic — the only entropy in this
+//! crate, no OS entropy in anything deterministic - the only entropy in this
 //! crate is behind [`SplitMix64::from_os`] for callers who genuinely want it
 //! (none of the library paths do).
 //!
-//! DRAW ORDER CONTRACT — every function that draws states its order, and the
+//! DRAW ORDER CONTRACT - every function that draws states its order, and the
 //! generators in [`crate::synth`] follow it:
 //!
 //! * [`SplitMix64::next_u64`] advances the 64-bit state once and decorates
-//!   it (splitmix64, Steele et al.) — the atomic draw everything else uses;
+//!   it (splitmix64, Steele et al.) - the atomic draw everything else uses;
 //! * [`SplitMix64::next_f64`] = one `next_u64`, top 53 bits, scaled to
 //!   [0, 1);
 //! * [`SplitMix64::gauss`] = exactly two `next_f64` draws (Box-Muller, cos
 //!   form), redrawn only if the first lands on exactly 0.0;
 //! * [`SplitMix64::uniform(lo, hi)`] = one `next_f64`, mapped into [lo, hi);
 //! * [`SplitMix64::below(p)`] = one `next_f64`, compared against `p`;
-//! * [`SplitMix64::randrange(n)`] = rejection sampling on `next_u64` —
+//! * [`SplitMix64::randrange(n)`] = rejection sampling on `next_u64` -
 //!   usually one draw, occasionally more; the count never affects any other
 //!   stream because each generator owns its own `SplitMix64`.
 //!
@@ -29,7 +29,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 /// splitmix64: 64 bits of state, one mix per draw, passes every statistical
 /// battery the engine's purposes need (it is the reference seedsman for
-/// xoshiro family testing).  Not cryptographic — nothing here needs to
+/// xoshiro family testing).  Not cryptographic - nothing here needs to
 /// secret anything.
 #[derive(Clone, Debug)]
 pub struct SplitMix64 {
@@ -37,7 +37,7 @@ pub struct SplitMix64 {
 }
 
 impl SplitMix64 {
-    /// A stream seeded exactly — the constructor all deterministic paths use.
+    /// A stream seeded exactly - the constructor all deterministic paths use.
     pub fn new(seed: u64) -> SplitMix64 {
         SplitMix64 { state: seed }
     }
@@ -60,7 +60,7 @@ impl SplitMix64 {
         z ^ (z >> 31)
     }
 
-    /// Uniform [0, 1) with 53 bits of mantissa — the same resolution as
+    /// Uniform [0, 1) with 53 bits of mantissa - the same resolution as
     /// Python's `random.random`.
     pub fn next_f64(&mut self) -> f64 {
         (self.next_u64() >> 11) as f64 * (1.0 / (1u64 << 53) as f64)
@@ -77,7 +77,7 @@ impl SplitMix64 {
         self.next_f64() < p
     }
 
-    /// Uniform integer in [0, n) by rejection — no modulo bias.  Panics on
+    /// Uniform integer in [0, n) by rejection - no modulo bias.  Panics on
     /// n == 0 (calling it is a bug, not a draw).
     pub fn randrange(&mut self, n: u64) -> u64 {
         assert!(n > 0, "randrange(0) has no answer");
@@ -95,7 +95,7 @@ impl SplitMix64 {
 
     /// Normal(mean, std) via Box-Muller, cos form: exactly two `next_f64`
     /// draws per return (u1 powers the radius, u2 the angle).  u1 == 0.0
-    /// would send the log to -inf, so it is redrawn — the probability is
+    /// would send the log to -inf, so it is redrawn - the probability is
     /// 2^-53, below anything measurable, but the guard is cheap.
     pub fn gauss(&mut self, mean: f64, std: f64) -> f64 {
         let mut u1 = self.next_f64();

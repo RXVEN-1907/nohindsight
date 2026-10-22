@@ -1,9 +1,9 @@
-"""nohindsight.live — paper trading with a kill switch and a fill emulator.
+"""nohindsight.live - paper trading with a kill switch and a fill emulator.
 
 The live department is where a strategy meets a market that fights back:
 fills arrive in pieces (but never lose size), some orders are refused, all
 money is Decimal, and one hard rule sits between the strategy and its
-money — blow the drawdown limit and the kill switch latches forever.
+money - blow the drawdown limit and the kill switch latches forever.
 """
 
 from .orders import Fill, LimitOrder, MarketOrder, Refusal, to_decimal

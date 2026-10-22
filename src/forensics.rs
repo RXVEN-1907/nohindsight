@@ -1,18 +1,18 @@
-//! nohindsight forensics — is it luck?
+//! nohindsight forensics - is it luck?
 //!
 //! The police in [`crate::checks`] catch a dirty backtest; this module
 //! interrogates a CLEAN one.  It runs every forensic test the engine knows
 //! on one return stream and hands back a [`Verdict`]: a level, the numbers
-//! behind it, and the reasons in plain language — because "DSR = 0.37"
+//! behind it, and the reasons in plain language - because "DSR = 0.37"
 //! convinces nobody, while "the best of 40 luckies scores about 1.1 and
 //! yours barely clears it" does.
 //!
-//! Thresholds (documented, deliberately not per-call knobs — a kill switch
+//! Thresholds (documented, deliberately not per-call knobs - a kill switch
 //! you can argue with is a suggestion):
 //!
-//! * REAL      — dsr_prob >= 0.95 and p < 0.05 and (PBO, when present) < 0.2
-//! * FANTASY   — dsr_prob < 0.5  or  p >= 0.2  or (PBO, when present) >= 0.5
-//! * else      — SUSPICIOUS
+//! * REAL      - dsr_prob >= 0.95 and p < 0.05 and (PBO, when present) < 0.2
+//! * FANTASY   - dsr_prob < 0.5  or  p >= 0.2  or (PBO, when present) >= 0.5
+//! * else      - SUSPICIOUS
 //!
 //! The permutation test is a sign-flip randomization of the null "no edge":
 //! flip every return's sign with probability 1/2, recompute the Sharpe, and
@@ -35,14 +35,14 @@ use std::fmt;
 pub const EULER_GAMMA: f64 = 0.577_215_664_901_532_9;
 const PSR_FLOOR: f64 = 1e-12;
 
-/// Forensics-level failures — thin wrappers that keep the Python messages.
+/// Forensics-level failures - thin wrappers that keep the Python messages.
 #[derive(Clone, Debug, PartialEq)]
 pub enum ForensicsError {
     /// A stats function refused its input.
     Stats(StatsError),
     /// The PBO panel refused its matrix.
     Pbo(crate::pbo::PboError),
-    /// Fewer than 2 observations — no dispersion, no forensics.
+    /// Fewer than 2 observations - no dispersion, no forensics.
     NotEnoughObservations {
         what: String,
         need: usize,
@@ -118,8 +118,8 @@ fn psr_probability(sr: f64, benchmark_sr: f64, n_obs: usize, skew: f64, kurtosis
 /// Phi((SR - SR*) * sqrt(n-1) / sqrt(1 - g3*SR + ((g4-1)/4)*SR^2)).
 ///
 /// Convention (the literature wobbles here, so it is stated): SR and SR* are
-/// ANNUALIZED Sharpes — `returns` is per-period, the benchmark you pass is
-/// annualized — and the annualized SR is also what appears inside the
+/// ANNUALIZED Sharpes - `returns` is per-period, the benchmark you pass is
+/// annualized - and the annualized SR is also what appears inside the
 /// denominator's variance term.  g3 is skew, g4 Pearson kurtosis
 /// (normal = 3.0).  The denominator is clamped at 1e-12: a degenerate
 /// variance term means the Sharpe is the whole story, i.e. certainty.
@@ -179,7 +179,7 @@ pub fn expected_max_sharpe(trial_sharpes: &[f64]) -> Result<f64, ForensicsError>
 /// SR0 when only the trial COUNT is known: assume unit cross-trial variance.
 ///
 /// An annualized-Sharpe spread of 1.0 across trials is generous for real
-/// daily strategies, so this hurdle is usually too HIGH — it refuses credit
+/// daily strategies, so this hurdle is usually too HIGH - it refuses credit
 /// more often than the true trials would.  Conservative-ish is the right
 /// direction to be wrong in for a tool that catches self-deception.
 pub fn hurdle_from_trial_count(n_trials: usize) -> Result<f64, ForensicsError> {
@@ -195,7 +195,7 @@ pub fn hurdle_from_trial_count(n_trials: usize) -> Result<f64, ForensicsError> {
 ///
 /// With `trial_sharpes` supplied, the hurdle is their expected maximum
 /// ([`expected_max_sharpe`]).  When they are unavailable, only the trial
-/// COUNT is used and the cross-trial variance is assumed to be 1.0 — a
+/// COUNT is used and the cross-trial variance is assumed to be 1.0 - a
 /// conservative-ish fallback, documented in [`hurdle_from_trial_count`].
 /// `n_trials = 1` means no selection ever happened: the hurdle is a zero
 /// Sharpe and this collapses to the plain PSR against 0.
@@ -229,7 +229,7 @@ pub fn deflated_psr(
 /// Fraction of sign-flipped no-edge paths whose Sharpe >= the observed.
 ///
 /// Deterministic: one `SplitMix64(seed)`, exactly mc_paths * n draws, in
-/// order — per path, one draw per return, flip when the draw is < 0.5.  The
+/// order - per path, one draw per return, flip when the draw is < 0.5.  The
 /// per-path Sharpe uses the algebraic identity sum(x^2) is sign-invariant,
 /// so each path costs one pass for the signed sum only; the identity yields
 /// exactly `stats::sharpe`'s definition (ddof=1), up to floating-point
@@ -308,7 +308,7 @@ impl fmt::Display for Level {
     }
 }
 
-/// Every statistic the audit computed along the way — typed, so nothing can
+/// Every statistic the audit computed along the way - typed, so nothing can
 /// disagree with its own parts.  `pbo`/`n_combos` are None when no strategy
 /// matrix was supplied.
 #[derive(Clone, Debug, PartialEq)]
@@ -344,7 +344,7 @@ pub struct Verdict {
 /// Knobs the audit takes, with the engine defaults.
 #[derive(Clone, Copy, Debug)]
 pub struct AuditConfig {
-    /// How many configurations were tried before this one was chosen — the
+    /// How many configurations were tried before this one was chosen - the
     /// deflation hinge.
     pub n_trials: usize,
     /// Periods per year, for annualization.
@@ -372,7 +372,7 @@ impl Default for AuditConfig {
 /// Interrogate one return stream and return a [`Verdict`].
 ///
 /// `returns` is the strategy's per-period stream.  `cfg.n_trials` is how
-/// many configurations were tried before this one was chosen — the deflation
+/// many configurations were tried before this one was chosen - the deflation
 /// hinge.  When `strategy_returns` (the whole family's matrix, time x
 /// configs) is supplied, PBO joins the panel; it runs with the PBO module's
 /// default combination cap.  Deterministic given `cfg.seed`.

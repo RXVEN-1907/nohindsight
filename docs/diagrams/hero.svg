@@ -47,7 +47,7 @@
     <line x1="150" y1="34" x2="150" y2="124" stroke="#D0C4DF" stroke-width="2"/>
     <path d="M152,40 C210,58 240,72 258,88" stroke="#E5484D" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#h-crim)"/>
     <text x="196" y="60" fill="#E5484D" font-size="12">the leak</text>
-    <text x="120" y="146" fill="#D0C4DF" font-size="12">now — and not one datum further</text>
+    <text x="120" y="146" fill="#D0C4DF" font-size="12">now - and not one datum further</text>
   </g>
 
   <!-- footer strip -->

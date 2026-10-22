@@ -56,7 +56,7 @@
 
   <!-- the drop lane -->
   <text x="512" y="392" fill="#8A8FA3" font-size="12">most strategies should exit at FANTASY, and that is the tool working.</text>
-  <text x="512" y="414" fill="#5A5F72" font-size="12">a verdict is a number with reasons attached — not a vibe.</text>
+  <text x="512" y="414" fill="#5A5F72" font-size="12">a verdict is a number with reasons attached - not a vibe.</text>
 
   <!-- permutation note -->
   <rect x="258" y="386" width="200" height="72" rx="10" fill="#12141C" stroke="#5A5F72" stroke-width="1" stroke-dasharray="4 4"/>

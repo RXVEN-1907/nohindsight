@@ -66,7 +66,7 @@ fn sqrt_impact_scales_as_the_square_root() {
     // Quadruple the size -> double the impact (Bouchaud / Almgren-Chriss).
     let big = impact.estimate(400.0, Some(10_000.0), Some(200.0));
     assert!((big.0 - 2.0 * base.0).abs() < 1e-12);
-    // Missing ADV or sigma: zero, but NOT explained — the flag exists so
+    // Missing ADV or sigma: zero, but NOT explained - the flag exists so
     // reports say "impact unestimated", not "0".
     assert_eq!(impact.estimate(100.0, None, Some(200.0)), (0.0, false));
     assert_eq!(impact.estimate(100.0, Some(10_000.0), None), (0.0, false));
@@ -149,7 +149,7 @@ fn total_bps_is_notional_weighted() {
         fees: FeeSchedule::flat_bps(100.0), // an expensive broker
         ..CostModel::default()
     };
-    // 1bp... no: 100bp on $1M plus 100bp on $10 is still 100bp, not 50.5 —
+    // 1bp... no: 100bp on $1M plus 100bp on $10 is still 100bp, not 50.5 -
     // weighting by notional, not averaging rates.
     let big = Trade::new("t1", "TEST", Side::Buy, 100.0, 10_000.0, None, None, 0.0).expect("ok");
     let small = Trade::new("t2", "TEST", Side::Buy, 1.0, 10.0, None, None, 0.0).expect("ok");
@@ -178,7 +178,7 @@ fn fantasy_vs_real_shrinks_monotonically() {
     assert!(dear.shrinkage < cheap.shrinkage && cheap.shrinkage < 1.0);
     assert!((dear.drag_per_period - 10.0 / 1e4).abs() < 1e-15);
     assert_eq!(dear.n_periods, 250);
-    // Losing strategies get hurt too — shrinkage above 1.0, honestly.
+    // Losing strategies get hurt too - shrinkage above 1.0, honestly.
     let losing: Vec<f64> = (0..250)
         .map(|i| if i % 2 == 0 { -0.004 } else { 0.002 })
         .collect();

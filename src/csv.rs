@@ -1,11 +1,11 @@
-//! nohindsight csv — the hand-rolled reader for the CLI's two inputs.
+//! nohindsight csv - the hand-rolled reader for the CLI's two inputs.
 //!
 //! Zero dependencies means no csv crate, so this module is the reader.  It
 //! is deliberately small and its limits are stated:
 //!
 //! * RFC 4180 quoting: a field may be wrapped in double quotes, may contain
 //!   commas, and `""` inside quotes is a literal quote;
-//! * quoted fields may NOT span lines — the reader is line-based, which is
+//! * quoted fields may NOT span lines - the reader is line-based, which is
 //!   the whole truth for the one-record-per-line returns and bar files the
 //!   CLI consumes;
 //! * a trailing newline is not a row; a row of only whitespace is skipped
@@ -54,7 +54,7 @@ pub fn parse(text: &str) -> Vec<Vec<String>> {
 }
 
 /// A number from a CSV cell: trimmed, empty refused.  The error names the
-/// cell text — "is not a number" like the Python CLI's.
+/// cell text - "is not a number" like the Python CLI's.
 pub fn cell_f64(cell: &str) -> Result<f64, String> {
     let trimmed = cell.trim();
     trimmed

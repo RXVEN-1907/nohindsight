@@ -1,11 +1,11 @@
-"""nohindsight.live.broker — decimal-exact paper money.
+"""nohindsight.live.broker - decimal-exact paper money.
 
 Float drift is a crime in a repo about honesty.  Every cash, position, fee
 and equity number here is a ``decimal.Decimal``; prices and quantities
 cross the boundary through ``to_decimal`` (i.e. ``Decimal(str(x))``).
 
 Margin is refused: cash must stay >= 0 after any trade.  Shorting is
-allowed — a short *credits* cash (you sold something) — but there is no
+allowed - a short *credits* cash (you sold something) - but there is no
 margin loan: a trade that would push cash negative is refused whole, never
 partially filled into debt.  We emulate the fills first, then commit only
 if the post-trade cash is >= 0; an unaffordable fill costs nothing.
@@ -14,7 +14,7 @@ The cost seam: `cost_model` is any object with
 
     fee_for(notional: Decimal, shares: Decimal) -> Decimal
 
-We deliberately do NOT import nohindsight.costs here — live runs
+We deliberately do NOT import nohindsight.costs here - live runs
 standalone while the costs module is built in parallel, and a thin adapter
 into this protocol lands with the integration module.  ``FlatFee`` below
 implements the protocol so the broker is usable today.
@@ -53,10 +53,10 @@ class PaperBroker:
     Two ways to drive it:
 
     * **Standalone**: feed bars with ``on_bar(symbol, bar, ts)``, then
-      ``submit(order)`` — the order executes against the latest bar.
+      ``submit(order)`` - the order executes against the latest bar.
     * **Under Replay**: the replay's Ctx calls ``_execute(order, bar, ts)``
       directly with the explicit bar, so there is never a stale-market
-      hazard.  (Yes, a leading underscore — the spec names it, so it is a
+      hazard.  (Yes, a leading underscore - the spec names it, so it is a
       published seam, not a secret.)
 
     The equity curve records one mark per distinct timestamp, strictly
@@ -119,11 +119,11 @@ class PaperBroker:
         bar = self._current_bars.get(order.symbol)
         if bar is None:
             raise ValueError(
-                f"no market data for {order.symbol!r} — call on_bar() before submitting"
+                f"no market data for {order.symbol!r} - call on_bar() before submitting"
             )
         if self._bar_ts is None:
             raise ValueError(
-                "no market timestamp — feed on_bar() a bar carrying 'ts' or an explicit ts"
+                "no market timestamp - feed on_bar() a bar carrying 'ts' or an explicit ts"
             )
         return self._execute(order, bar, self._bar_ts)
 
@@ -159,7 +159,7 @@ class PaperBroker:
             refusal = Refusal(
                 order.order_id,
                 "buying_power",
-                f"order {order.order_id} would take cash to {projected} — "
+                f"order {order.order_id} would take cash to {projected} - "
                 "margin is refused",
             )
             self._refusals.append(refusal)
@@ -184,7 +184,7 @@ class PaperBroker:
         return self._positions.get(symbol, Decimal(0))
 
     def equity(self, prices: dict) -> Decimal:
-        """cash + sum(position * price).  Every held symbol must be priced —
+        """cash + sum(position * price).  Every held symbol must be priced -
         silently skipping a position would be a quiet lie, so a missing
         price raises KeyError naming the symbol."""
         total = self._cash

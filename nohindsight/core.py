@@ -1,4 +1,4 @@
-"""nohindsight.core — the two clocks and the guard.
+"""nohindsight.core - the two clocks and the guard.
 
 Every datum in nohindsight carries two times:
 
@@ -9,7 +9,7 @@ A backtest that reads data whose knowledge_time is after "now" has leaked:
 it used information the future hadn't produced yet.  The guard makes that a
 hard error, not a warning.  Data access goes through an AsOfView attached to
 a Clock; the view physically refuses to show you anything the clock hasn't
-seen happen.  There is no way to peek from a view — that's the point.
+seen happen.  There is no way to peek from a view - that's the point.
 
 Zero dependencies.  Everything in nohindsight is built on this file.
 """
@@ -108,7 +108,7 @@ class Entry:
             raise ValueError(
                 f"impossible entry for {self.key!r}: knowledge_time "
                 f"({self.knowledge_time.isoformat()}) precedes event_time "
-                f"({self.event_time.isoformat()}) — the world can't know "
+                f"({self.event_time.isoformat()}) - the world can't know "
                 "things before they happen"
             )
 
@@ -120,7 +120,7 @@ class Entry:
 class AsOfKeyError(KeyError):
     """The honest 'not found': no revision of `key` was knowable yet.
 
-    Before the first filing, the fundamental does not exist — it is not
+    Before the first filing, the fundamental does not exist - it is not
     None, not zero, not forward-filled.  This error is the data saying so.
     """
 
@@ -129,7 +129,7 @@ class Clock:
     """A clock you can freeze, fork, and walk.  Backtests use this instead
     of datetime.now(); the present is whatever the clock says it is.
 
-    Time only moves forward.  Trying to rewind raises ValueError — a
+    Time only moves forward.  Trying to rewind raises ValueError - a
     backtest that rewinds its clock is a time machine, not a backtest.
     """
 
@@ -167,7 +167,7 @@ class Ledger:
 
     Appending a key again creates the next revision; nothing is ever
     overwritten or deleted.  `value_at` answers the only honest question:
-    'what did an observer at time T know about this key?'  — the answer is
+    'what did an observer at time T know about this key?'  - the answer is
     the latest revision whose knowledge_time <= T, or AsOfKeyError if none.
     """
 
@@ -228,7 +228,7 @@ class Ledger:
     def value_at(self, key: str, as_of: Union[datetime, Clock, None] = None) -> Any:
         """Latest revision of `key` knowable at as_of (default: real now).
 
-        Raises AsOfKeyError if no revision was knowable yet — that is the
+        Raises AsOfKeyError if no revision was knowable yet - that is the
         truthful answer, not a filled value.
         """
         when = _resolve_when(as_of)
@@ -239,14 +239,14 @@ class Ledger:
         raise AsOfKeyError(
             f"{key!r}: no revision knowable at {when.isoformat()} "
             f"({len(prior)} revisions exist, first at "
-            f"{prior[0].knowledge_time.isoformat() if prior else '—'})"
+            f"{prior[0].knowledge_time.isoformat() if prior else '-'})"
         )
 
     def revisions_known(self, key: str, as_of: Union[datetime, Clock, None] = None) -> list[Entry]:
         """Revisions of key knowable at as_of, oldest first.
 
         Two revisions known at once means: 'the number changed and the
-        world had noticed by then' — a restatement in progress.
+        world had noticed by then' - a restatement in progress.
         """
         when = _resolve_when(as_of)
         return [e for e in self._by_key.get(key, []) if e.at(when)]
@@ -320,7 +320,7 @@ class AsOfView:
 
         Iterate over THIS, never over ledger.keys(): the ledger's full key
         list includes companies that hadn't listed yet and series that
-        started later — iterating it is survivorship bias with extra steps.
+        started later - iterating it is survivorship bias with extra steps.
         """
         when = self._clock.now
         out = []

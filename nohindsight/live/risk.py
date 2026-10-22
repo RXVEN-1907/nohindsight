@@ -1,20 +1,20 @@
-"""nohindsight.live.risk — the kill switch.
+"""nohindsight.live.risk - the kill switch.
 
 The risk guard sits between the strategy and the broker.  Every order is
 interrogated before it can touch money:
 
-    1. kill switch (latched)  — a blown-up account never trades again
-    2. drawdown               — breach of max_drawdown from the high-water mark
-    3. order rate             — more than max_orders_per_bar submissions in a bar
-    4. fat-finger price       — a limit far from the last traded price
-    5. fat-finger qty         — an order far larger than the symbol's typical
+    1. kill switch (latched)  - a blown-up account never trades again
+    2. drawdown               - breach of max_drawdown from the high-water mark
+    3. order rate             - more than max_orders_per_bar submissions in a bar
+    4. fat-finger price       - a limit far from the last traded price
+    5. fat-finger qty         - an order far larger than the symbol's typical
                                 approved size (learned on the job)
-    6. position limit         — |position after order| * last price beyond
+    6. position limit         - |position after order| * last price beyond
                                 max_position_pct of equity
 
 The latch is the point.  Risk limits that reset when you blow through them
 are how accounts die twice.  With ``kill_switch_latch=True`` (the default)
-a drawdown breach refuses everything FOREVER — the only way back is a new
+a drawdown breach refuses everything FOREVER - the only way back is a new
 guard, which is exactly as forgiving as a new account should be.
 """
 
@@ -32,7 +32,7 @@ __all__ = ["RiskConfig", "AccountState", "RiskGuard"]
 
 @dataclass(frozen=True)
 class RiskConfig:
-    """Policy numbers, plain floats — they are thresholds, not money."""
+    """Policy numbers, plain floats - they are thresholds, not money."""
 
     max_drawdown: float = 0.15
     max_position_pct: float = 0.25
@@ -59,16 +59,16 @@ class AccountState:
 class RiskGuard:
     """Approve or refuse orders, and remember the worst.
 
-    Drawdown is measured from the highest equity THIS GUARD has ever seen —
+    Drawdown is measured from the highest equity THIS GUARD has ever seen -
     the account's high-water mark as observed by risk, not one the strategy
     self-reports.  Fat-finger qty is measured against a running mean of
     approved sizes per symbol (a median would be nicer; the mean is honest
     enough and simpler), so the FIRST order in a symbol is never qty-refused
-    — there is nothing to compare it against yet.  Price fat-fingers still
+    - there is nothing to compare it against yet.  Price fat-fingers still
     apply to that first order.
 
     Order rate needs bar boundaries: Replay calls begin_bar() once per
-    step.  Without it (standalone use) rate limiting is disabled — a guard
+    step.  Without it (standalone use) rate limiting is disabled - a guard
     that cannot see bars refuses to pretend it can count them.
     """
 
@@ -142,7 +142,7 @@ class RiskGuard:
 
         last = to_decimal(last_price) if last_price is not None else None
 
-        # 4. Fat-finger price (limit orders only — market orders carry no price).
+        # 4. Fat-finger price (limit orders only - market orders carry no price).
         if isinstance(order, LimitOrder) and last is not None and last > 0:
             limit = to_decimal(order.limit_price)
             mult = to_decimal(self.config.fat_finger_price_mult)
@@ -151,7 +151,7 @@ class RiskGuard:
                     order.order_id,
                     "fat_finger_price",
                     f"limit {limit} is more than {self.config.fat_finger_price_mult:g}x "
-                    f"away from last traded price {last} — that is a typo, not a view",
+                    f"away from last traded price {last} - that is a typo, not a view",
                 )
 
         # 5. Fat-finger qty vs this symbol's typical approved size.
@@ -178,7 +178,7 @@ class RiskGuard:
                     f"{self.config.max_position_pct:.2%} of equity {equity}",
                 )
 
-        # Approved.  Only approved sizes teach the guard what "typical" is —
+        # Approved.  Only approved sizes teach the guard what "typical" is -
         # refusals must not normalize madness.
         self._typical[order.symbol] = qty if typical is None else (typical + qty) / 2
         return None

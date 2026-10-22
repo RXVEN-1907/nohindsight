@@ -1,9 +1,9 @@
-"""tests.test_data — module 1, the data department.
+"""tests.test_data - module 1, the data department.
 
 Everything here is offline and deterministic: the synthetic generators seed
 their own randomness, the source parsers are exercised on inline fixtures,
 and no test touches the network.  The planted-crime tests scan the ledgers
-the way the checks module will — by reading entries, not by trusting the
+the way the checks module will - by reading entries, not by trusting the
 generator's promises.
 """
 

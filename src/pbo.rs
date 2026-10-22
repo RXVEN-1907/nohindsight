@@ -1,4 +1,4 @@
-//! nohindsight pbo — probability of backtest overfitting via CSCV.
+//! nohindsight pbo - probability of backtest overfitting via CSCV.
 //!
 //! Combinatorially Symmetric Cross-Validation (Bailey, Borwein, Lopez de
 //! Prado, Zhu 2017).  Cut history into even blocks; over every way of
@@ -17,7 +17,7 @@
 //! * rel = rank / (n_configs - 1) in [0, 1]; the logit is
 //!   lam = ln(rel / (1 - rel)), so the best rank maps to lam -> -inf and the
 //!   worst to lam -> +inf;
-//! * PBO counts combinations with rel >= 0.5 — the worse half.  A border
+//! * PBO counts combinations with rel >= 0.5 - the worse half.  A border
 //!   rank (rel exactly 0.5, reachable when n_configs is odd) maps to
 //!   lam = 0 and IS counted as overfit: conservative.  With an even
 //!   n_configs the half-split lands between ranks and there is no border
@@ -65,7 +65,7 @@ impl fmt::Display for PboError {
             }
             PboError::RaggedRow { row, expected, got } => write!(
                 f,
-                "row {row} has {got} values, expected {expected} — the matrix \
+                "row {row} has {got} values, expected {expected} - the matrix \
                  must be rectangular (time x configs)"
             ),
             PboError::BadBlocks { got } => write!(
@@ -117,12 +117,12 @@ pub struct OverfitReport {
     pub n_combos: usize,
     /// Median out-of-sample rank of the in-sample winner across splits:
     /// 0 = it kept winning, n_configs-1 = it kept losing.  A low PBO with a
-    /// high median rank would be a contradiction — if you see one, check the
+    /// high median rank would be a contradiction - if you see one, check the
     /// conventions in the module docs.
     pub is_best_oos_median_rank: f64,
 }
 
-/// C(n, k) as u128 — block counts stay small enough that u128 cannot wrap.
+/// C(n, k) as u128 - block counts stay small enough that u128 cannot wrap.
 fn combinations_count(n: usize, k: usize) -> u128 {
     let k = k.min(n - k);
     let mut acc: u128 = 1;
@@ -132,7 +132,7 @@ fn combinations_count(n: usize, k: usize) -> u128 {
     acc
 }
 
-/// All C(n, k) combinations in lexicographic order — the same order
+/// All C(n, k) combinations in lexicographic order - the same order
 /// Python's itertools.combinations produces, so enumerated runs line up.
 fn all_combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
     let mut out = Vec::new();
@@ -204,7 +204,7 @@ fn train_combinations(blocks: usize, max_combos: usize, seed: u64) -> Vec<Vec<us
 /// Mathematically identical to computing `stats::sharpe` on the concatenated
 /// rows (the pooled sum of squares collapses to the same sample variance,
 /// ddof=1), but costs O(blocks) per config instead of O(rows).  The
-/// zero-dispersion convention is `stats::signed_ratio` — shared on purpose.
+/// zero-dispersion convention is `stats::signed_ratio` - shared on purpose.
 fn pooled_sharpe(sums: &[f64], sumsqs: &[f64], n_obs: usize) -> f64 {
     let total = fsum(sums.iter().copied());
     let mean = total / n_obs as f64;
@@ -329,7 +329,7 @@ fn pbo_detail(
 /// Probability of backtest overfitting, in [0, 1].
 ///
 /// `strategy_returns` is a rectangular matrix: rows are time, columns are
-/// configurations (trials) — `matrix[t][c]` is config c's return at time t.
+/// configurations (trials) - `matrix[t][c]` is config c's return at time t.
 /// Rows are cut into `config.blocks` even blocks (a short tail is trimmed);
 /// whenever there are more than `config.max_combos` train halves, a seeded
 /// unique sample of them is used instead (deterministic given the seed).

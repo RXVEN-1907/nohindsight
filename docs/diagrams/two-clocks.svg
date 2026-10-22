@@ -16,7 +16,7 @@
 
   <!-- title block -->
   <text x="64" y="84" fill="#F2F3F7" font-size="22" letter-spacing="5">THE TWO CLOCKS</text>
-  <text x="64" y="112" fill="#8A8FA3" font-size="14">every datum exists twice — as an event, and as knowledge</text>
+  <text x="64" y="112" fill="#8A8FA3" font-size="14">every datum exists twice - as an event, and as knowledge</text>
 
   <!-- event_time track -->
   <text x="64" y="194" fill="#D0C4DF" font-size="13">event_time</text>

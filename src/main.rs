@@ -1,4 +1,4 @@
-//! nohindsight engine CLI — clap-free argparse by hand.
+//! nohindsight engine CLI - clap-free argparse by hand.
 //!
 //! Four doors into the library:
 //!
@@ -13,10 +13,10 @@
 //! `main` is the whole contract: 0 means the command ran and found nothing
 //! disqualifying, 1 means it ran and found leaks (`check`) or a FANTASY
 //! verdict (`audit`), 2 means the input itself was unusable.  All printing
-//! lives here and in demo — the library stays silent.
+//! lives here and in demo - the library stays silent.
 //!
 //! The `check` CSV needs a header row: `symbol,ts,open,high,low,close[,volume]
-//! [,knowledge]` — `key` is accepted for symbol, `event`/`event_time` for ts,
+//! [,knowledge]` - `key` is accepted for symbol, `event`/`event_time` for ts,
 //! and a missing `knowledge` column means "bars are knowable at their own
 //! close", the same default the Python ingest uses.
 
@@ -35,7 +35,7 @@ const EXIT_OK: u8 = 0;
 const EXIT_LEAKS: u8 = 1;
 const EXIT_BAD_INPUT: u8 = 2;
 
-const USAGE: &str = "nh — nohindsight engine. Python is the research API; Rust is the engine.
+const USAGE: &str = "nh - nohindsight engine. Python is the research API; Rust is the engine.
 
 usage:
   nh version                      print the version
@@ -44,7 +44,7 @@ usage:
   nh audit <csv> [--trials N]     interrogate a one-column returns CSV
   nh check <csv>                  run the data police over a bar CSV
 
-check CSV: header row required — symbol,ts,open,high,low,close[,volume][,knowledge];
+check CSV: header row required - symbol,ts,open,high,low,close[,volume][,knowledge];
 a missing knowledge column means bars are knowable at their own close.
 audit CSV: one column of per-period returns (header optional).
 
@@ -115,7 +115,7 @@ fn read_returns_csv(path: &str) -> Result<Vec<f64>, String> {
             None if header.len() == 1 => 0,
             None => {
                 return Err(format!(
-                    "{path}: {} columns, none named return/returns/ret/r/value — \
+                    "{path}: {} columns, none named return/returns/ret/r/value - \
                      pass a one-column CSV",
                     header.len()
                 ))
@@ -212,7 +212,7 @@ fn cmd_audit(args: &[String]) -> u8 {
     let n = verdict.numbers;
     let bar = "=".repeat(64);
     println!("{bar}");
-    println!(" nohindsight audit — {path}");
+    println!(" nohindsight audit - {path}");
     println!("{bar}");
     println!(" VERDICT: {}", verdict.level);
     println!(
@@ -229,7 +229,7 @@ fn cmd_audit(args: &[String]) -> u8 {
     println!("{bar}");
 
     // The audit's exit contract: a FANTASY verdict is the tool telling you
-    // the backtest is entertainment — that is a failure to pass, exit 1.
+    // the backtest is entertainment - that is a failure to pass, exit 1.
     if verdict.level == Level::Fantasy {
         EXIT_LEAKS
     } else {
@@ -309,7 +309,7 @@ fn cmd_check(args: &[String]) -> u8 {
     };
 
     // Group rows by symbol, preserving file order inside each symbol, then
-    // sort by (ts, knowledge) — the ordering the checks' contract requires.
+    // sort by (ts, knowledge) - the ordering the checks' contract requires.
     let mut by_symbol: BTreeMap<String, Vec<(Time, Time, Bar)>> = BTreeMap::new();
     for (lineno, row) in rows.iter().enumerate().skip(1) {
         if row.iter().all(|c| c.trim().is_empty()) {

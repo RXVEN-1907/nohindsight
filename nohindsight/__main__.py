@@ -1,4 +1,4 @@
-"""python -m nohindsight — the command line entry point."""
+"""python -m nohindsight - the command line entry point."""
 
 import sys
 

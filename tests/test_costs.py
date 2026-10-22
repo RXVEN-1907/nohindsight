@@ -1,4 +1,4 @@
-"""tests.test_costs — the reality tax, itemized and argued with.
+"""tests.test_costs - the reality tax, itemized and argued with.
 
 Every expected number is written as an arithmetic expression mirroring
 the documented convention (not a bare constant), so a reader can check
@@ -45,12 +45,12 @@ NEGATIVE = [-r for r in POSITIVE]
 
 class FeeScheduleTests(unittest.TestCase):
     def test_flat_bps_is_bps_of_notional(self):
-        # 10 bps of $1,000,000 is $1,000 — notional-proportional, shares
+        # 10 bps of $1,000,000 is $1,000 - notional-proportional, shares
         # irrelevant.
         self.assertEqual(FeeSchedule.flat_bps(10.0).apply(1_000_000.0, 100), 1000.0)
 
     def test_per_share_ignores_notional(self):
-        # 0.5 cents x 1000 shares = $5.00 — size-proportional, notional
+        # 0.5 cents x 1000 shares = $5.00 - size-proportional, notional
         # irrelevant.
         self.assertEqual(FeeSchedule.per_share(0.5).apply(0.0, 1000), 5.0)
 
@@ -60,7 +60,7 @@ class FeeScheduleTests(unittest.TestCase):
 
 class SpreadModelTests(unittest.TestCase):
     def test_half_spread_per_crossing(self):
-        # constant(20): full spread 20 bps, one crossing pays HALF —
+        # constant(20): full spread 20 bps, one crossing pays HALF -
         # 10 bps of the $1,000 notional = 100 * 10 * 10 / 1e4 = 1.00.
         self.assertAlmostEqual(SpreadModel.constant(20.0).half_cost(100.0, 10.0), 1.00, places=12)
 
@@ -255,7 +255,7 @@ class FantasyVsRealTests(unittest.TestCase):
 
     def test_losing_strategy_shrinks_upward(self):
         # Costs hurt bad strategies too: after < before < 0, so the
-        # "shrinkage" ratio exceeds 1 — honestly reported, not clamped.
+        # "shrinkage" ratio exceeds 1 - honestly reported, not clamped.
         r = fantasy_vs_real(NEGATIVE, costs_bps=0.5, periods_per_year=252)
         self.assertLess(r["sharpe_after"], r["sharpe_before"])
         self.assertLess(r["sharpe_before"], 0.0)

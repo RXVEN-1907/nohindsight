@@ -1,9 +1,9 @@
-"""nohindsight.checks.base — the vocabulary of a complaint.
+"""nohindsight.checks.base - the vocabulary of a complaint.
 
 Every scanner in this package returns Findings; a CheckReport collects
 them.  Severity is a claim about consequence, not politeness:
 
-    LEAK  this invalidates the backtest — a number the world didn't have
+    LEAK  this invalidates the backtest - a number the world didn't have
           yet, or data too broken to price anything honestly
     WARN  suspicious but survivable; explain it before trusting anything
     INFO  worth knowing, rarely disqualifying
@@ -35,7 +35,7 @@ class Finding:
 
     `code` is a stable machine key (e.g. "SPLIT_SUSPECTED") that reports
     and tables group on.  `message` is the human sentence.  `where`
-    points at the evidence in the input (a bar index, a source line) —
+    points at the evidence in the input (a bar index, a source line) -
     a report should point, not gesture.  `detail` carries the numbers
     behind the message; keep the values JSON-friendly so findings can be
     persisted next to the ledgers they describe.
@@ -53,7 +53,7 @@ class CheckReport:
 
     Truthiness is the leak question, deliberately: `if report:` means
     "this backtest is invalid", not "something was said".  A report full
-    of WARNs is falsy — worrying, but alive.
+    of WARNs is falsy - worrying, but alive.
     """
 
     def __init__(self) -> None:

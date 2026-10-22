@@ -1,4 +1,4 @@
-"""nohindsight.data.persisted — ledgers that survive the process.
+"""nohindsight.data.persisted - ledgers that survive the process.
 
 JSONL, one Entry per line:
 
@@ -23,7 +23,7 @@ __all__ = ["save_ledger", "load_ledger"]
 def save_ledger(ledger: Ledger, path: str) -> int:
     """Write every entry of `ledger` to `path` as JSONL; return the count.
 
-    The file is replaced whole (tmp + os.replace) — append-safe in the
+    The file is replaced whole (tmp + os.replace) - append-safe in the
     sense that a partial write is never visible under `path`.
     """
     entries = ledger.entries()
@@ -48,7 +48,7 @@ def save_ledger(ledger: Ledger, path: str) -> int:
 def load_ledger(path: str, name: str = "loaded") -> Ledger:
     """Replay a saved JSONL into a fresh Ledger named `name`.
 
-    Revisions reconstruct themselves from append order — the file is
+    Revisions reconstruct themselves from append order - the file is
     written in the ledger's own entry order, so replaying it reproduces
     both the revision numbers and the per-key knowledge ordering.  Blank
     lines are skipped; any other malformed line raises ValueError naming

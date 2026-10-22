@@ -1,4 +1,4 @@
-"""nohindsight.checks — the police department.
+"""nohindsight.checks - the police department.
 
 Scanners that answer, about a bar series or a strategy's source: is
 this dirty, and did anyone peek?  Every scanner returns Findings;

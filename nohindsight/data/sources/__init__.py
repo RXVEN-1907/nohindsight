@@ -1,4 +1,4 @@
-"""nohindsight.data.sources — network-shaped skeletons with offline-safe cores.
+"""nohindsight.data.sources - network-shaped skeletons with offline-safe cores.
 
 Every fetcher is a thin urllib wrapper that raises its source's single
 failure type (EdgarUnavailable / FredUnavailable); every parser is a pure

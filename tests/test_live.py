@@ -1,13 +1,13 @@
-"""tests.test_live — the live department on trial.
+"""tests.test_live - the live department on trial.
 
 Assumptions baked into these tests (stated, not hidden):
 
-* Bar ledgers used here are LOCAL fixtures — the data module is being built
+* Bar ledgers used here are LOCAL fixtures - the data module is being built
   in parallel, so nothing imports nohindsight.data.  Fixture ledgers encode
   the contract Replay relies on: a bar's knowledge_time equals its
   event_time (the close is knowable at the close).
 * Exactness scenarios use FillEmulator(latency_ms=(0, 0), partial_rate=0,
-  reject_rate=0) — zero latency means zero slip, so a market order fills at
+  reject_rate=0) - zero latency means zero slip, so a market order fills at
   the close EXACTLY and Decimal equality is meaningful.
 * Every random source is seeded; the suite is fully deterministic.
 """
@@ -142,7 +142,7 @@ class TestFillEmulator(unittest.TestCase):
         self.assertEqual(len(f1), 1)  # default partial_rate is 0.15; seed 7 says single fill
 
     def test_partials_sum_exactly_over_stream(self):
-        """Partial fills must never lose size — for ints, floats and Decimals,
+        """Partial fills must never lose size - for ints, floats and Decimals,
         buys and sells, over a long seeded stream."""
         e = FillEmulator(seed=11, partial_rate=0.35, reject_rate=0.0)
         qtys = [
@@ -193,7 +193,7 @@ class TestFillEmulator(unittest.TestCase):
         self.assertEqual(sum((f.qty for f in fills), Decimal(0)), Decimal("10"))
 
     def test_limit_out_of_range_is_silently_unfilled(self):
-        """No fill, and NOT a refusal — the market never touched the price."""
+        """No fill, and NOT a refusal - the market never touched the price."""
         e = FillEmulator(seed=5, reject_rate=0.0)
         bar = make_bar(ts=BAR_TS, close=100.0, low=98.0, high=102.0)
         fills, refusal = e.fill(LimitOrder("S", 10, 103.0), bar)  # buy above high
@@ -235,7 +235,7 @@ class TestFillEmulator(unittest.TestCase):
 
 class TestPaperBroker(unittest.TestCase):
     def test_cash_math_exact_to_the_cent(self):
-        """Buy 10 @ 100 with a 25 bps fee, then sell 4 @ 110 — Decimal equality,
+        """Buy 10 @ 100 with a 25 bps fee, then sell 4 @ 110 - Decimal equality,
         not isclose."""
         broker = PaperBroker(Decimal("10000"), cost_model=FlatFee(25), fill_emulator=exact_emulator())
         broker.on_bar("SYM1", make_bar(ts="2024-01-02T21:00:00+00:00", close=100.0))
@@ -330,7 +330,7 @@ class TestRiskGuard(unittest.TestCase):
         recovered = guard.approve(MarketOrder("X", 1), acct(Decimal("99")), Decimal("10"))
         self.assertIsNotNone(recovered)
         self.assertEqual(recovered.rule, "kill_switch")
-        # A limit order, a tiny order, any order — the latch does not care.
+        # A limit order, a tiny order, any order - the latch does not care.
         self.assertEqual(guard.approve(LimitOrder("X", 1, 10.0), acct(Decimal("99")), Decimal("10")).rule,
                          "kill_switch")
 
@@ -453,7 +453,7 @@ class TestReplay(unittest.TestCase):
 
     def test_peeking_strategy_raises_leak_error(self):
         """A strategy that asks the view for a symbol whose first bar is in the
-        future trips the structural guard — loudly."""
+        future trips the structural guard - loudly."""
         led = Ledger("prices")
         days = trading_days(datetime(2024, 1, 1, 21, tzinfo=UTC), 20)
         for i, day in enumerate(days):
