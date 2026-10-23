@@ -175,8 +175,7 @@ demoable artifact.
 
 ## Status
 
-v0.1.0. 162 Python tests, 94 Rust tests, both suites green in CI, zero
-dependencies in both languages. Build spec: `docs/SPEC.md`. Design tokens:
-`docs/DESIGN.md`.
+v0.1.0. 162 Python tests, 94 Rust tests, zero dependencies in both languages.
+Build spec: `docs/SPEC.md`. Design tokens: `docs/DESIGN.md`.
 
 MIT. Built to learn in public.
